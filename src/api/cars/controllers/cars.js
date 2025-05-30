@@ -286,14 +286,13 @@ module.exports = {
       for (let car of cars) {
         console.log(car);
 
-        const slug = slugify(`${car?.Name}-${car.documentId}`, {
-          replacement: "-",
-          remove: undefined,
-          lower: true,
-          strict: false,
-          locale: "vi",
-          trim: true,
-        });
+        const slug = `${car?.Name}-${car.documentId}`
+          .toLowerCase()
+          .replace(/\s+/g, '-')       // Replace spaces with -
+          .replace(/[^\w\-~._]+/g, '') // Remove all non-word chars except -~._
+          .replace(/\-\-+/g, '-')      // Replace multiple - with single -
+          .replace(/^-+/, '')          // Trim - from start of text
+          .replace(/-+$/, '');         // Trim - from end of text
 
         if (slug == car.Slug) {
           continue;
