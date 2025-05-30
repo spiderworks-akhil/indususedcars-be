@@ -1,0 +1,38 @@
+{
+  "collectionName": "components_widget_insights",
+  "info": {
+    "displayName": "Insights",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Heading": {
+      "type": "string",
+      "required": false
+    },
+    "Content": {
+      "type": "text"
+    },
+    "Image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files"
+      ]
+    },
+    "Button": {
+      "displayName": "Button",
+      "type": "component",
+      "repeatable": false,
+      "component": "button.button"
+    },
+    "Features": {
+      "displayName": "Features",
+      "type": "component",
+      "repeatable": true,
+      "component": "insights.features"
+    }
+  }
+}

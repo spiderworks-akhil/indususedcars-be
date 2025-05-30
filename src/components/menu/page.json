@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_menu_pages",
+  "info": {
+    "displayName": "Page",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Links": {
+      "displayName": "Links",
+      "type": "component",
+      "repeatable": true,
+      "component": "menu.links"
+    },
+    "Type": {
+      "type": "string"
+    }
+  }
+}

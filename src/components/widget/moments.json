@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_widget_moments",
+  "info": {
+    "displayName": "Moments",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Heading": {
+      "type": "string",
+      "required": true
+    },
+    "Content": {
+      "type": "text",
+      "required": true
+    },
+    "Company_Name": {
+      "type": "string",
+      "required": true
+    },
+    "Shorts": {
+      "displayName": "Shorts",
+      "type": "component",
+      "repeatable": true,
+      "component": "widget.shorts"
+    }
+  }
+}

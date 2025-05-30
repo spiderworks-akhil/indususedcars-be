@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_insights_features",
+  "info": {
+    "displayName": "Features"
+  },
+  "options": {},
+  "attributes": {
+    "Count": {
+      "type": "string"
+    },
+    "Content": {
+      "type": "string"
+    },
+    "Image": {
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}

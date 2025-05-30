@@ -1,0 +1,151 @@
+{
+  "kind": "collectionType",
+  "collectionName": "cars",
+  "info": {
+    "singularName": "car",
+    "pluralName": "cars",
+    "displayName": "Car",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Brand": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::brand.brand"
+    },
+    "Model": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::model.model"
+    },
+    "Outlet": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::outlet.outlet"
+    },
+    "Fuel_Type": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::fuel-type.fuel-type"
+    },
+    "Color": {
+      "type": "string"
+    },
+    "Variant": {
+      "type": "string"
+    },
+    "Vehicle_Reg_No": {
+      "type": "string",
+      "unique": true
+    },
+    "Vehicle_Category": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::vehicle-category.vehicle-category"
+    },
+    "Vehicle_Status": {
+      "type": "enumeration",
+      "enum": [
+        "SOLD",
+        "STOCK"
+      ]
+    },
+    "Image": {
+      "displayName": "Image",
+      "type": "component",
+      "repeatable": false,
+      "component": "car.image"
+    },
+    "Image_URL": {
+      "type": "json"
+    },
+    "Name": {
+      "type": "string"
+    },
+    "Slug": {
+      "type": "uid",
+      "targetField": "Name"
+    },
+    "Transmission_Type": {
+      "type": "enumeration",
+      "enum": [
+        "Manual",
+        "Automatic"
+      ],
+      "default": "Manual"
+    },
+    "Home_Test_Drive": {
+      "type": "enumeration",
+      "enum": [
+        "Available",
+        "Not Available"
+      ]
+    },
+    "Registration_Year": {
+      "type": "date"
+    },
+    "Owner_Type": {
+      "type": "string"
+    },
+    "Insurance_Type": {
+      "type": "enumeration",
+      "enum": [
+        "Third Party"
+      ]
+    },
+    "Insurance_Validity": {
+      "type": "date"
+    },
+    "Inspection_Report": {
+      "displayName": "Inspection Report Section",
+      "type": "component",
+      "repeatable": true,
+      "component": "car.inspection-report-section"
+    },
+    "Find_More": {
+      "displayName": "Find More Section",
+      "type": "component",
+      "repeatable": true,
+      "component": "car.find-more-section"
+    },
+    "Location": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::location.location"
+    },
+    "Recommended": {
+      "type": "boolean",
+      "default": false
+    },
+    "Featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "Choose_Next": {
+      "type": "boolean",
+      "default": false
+    },
+    "Description": {
+      "type": "text"
+    },
+    "SEO": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo"
+    },
+    "PSP": {
+      "type": "decimal",
+      "default": 100000
+    },
+    "Kilometers": {
+      "type": "biginteger"
+    },
+    "Year_Of_Month": {
+      "type": "integer"
+    }
+  }
+}

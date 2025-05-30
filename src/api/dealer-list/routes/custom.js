@@ -1,0 +1,35 @@
+'use strict';
+
+module.exports={
+    routes:[{
+        method:'GET',
+        path:'/dealer-list/fetch',
+        handler:'custom.fetchDealers',
+        config:{
+            auth:false,
+            policies:[],
+            middlewares:[]
+        }
+    },
+    {
+        method:'GET',
+        path:'/dealer-list/list',
+        handler:'custom.list',
+        config:{
+            auth:false,
+            policies:[],
+            middlewares:[]
+        }
+    },
+    {
+        method:'GET',
+        path:'/dealer-list/:slug',
+        handler:'custom.detail',
+        config:{
+            auth:false,
+            policies:[],
+            middlewares:[]
+        }
+    }
+]
+}

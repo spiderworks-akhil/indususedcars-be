@@ -1,0 +1,32 @@
+{
+  "collectionName": "components_car_registration_and_statuses",
+  "info": {
+    "displayName": "Registration and Status"
+  },
+  "options": {},
+  "attributes": {
+    "Vehicle_Reg_No": {
+      "type": "string",
+      "unique": true
+    },
+    "Registration_Year": {
+      "type": "date"
+    },
+    "Year_Of_Month": {
+      "type": "integer"
+    },
+    "Owner_Type": {
+      "type": "string"
+    },
+    "Kilometers": {
+      "type": "biginteger"
+    },
+    "Vehicle_Status": {
+      "type": "enumeration",
+      "enum": [
+        "SOLD",
+        "STOCK"
+      ]
+    }
+  }
+}

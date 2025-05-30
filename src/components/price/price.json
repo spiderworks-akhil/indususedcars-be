@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_price_prices",
+  "info": {
+    "displayName": "Price",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Minimum": {
+      "type": "biginteger"
+    },
+    "Maximum": {
+      "type": "biginteger"
+    }
+  }
+}

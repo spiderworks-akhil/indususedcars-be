@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "fuel_types",
+  "info": {
+    "singularName": "fuel-type",
+    "pluralName": "fuel-types",
+    "displayName": "Fuel Type",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "Slug": {
+      "type": "uid",
+      "targetField": "Name"
+    },
+    "Image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files"
+      ]
+    },
+    "Featured": {
+      "type": "boolean"
+    }
+  }
+}

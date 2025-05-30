@@ -1,0 +1,22 @@
+{
+  "kind": "collectionType",
+  "collectionName": "vehicle_categories",
+  "info": {
+    "singularName": "vehicle-category",
+    "pluralName": "vehicle-categories",
+    "displayName": "Vehicle Category"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Name": {
+      "type": "string"
+    },
+    "Slug": {
+      "type": "uid",
+      "targetField": "Name"
+    }
+  }
+}

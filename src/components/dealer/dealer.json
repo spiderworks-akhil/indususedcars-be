@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_dealer_dealers",
+  "info": {
+    "displayName": "Dealer",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Name": {
+      "type": "string"
+    },
+    "Address": {
+      "type": "text"
+    },
+    "Location_Map": {
+      "type": "text"
+    },
+    "Landline": {
+      "type": "string"
+    },
+    "Email": {
+      "type": "email"
+    },
+    "Latitude_Longitude": {
+      "type": "string"
+    }
+  }
+}

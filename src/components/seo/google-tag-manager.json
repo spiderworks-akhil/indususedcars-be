@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_seo_google_tag_managers",
+  "info": {
+    "displayName": "Google Tag Manager",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Head": {
+      "type": "text"
+    },
+    "Body": {
+      "type": "text"
+    },
+    "Other": {
+      "type": "text"
+    }
+  }
+}

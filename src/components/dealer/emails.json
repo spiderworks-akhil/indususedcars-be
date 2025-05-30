@@ -1,0 +1,12 @@
+{
+  "collectionName": "components_dealer_emails",
+  "info": {
+    "displayName": "Emails"
+  },
+  "options": {},
+  "attributes": {
+    "Email": {
+      "type": "email"
+    }
+  }
+}

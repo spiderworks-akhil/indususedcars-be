@@ -1,0 +1,87 @@
+{
+  "kind": "collectionType",
+  "collectionName": "locations",
+  "info": {
+    "singularName": "location",
+    "pluralName": "locations",
+    "displayName": "Location",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Place": {
+      "type": "string",
+      "required": true
+    },
+    "Slug": {
+      "type": "uid",
+      "required": true,
+      "targetField": "Place"
+    },
+    "Image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files"
+      ]
+    },
+    "Outlets": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::outlet.outlet",
+      "mappedBy": "Location"
+    },
+    "Title": {
+      "type": "string"
+    },
+    "Description": {
+      "type": "customField",
+      "options": {
+        "preset": "defaultHtml"
+      },
+      "customField": "plugin::ckeditor5.CKEditor"
+    },
+    "Offer_Section": {
+      "displayName": "Offer Section",
+      "type": "component",
+      "repeatable": true,
+      "component": "offer.offer-section"
+    },
+    "Exclusive_Section": {
+      "displayName": "Exclusive Deals Section",
+      "type": "component",
+      "repeatable": true,
+      "component": "offer.exclusive-deals-section"
+    },
+    "Assurance_Section": {
+      "displayName": "Benefits and Advantages Section",
+      "type": "component",
+      "repeatable": false,
+      "component": "common.benefits-and-advantages-section"
+    },
+    "Benefit_Section": {
+      "displayName": "Benefit Section",
+      "type": "component",
+      "repeatable": false,
+      "component": "common.benefit-section"
+    },
+    "Featured": {
+      "type": "boolean"
+    },
+    "SEO": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo"
+    },
+    "FAQ": {
+      "type": "component",
+      "repeatable": false,
+      "component": "common.faq"
+    }
+  }
+}

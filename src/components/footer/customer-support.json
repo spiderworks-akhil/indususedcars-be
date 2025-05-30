@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_footer_customer_supports",
+  "info": {
+    "displayName": "Customer Support"
+  },
+  "options": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "Static_Pages": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::static-page.static-page"
+    }
+  }
+}

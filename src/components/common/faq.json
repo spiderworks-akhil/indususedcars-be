@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_common_faqs",
+  "info": {
+    "displayName": "FAQ",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Title": {
+      "type": "string",
+      "required": true,
+      "default": "Frequently Asked Questions"
+    },
+    "Questions": {
+      "displayName": "Questions",
+      "type": "component",
+      "repeatable": true,
+      "component": "common.questions"
+    },
+    "Button": {
+      "type": "component",
+      "repeatable": false,
+      "component": "button.button"
+    }
+  }
+}

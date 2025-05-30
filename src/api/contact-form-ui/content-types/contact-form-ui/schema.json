@@ -1,0 +1,28 @@
+{
+  "kind": "singleType",
+  "collectionName": "contact_form_uis",
+  "info": {
+    "singularName": "contact-form-ui",
+    "pluralName": "contact-form-uis",
+    "displayName": "Contact Form",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Certified_Excellence": {
+      "displayName": "Certified Excellence",
+      "type": "component",
+      "repeatable": false,
+      "component": "contact.certified-excellence"
+    },
+    "Modal_Form": {
+      "displayName": "Modal Form",
+      "type": "component",
+      "repeatable": false,
+      "component": "contact.modal-form"
+    }
+  }
+}

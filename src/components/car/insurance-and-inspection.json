@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_car_insurance_and_inspections",
+  "info": {
+    "displayName": "Insurance and Inspection"
+  },
+  "options": {},
+  "attributes": {
+    "Insurance_Type": {
+      "type": "enumeration",
+      "enum": [
+        "Third Party"
+      ]
+    },
+    "Insurance_Validity": {
+      "type": "date"
+    },
+    "Inspection_Report": {
+      "type": "component",
+      "repeatable": true,
+      "component": "car.inspection-report-section"
+    }
+  }
+}

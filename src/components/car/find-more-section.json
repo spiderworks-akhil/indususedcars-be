@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_car_find_more_sections",
+  "info": {
+    "displayName": "Find More Section",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "Content": {
+      "type": "string"
+    },
+    "Icon": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files"
+      ]
+    },
+    "Link": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::combination-page.combination-page"
+    }
+  }
+}

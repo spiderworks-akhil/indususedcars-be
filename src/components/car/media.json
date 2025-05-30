@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_car_media",
+  "info": {
+    "displayName": "Media"
+  },
+  "options": {},
+  "attributes": {
+    "Image": {
+      "type": "component",
+      "repeatable": false,
+      "component": "car.image"
+    },
+    "Image_URL": {
+      "type": "json"
+    }
+  }
+}

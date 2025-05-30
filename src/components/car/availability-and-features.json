@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_car_availability_and_features",
+  "info": {
+    "displayName": "Availability and Features"
+  },
+  "options": {},
+  "attributes": {
+    "Outlet": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::outlet.outlet"
+    },
+    "Location": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::location.location"
+    },
+    "Home_Test_Drive": {
+      "type": "enumeration",
+      "enum": [
+        "Available",
+        "Not Available"
+      ]
+    }
+  }
+}

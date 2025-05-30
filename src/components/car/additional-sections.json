@@ -1,0 +1,14 @@
+{
+  "collectionName": "components_car_additional_sections",
+  "info": {
+    "displayName": "Additional Sections"
+  },
+  "options": {},
+  "attributes": {
+    "Find_More": {
+      "type": "component",
+      "repeatable": true,
+      "component": "car.find-more-section"
+    }
+  }
+}

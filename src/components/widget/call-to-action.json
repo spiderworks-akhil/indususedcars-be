@@ -1,0 +1,29 @@
+{
+  "collectionName": "components_widget_call_to_actions",
+  "info": {
+    "displayName": "Call To Action"
+  },
+  "options": {},
+  "attributes": {
+    "Cover_Image": {
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "Content1": {
+      "type": "string",
+      "required": true
+    },
+    "Content2": {
+      "type": "string"
+    },
+    "Button": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.button"
+    }
+  }
+}

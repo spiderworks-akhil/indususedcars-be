@@ -1,0 +1,63 @@
+{
+  "kind": "singleType",
+  "collectionName": "homes",
+  "info": {
+    "singularName": "home",
+    "pluralName": "homes",
+    "displayName": "Home",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Banner_Section": {
+      "type": "component",
+      "repeatable": false,
+      "component": "home.banner-section"
+    },
+    "Journey": {
+      "type": "component",
+      "repeatable": false,
+      "component": "home.car-journey"
+    },
+    "Buy_Sell": {
+      "type": "component",
+      "repeatable": true,
+      "component": "home.buy-and-sell-section"
+    },
+    "Insight": {
+      "type": "component",
+      "repeatable": false,
+      "component": "widget.insights"
+    },
+    "Testimonials": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::testimonial.testimonial"
+    },
+    "Brands": {
+      "type": "component",
+      "repeatable": false,
+      "component": "widget.brand-section"
+    },
+    "FAQ": {
+      "type": "component",
+      "repeatable": false,
+      "component": "common.faq"
+    },
+    "Bottom_Description": {
+      "type": "customField",
+      "options": {
+        "preset": "defaultHtml"
+      },
+      "customField": "plugin::ckeditor5.CKEditor"
+    },
+    "SEO": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo"
+    }
+  }
+}

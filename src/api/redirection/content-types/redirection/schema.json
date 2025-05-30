@@ -1,0 +1,25 @@
+{
+  "kind": "collectionType",
+  "collectionName": "redirections",
+  "info": {
+    "singularName": "redirection",
+    "pluralName": "redirections",
+    "displayName": "301 Redirects",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Source_URL": {
+      "type": "string"
+    },
+    "Destination_URL": {
+      "type": "string"
+    },
+    "Permanent": {
+      "type": "boolean"
+    }
+  }
+}

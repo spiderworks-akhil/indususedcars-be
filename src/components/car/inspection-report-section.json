@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_car_inspection_report_sections",
+  "info": {
+    "displayName": "Inspection Report Section"
+  },
+  "options": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "Icon": {
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "Report_Status": {
+      "type": "enumeration",
+      "enum": [
+        "Pass",
+        "Fail"
+      ]
+    }
+  }
+}

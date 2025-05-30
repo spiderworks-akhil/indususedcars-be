@@ -1,0 +1,20 @@
+{
+  "collectionName": "components_home_banner_sections",
+  "info": {
+    "displayName": "Banner Section"
+  },
+  "options": {},
+  "attributes": {
+    "Cover_Image": {
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "Title": {
+      "type": "string"
+    }
+  }
+}

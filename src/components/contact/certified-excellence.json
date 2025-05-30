@@ -1,0 +1,39 @@
+{
+  "collectionName": "components_contact_certified_excellences",
+  "info": {
+    "displayName": "Certified Excellence",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "Image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files"
+      ]
+    },
+    "Image_Section": {
+      "displayName": "Image Section",
+      "type": "component",
+      "repeatable": true,
+      "component": "contact.image-section"
+    },
+    "Button": {
+      "type": "component",
+      "repeatable": true,
+      "component": "button.button"
+    },
+    "Short_Title": {
+      "type": "string"
+    },
+    "Short_Description": {
+      "type": "text"
+    }
+  }
+}

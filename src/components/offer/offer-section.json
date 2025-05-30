@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_offer_offer_sections",
+  "info": {
+    "displayName": "Offer Section"
+  },
+  "options": {},
+  "attributes": {
+    "Image": {
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}

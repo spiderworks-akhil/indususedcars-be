@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_home_journey_lists",
+  "info": {
+    "displayName": "Journey List"
+  },
+  "options": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "Description": {
+      "type": "text"
+    },
+    "Image": {
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}

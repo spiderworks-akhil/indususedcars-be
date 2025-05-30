@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_offer_exclusive_deals_sections",
+  "info": {
+    "displayName": "Exclusive Deals Section"
+  },
+  "options": {},
+  "attributes": {
+    "Image": {
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}

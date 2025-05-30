@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_home_car_journeys",
+  "info": {
+    "displayName": "Car Journey"
+  },
+  "options": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "Description": {
+      "type": "text"
+    },
+    "Journey": {
+      "displayName": "Journey List",
+      "type": "component",
+      "repeatable": true,
+      "component": "home.journey-list"
+    }
+  }
+}

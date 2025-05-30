@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_car_technical_and_performances",
+  "info": {
+    "displayName": "Technical and Performance"
+  },
+  "options": {},
+  "attributes": {
+    "Fuel_Type": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::fuel-type.fuel-type"
+    },
+    "Transmission_Type": {
+      "type": "enumeration",
+      "enum": [
+        "Manual",
+        "Automatic"
+      ],
+      "default": "Manual"
+    },
+    "PSP": {
+      "type": "biginteger"
+    }
+  }
+}

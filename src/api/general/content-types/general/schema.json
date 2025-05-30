@@ -1,0 +1,79 @@
+{
+  "kind": "singleType",
+  "collectionName": "generals",
+  "info": {
+    "singularName": "general",
+    "pluralName": "generals",
+    "displayName": "General",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Name": {
+      "type": "string",
+      "required": true
+    },
+    "Logo": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files"
+      ]
+    },
+    "Favicon": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files"
+      ]
+    },
+    "Small_Logo": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files"
+      ]
+    },
+    "Contact": {
+      "type": "component",
+      "repeatable": false,
+      "component": "settings.contact"
+    },
+    "Social_Links": {
+      "type": "component",
+      "repeatable": false,
+      "component": "settings.social-media-links"
+    },
+    "GTM_Manager": {
+      "type": "component",
+      "repeatable": false,
+      "component": "seo.google-tag-manager"
+    },
+    "SMTP": {
+      "type": "component",
+      "repeatable": false,
+      "component": "settings.smtp"
+    },
+    "Link": {
+      "type": "string",
+      "default": "#"
+    },
+    "Badge": {
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}

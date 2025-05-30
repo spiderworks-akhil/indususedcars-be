@@ -1,0 +1,34 @@
+{
+  "collectionName": "components_settings_contacts",
+  "info": {
+    "displayName": "Contact"
+  },
+  "options": {},
+  "attributes": {
+    "Address1": {
+      "type": "text",
+      "required": true
+    },
+    "Address2": {
+      "type": "text"
+    },
+    "Email": {
+      "type": "email",
+      "required": true
+    },
+    "Phone_Number": {
+      "type": "string",
+      "required": true
+    },
+    "WhatsApp_Number": {
+      "type": "string",
+      "required": true
+    },
+    "Google_Map_Embed_Code": {
+      "type": "string"
+    },
+    "Google_Map_URL": {
+      "type": "string"
+    }
+  }
+}

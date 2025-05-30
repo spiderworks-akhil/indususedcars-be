@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_blog_blog_authors",
+  "info": {
+    "displayName": "Blog Author"
+  },
+  "options": {},
+  "attributes": {
+    "Name": {
+      "type": "string"
+    },
+    "Email": {
+      "type": "email"
+    },
+    "Email_Verified_At": {
+      "type": "date"
+    },
+    "Banner_At": {
+      "type": "date"
+    }
+  }
+}

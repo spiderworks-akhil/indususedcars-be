@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_menu_locations",
+  "info": {
+    "displayName": "Location"
+  },
+  "options": {},
+  "attributes": {
+    "Label": {
+      "type": "string"
+    },
+    "URL": {
+      "type": "string",
+      "default": "#"
+    }
+  }
+}

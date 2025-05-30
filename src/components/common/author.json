@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_common_authors",
+  "info": {
+    "displayName": "Author"
+  },
+  "options": {},
+  "attributes": {
+    "Name": {
+      "type": "string",
+      "required": true,
+      "default": "Anonymous"
+    },
+    "Profile": {
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "Rating": {
+      "type": "integer",
+      "min": 1,
+      "max": 5,
+      "required": true
+    }
+  }
+}

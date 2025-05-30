@@ -1,0 +1,31 @@
+{
+  "collectionName": "components_car_basic_informations",
+  "info": {
+    "displayName": "Basic Information",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Brand": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::brand.brand"
+    },
+    "Model": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::model.model"
+    },
+    "Variant": {
+      "type": "string"
+    },
+    "Color": {
+      "type": "string"
+    },
+    "Vehicle_Category": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::vehicle-category.vehicle-category"
+    }
+  }
+}

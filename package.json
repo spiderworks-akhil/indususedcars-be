@@ -1,0 +1,44 @@
+{
+  "name": "indus",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A Strapi application",
+  "scripts": {
+    "build": "strapi build",
+    "deploy": "strapi deploy",
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "strapi": "strapi",
+    "watch:excel": "/src/plugins/excel-export && npm run watch",
+    "build:excel": "/src/plugins/excel-export && npm run build"
+  },
+  "dependencies": {
+    "@_sh/strapi-plugin-ckeditor": "^5.0.1",
+    "@strapi/plugin-cloud": "5.9.0",
+    "@strapi/plugin-seo": "^2.0.6",
+    "@strapi/plugin-users-permissions": "5.9.0",
+    "@strapi/provider-email-nodemailer": "^5.11.3",
+    "@strapi/strapi": "5.9.0",
+    "axios": "^1.7.9",
+    "better-sqlite3": "^11.8.1",
+    "child_process": "^1.0.2",
+    "ckeditor5": "^44.2.0",
+    "exceljs": "^4.4.0",
+    "form-data": "^4.0.2",
+    "nodemailer": "^6.10.0",
+    "pg": "8.8.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.0.0",
+    "slugify": "^1.6.6",
+    "styled-components": "^6.1.15",
+    "xlsx": "^0.18.5"
+  },
+  "engines": {
+    "node": ">=18.0.0 <=22.x.x",
+    "npm": ">=6.0.0"
+  },
+  "strapi": {
+    "uuid": "9c31a461-ad28-4b9a-8b59-ed06c48155d4"
+  }
+}

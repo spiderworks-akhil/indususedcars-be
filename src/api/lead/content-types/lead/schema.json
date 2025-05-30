@@ -1,0 +1,66 @@
+{
+  "kind": "collectionType",
+  "collectionName": "leads",
+  "info": {
+    "singularName": "lead",
+    "pluralName": "leads",
+    "displayName": "Leads",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "CustomerName": {
+      "type": "string",
+      "required": true
+    },
+    "CustomerEmail": {
+      "type": "email",
+      "required": false
+    },
+    "MobileNumber": {
+      "type": "string",
+      "regex": "^\\+?[1-9]\\d{0,2}[-\\s]?\\d{7,14}$",
+      "required": true
+    },
+    "Lead_Type": {
+      "type": "enumeration",
+      "enum": [
+        "Buy",
+        "Sell",
+        "Book",
+        "Contact",
+        "Test Drive",
+        "Request Callback"
+      ]
+    },
+    "Date": {
+      "type": "date"
+    },
+    "Notes": {
+      "type": "text",
+      "default": "Test Lead from Spiderworks Technologies"
+    },
+    "utmSource": {
+      "type": "string"
+    },
+    "SourceType": {
+      "type": "string"
+    },
+    "City": {
+      "type": "string"
+    },
+    "API_Status": {
+      "type": "boolean",
+      "default": true
+    },
+    "SourceURL": {
+      "type": "string"
+    },
+    "Car": {
+      "type": "json"
+    }
+  }
+}

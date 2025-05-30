@@ -1,0 +1,37 @@
+{
+  "collectionName": "components_common_benefits_and_advantages_sections",
+  "info": {
+    "displayName": "Benefits and Advantages Section"
+  },
+  "options": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "Points": {
+      "displayName": "Points",
+      "type": "component",
+      "repeatable": true,
+      "component": "common.points"
+    },
+    "Image": {
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "Icon": {
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "URL": {
+      "type": "string"
+    }
+  }
+}

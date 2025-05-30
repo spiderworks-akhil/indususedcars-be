@@ -1,0 +1,34 @@
+{
+  "collectionName": "components_settings_smtps",
+  "info": {
+    "displayName": "SMTP",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "Host": {
+      "type": "string",
+      "required": true
+    },
+    "Port": {
+      "type": "integer",
+      "required": true
+    },
+    "User": {
+      "type": "string",
+      "required": true
+    },
+    "Password": {
+      "type": "password",
+      "required": false
+    },
+    "From_Mail_Address": {
+      "type": "email",
+      "required": true
+    },
+    "From_Name": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

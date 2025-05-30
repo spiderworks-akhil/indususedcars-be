@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_contact_image_sections",
+  "info": {
+    "displayName": "Image Section"
+  },
+  "options": {},
+  "attributes": {
+    "Image": {
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}

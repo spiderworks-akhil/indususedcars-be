@@ -1,0 +1,26 @@
+{
+  "kind": "singleType",
+  "collectionName": "widgets",
+  "info": {
+    "singularName": "widget",
+    "pluralName": "widgets",
+    "displayName": "Widget",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Moments": {
+      "type": "component",
+      "repeatable": false,
+      "component": "widget.moments"
+    },
+    "CTA": {
+      "type": "component",
+      "repeatable": false,
+      "component": "widget.call-to-action"
+    }
+  }
+}

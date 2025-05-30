@@ -1,0 +1,56 @@
+{
+  "kind": "singleType",
+  "collectionName": "cars_listings",
+  "info": {
+    "singularName": "cars-listing",
+    "pluralName": "cars-listings",
+    "displayName": "Cars Listing",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "Offer_Section": {
+      "type": "component",
+      "repeatable": true,
+      "component": "offer.offer-section"
+    },
+    "Exclusive_Section": {
+      "type": "component",
+      "repeatable": true,
+      "component": "offer.exclusive-deals-section"
+    },
+    "Assurance_Section": {
+      "type": "component",
+      "repeatable": false,
+      "component": "common.benefits-and-advantages-section"
+    },
+    "Benefit_Section": {
+      "type": "component",
+      "repeatable": false,
+      "component": "common.benefit-section"
+    },
+    "FAQ": {
+      "type": "component",
+      "repeatable": false,
+      "component": "common.faq"
+    },
+    "SEO": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo"
+    },
+    "Content": {
+      "type": "customField",
+      "options": {
+        "preset": "defaultHtml"
+      },
+      "customField": "plugin::ckeditor5.CKEditor"
+    }
+  }
+}

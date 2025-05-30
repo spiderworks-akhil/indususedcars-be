@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_car_highlighting_and_recommendations",
+  "info": {
+    "displayName": "Highlighting and Recommendations"
+  },
+  "options": {},
+  "attributes": {
+    "Recommended": {
+      "type": "boolean",
+      "default": false
+    },
+    "Featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "Choose_Next": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

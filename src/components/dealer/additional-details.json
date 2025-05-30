@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_dealer_additional_details",
+  "info": {
+    "displayName": "Additional Details"
+  },
+  "options": {},
+  "attributes": {
+    "Public_Number": {
+      "type": "string",
+      "regex": "^[6789]\\d{9}$"
+    },
+    "Emails": {
+      "displayName": "Emails",
+      "type": "component",
+      "repeatable": true,
+      "component": "dealer.emails"
+    }
+  }
+}

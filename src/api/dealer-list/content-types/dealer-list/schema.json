@@ -1,0 +1,83 @@
+{
+  "kind": "collectionType",
+  "collectionName": "dealer_lists",
+  "info": {
+    "singularName": "dealer-list",
+    "pluralName": "dealer-lists",
+    "displayName": "Dealer List",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Dealer_Detail": {
+      "displayName": "Dealer",
+      "type": "component",
+      "repeatable": false,
+      "component": "dealer.dealer"
+    },
+    "Head": {
+      "displayName": "Head",
+      "type": "component",
+      "repeatable": false,
+      "component": "dealer.head"
+    },
+    "Manager": {
+      "displayName": "Manager",
+      "type": "component",
+      "repeatable": false,
+      "component": "dealer.manager"
+    },
+    "Additional": {
+      "displayName": "Additional Details",
+      "type": "component",
+      "repeatable": false,
+      "component": "dealer.additional-details"
+    },
+    "Outlet": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::outlet.outlet"
+    },
+    "SEO": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo"
+    },
+    "Top_Description": {
+      "type": "customField",
+      "options": {
+        "preset": "defaultHtml"
+      },
+      "customField": "plugin::ckeditor5.CKEditor"
+    },
+    "Bottom_Description": {
+      "type": "customField",
+      "options": {
+        "preset": "defaultHtml"
+      },
+      "customField": "plugin::ckeditor5.CKEditor"
+    },
+    "Page_Heading": {
+      "type": "string"
+    },
+    "Slug": {
+      "type": "uid"
+    },
+    "Related_Type": {
+      "type": "string"
+    },
+    "FAQ": {
+      "type": "component",
+      "repeatable": false,
+      "component": "common.faq"
+    },
+    "Location": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::location.location"
+    }
+  }
+}

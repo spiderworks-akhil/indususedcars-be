@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_settings_social_media_links",
+  "info": {
+    "displayName": "Social Media Links"
+  },
+  "options": {},
+  "attributes": {
+    "Facebook_URL": {
+      "type": "string"
+    },
+    "Twitter_URL": {
+      "type": "string"
+    },
+    "Linkedin_URL": {
+      "type": "string"
+    },
+    "Instagram_URL": {
+      "type": "string"
+    },
+    "Youtube_URL": {
+      "type": "string"
+    }
+  }
+}

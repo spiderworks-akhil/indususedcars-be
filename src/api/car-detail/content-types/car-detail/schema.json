@@ -1,0 +1,27 @@
+{
+  "kind": "singleType",
+  "collectionName": "car_details",
+  "info": {
+    "singularName": "car-detail",
+    "pluralName": "car-details",
+    "displayName": "Car Detail",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Button": {
+      "type": "component",
+      "repeatable": false,
+      "component": "button.button"
+    },
+    "Section": {
+      "displayName": "Section",
+      "type": "component",
+      "repeatable": false,
+      "component": "button.section"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_footer_showrooms",
+  "info": {
+    "displayName": "Showroom"
+  },
+  "options": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "Locations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::location.location"
+    }
+  }
+}

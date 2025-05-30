@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_dealer_managers",
+  "info": {
+    "displayName": "Manager"
+  },
+  "options": {},
+  "attributes": {
+    "Name": {
+      "type": "string"
+    },
+    "Mobile_Number": {
+      "type": "string",
+      "regex": "^[6789]\\d{9}$"
+    },
+    "Email": {
+      "type": "email"
+    }
+  }
+}
