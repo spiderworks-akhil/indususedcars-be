@@ -163,14 +163,15 @@ module.exports = {
 
         if(findModel?.Brand){
           console.log('yes');
+          console.log({Brand_Detail:findModel?.Brand});
           
           await strapi.documents('api::model.model').update({
             documentId:model.documentId,
             data:{
-              Brand:findModel?.Brand
+              Brand:findModel?.Brand?.documentId
             },
             status:'published',
-            populate:['Brand']
+            
           })
         }
 
