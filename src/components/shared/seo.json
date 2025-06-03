@@ -15,32 +15,12 @@
       "type": "text",
       "required": false
     },
-    "Meta_Image": {
-      "type": "media",
-      "multiple": false,
-      "required": false,
-      "allowedTypes": [
-        "images",
-        "files",
-        "videos"
-      ]
-    },
     "Keywords": {
       "type": "text",
       "regex": "[^,]+"
     },
-    "Meta_Robots": {
-      "type": "string",
-      "regex": "[^,]+"
-    },
     "Structured_Data": {
       "type": "json"
-    },
-    "Meta_Viewport": {
-      "type": "string"
-    },
-    "CanonicalURL": {
-      "type": "string"
     },
     "OG_Title": {
       "type": "string"
@@ -50,6 +30,13 @@
     },
     "Script": {
       "type": "text"
+    },
+    "Bottom_Description": {
+      "type": "customField",
+      "options": {
+        "preset": "defaultHtml"
+      },
+      "customField": "plugin::ckeditor5.CKEditor"
     }
   }
 }

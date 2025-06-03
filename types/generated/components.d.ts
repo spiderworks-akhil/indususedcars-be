@@ -691,13 +691,16 @@ export interface SharedSeo extends Struct.ComponentSchema {
     icon: 'search';
   };
   attributes: {
-    CanonicalURL: Schema.Attribute.String;
+    Bottom_Description: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultHtml';
+        }
+      >;
     Keywords: Schema.Attribute.Text;
     Meta_Description: Schema.Attribute.Text;
-    Meta_Image: Schema.Attribute.Media<'images' | 'files' | 'videos'>;
-    Meta_Robots: Schema.Attribute.String;
     Meta_Title: Schema.Attribute.Text;
-    Meta_Viewport: Schema.Attribute.String;
     OG_Description: Schema.Attribute.Text;
     OG_Title: Schema.Attribute.String;
     Script: Schema.Attribute.Text;
