@@ -228,7 +228,7 @@ module.exports = {
               Year_Of_Month: carData?.YOM,
               Vehicle_Reg_No: carData?.veh_Reg_no,
               Vehicle_Status: carData?.Status,
-              Variant: carData?.Variant,
+              Variant: carData?.variant,
               Vehicle_Category: vehicle_category,
               Image_URL: JSON.stringify(imageUrls),
               Name: `${brand?.Name} ${model?.Name} ${carData?.YOM}`,
@@ -263,6 +263,15 @@ module.exports = {
           // });
 
           console.log({ car });
+        }else{
+        const existingCar = await strapi.documents("api::car.car").update({
+          documentId: checkVehicleRegistration.documentId,
+          data: {
+            Variant: carData?.variant,
+          },
+          status: "published",
+        });
+        console.log({ updatedCar: existingCar });
         }
       }
 

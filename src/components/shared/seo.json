@@ -37,6 +37,14 @@
         "preset": "defaultHtml"
       },
       "customField": "plugin::ckeditor5.CKEditor"
+    },
+    "Meta_Image": {
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
     }
   }
 }

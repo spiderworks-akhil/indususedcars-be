@@ -700,6 +700,7 @@ export interface SharedSeo extends Struct.ComponentSchema {
       >;
     Keywords: Schema.Attribute.Text;
     Meta_Description: Schema.Attribute.Text;
+    Meta_Image: Schema.Attribute.Media<'images' | 'files'>;
     Meta_Title: Schema.Attribute.Text;
     OG_Description: Schema.Attribute.Text;
     OG_Title: Schema.Attribute.String;
