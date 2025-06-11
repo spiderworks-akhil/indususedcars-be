@@ -581,10 +581,10 @@ module.exports = {
             strapi.documents("api::car.car").findMany({
               filters: {
                 Outlet: {
-                  Slug: fetchPage?.Outlet?.Slug,
+                  Slug: fetchPage?.Outlet?.Slug||null,
                 },
                 Brand: {
-                  Slug: fetchPage?.Brand?.Slug,
+                  Slug: fetchPage?.Brand?.Slug||null,
                 },
               },
               start: (page - 1) * limit,
@@ -610,10 +610,10 @@ module.exports = {
             strapi.documents("api::car.car").count({
               filters: {
                 Outlet: {
-                  Slug: fetchPage?.Outlet?.Slug,
+                  Slug: fetchPage?.Outlet?.Slug||null,
                 },
                 Brand: {
-                  Slug: fetchPage?.Brand?.Slug,
+                  Slug: fetchPage?.Brand?.Slug||null,
                 },
               },
               populate: ["Brand", "Outlet"],
@@ -630,8 +630,8 @@ module.exports = {
                 total: count4,
                 page: page,
                 pageSize: limit,
-                pageCount: Math.ceil(data3.length / limit),
-                last_page: Math.ceil(data3.length / limit),
+                pageCount: Math.ceil(data4.length / limit),
+                last_page: Math.ceil(data4.length / limit),
               },
             },
           };
@@ -646,10 +646,10 @@ module.exports = {
         strapi.documents("api::car.car").findMany({
           filters: {
             Brand: {
-              Slug: fetchPage?.Brand?.Slug,
+              Slug: fetchPage?.Brand?.Slug||null,
             },
             Location: {
-              Slug: fetchPage?.Location?.Slug,
+              Slug: fetchPage?.Location?.Slug||null,
             },
           },
           start: (page - 1) * limit,
@@ -669,10 +669,10 @@ module.exports = {
         strapi.documents("api::car.car").count({
           filters: {
             Brand: {
-              Slug: fetchPage?.Brand?.Slug,
+              Slug: fetchPage?.Brand?.Slug||null,
             },
             Location: {
-              Slug: fetchPage?.Location?.Slug,
+              Slug: fetchPage?.Location?.Slug||null,
             },
           },
         }),
