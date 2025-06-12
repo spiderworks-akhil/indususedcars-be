@@ -393,13 +393,15 @@ module.exports = {
                 total: count,
                 page: page,
                 pageSize: limit,
-                pageCount: Math.ceil(data.length / limit),
-                last_page: Math.ceil(data.length / limit),
+                pageCount: Math.ceil(count / limit),
+                last_page: Math.ceil(count / limit),
               },
             },
           };
 
           return;
+
+      
 
         case `App\\Models\\Indus\\Brand`:
           console.log("yes");
@@ -408,9 +410,7 @@ module.exports = {
             Brand: {
               Slug: fetchPage?.Slug,
             },
-            Model: fetchPage?.Model ? {
-              Slug: fetchPage.Model.Slug
-            } : null
+            ...(fetchPage?.Model && { Model: { Slug: fetchPage.Model.Slug } })
           };
 
           if (fetchPage?.Min_Price) {
@@ -453,8 +453,8 @@ module.exports = {
                 total: count1,
                 page: page,
                 pageSize: limit,
-                pageCount: Math.ceil(data1.length / limit),
-                last_page: Math.ceil(data1.length / limit),
+                pageCount: Math.ceil(count1 / limit),
+                last_page: Math.ceil(count1 / limit),
               },
             },
           };
@@ -512,8 +512,8 @@ module.exports = {
                 total: count2,
                 page: page,
                 pageSize: limit,
-                pageCount: Math.ceil(data2.length / limit),
-                last_page: Math.ceil(data2.length / limit),
+                pageCount: Math.ceil(count2 / limit),
+                last_page: Math.ceil(count2 / limit),
               },
             },
           };
@@ -580,8 +580,8 @@ module.exports = {
                 total: count3,
                 page: page,
                 pageSize: limit,
-                pageCount: Math.ceil(data3.length / limit),
-                last_page: Math.ceil(data3.length / limit),
+                pageCount: Math.ceil(count3 / limit),
+                last_page: Math.ceil(count3 / limit),
               },
             },
           };
@@ -591,7 +591,11 @@ module.exports = {
         case "App\\Models\\BrandLocation":
           const baseFilters4 = {
             Outlet: {
-              Slug: fetchPage?.Outlet?.Slug || null,
+              Slug: fetchPage?.Outlet?.Slug ? fetchPage.Outlet.Slug : (fetchPage?.Location?.Slug ? {
+                Location: {
+                  Slug: fetchPage.Location.Slug
+                }
+              } : null),
             },
             Brand: {
               Slug: fetchPage?.Brand?.Slug || null,
@@ -644,8 +648,8 @@ module.exports = {
                 total: count4,
                 page: page,
                 pageSize: limit,
-                pageCount: Math.ceil(data4.length / limit),
-                last_page: Math.ceil(data4.length / limit),
+                pageCount: Math.ceil(count4 / limit),
+                last_page: Math.ceil(count4 / limit),
               },
             },
           };
@@ -705,8 +709,8 @@ module.exports = {
                 total: count5,
                 page: page,
                 pageSize: limit,
-                pageCount: Math.ceil(data5.length / limit),
-                last_page: Math.ceil(data5.length / limit),
+                pageCount: Math.ceil(count5 / limit),
+                last_page: Math.ceil(count5 / limit),
               },
             },
           };
@@ -767,8 +771,185 @@ module.exports = {
                 total: count6,
                 page: page,
                 pageSize: limit,
-                pageCount: Math.ceil(data6.length / limit),
-                last_page: Math.ceil(data6.length / limit),
+                pageCount: Math.ceil(count6 / limit),
+                last_page: Math.ceil(count6 / limit),
+              },
+            },
+          };
+
+          return;
+
+          case `App\\Models\\ModelDistrict`:
+            console.log(fetchPage?.Slug);
+  
+            const baseFilters7 = {};
+            
+            if (fetchPage?.Location?.Slug) {
+              baseFilters7.Location = {
+                Slug: fetchPage.Slug
+              };
+            }
+            if (fetchPage?.Model?.Slug) {
+              baseFilters7.Model = {
+                Slug: fetchPage.Model.Slug
+              };
+            }
+  
+            if (fetchPage?.Min_Price) {
+              baseFilters7.PSP = { $gte: Number(fetchPage.Min_Price) };
+            }
+            if (fetchPage?.Max_Price) {
+              baseFilters7.PSP = { ...baseFilters7.PSP, $lte: Number(fetchPage.Max_Price) };
+            }
+  
+            const [data7, count7] = await Promise.all([
+              strapi.documents("api::car.car").findMany({
+                filters: baseFilters7,
+                start: (page - 1) * limit,
+                limit: limit,
+                populate: ["Location", "Model"],
+              }),
+              strapi.documents("api::car.car").count({
+                filters: baseFilters7,
+                populate: ["Location", "Model"],
+              }),
+            ]);
+  
+            console.log({ data7, count7 });
+  
+            ctx.status = 200;
+            ctx.body = {
+              data: data7,
+              meta: {
+                pagination: {
+                  total: count7,
+                  page: page,
+                  pageSize: limit,
+                  pageCount: Math.ceil(count7 / limit),
+                  last_page: Math.ceil(count7 / limit),
+                },
+              },
+            };
+  
+            return;
+
+        case `App\\Models\\Indus\\ModelLocation`:
+          console.log({ slug: fetchPage });
+
+          const baseFilters8 = {
+            Model: {
+              Slug: fetchPage?.Slug
+            }
+          };
+
+          if (fetchPage?.Outlet?.Slug) {
+            baseFilters8.Outlet = {
+              Slug: fetchPage.Outlet.Slug
+            };
+          } else if (fetchPage?.Location?.Slug) {
+            console.log('yes inside location ');
+            
+            baseFilters8.Outlet = {
+              Location: {
+                Slug: fetchPage.Location.Slug
+              }
+            };
+          }
+          if (fetchPage?.Min_Price) {
+            baseFilters8.PSP = { $gte: Number(fetchPage.Min_Price) };
+          }
+          if (fetchPage?.Max_Price) {
+            baseFilters8.PSP = { ...baseFilters8.PSP, $lte: Number(fetchPage.Max_Price) };
+          }
+
+          const [data8, count8] = await Promise.all([
+            strapi.documents("api::car.car").findMany({
+              filters: baseFilters8,
+              start: (page - 1) * limit,
+              limit: limit,
+              populate: ["Model", "Outlet", "Location"],
+            }),
+            strapi.documents("api::car.car").count({
+              filters: baseFilters8,
+              populate: ["Model", "Outlet", "Location"],
+            }),
+          ]);
+
+          console.log({ data8, count8 });
+
+          ctx.status = 200;
+          ctx.body = {
+            data: data8,
+            meta: {
+              pagination: {
+                total: count8,
+                page: page,
+                pageSize: limit,
+                pageCount: Math.ceil(count8 / limit),
+                last_page: Math.ceil(count8 / limit),
+              },
+            },
+          };
+
+          return;
+
+        case "App\\Models\\Indus\\Location":
+          const baseFilters9 = {
+            Outlet: {
+              Location: {
+                Slug: fetchPage?.Location?.Slug || null,
+              },
+            },
+          };
+
+          if (fetchPage?.Min_Price) {
+            baseFilters9.PSP = { $gte: Number(fetchPage.Min_Price) };
+          }
+          if (fetchPage?.Max_Price) {
+            baseFilters9.PSP = { ...baseFilters9.PSP, $lte: Number(fetchPage.Max_Price) };
+          }
+
+          const [data9, count9] = await Promise.all([
+            strapi.documents("api::car.car").findMany({
+              filters: baseFilters9,
+              start: (page - 1) * limit,
+              limit: limit,
+              populate: {
+                Model: {
+                  populate: "*",
+                },
+                Brand: {
+                  populate: "*",
+                },
+                Location: {
+                  populate: "*",
+                },
+                Fuel_Type: {
+                  populate: "*",
+                },
+                Outlet: {
+                  populate: "*",
+                },
+              },
+            }),
+            strapi.documents("api::car.car").count({
+              filters: baseFilters9,
+              populate: ["Location"],
+            }),
+          ]);
+
+          console.log({ data9, count9 });
+
+          ctx.status = 200;
+          ctx.body = {
+            data: data9,
+            meta: {
+              pagination: {
+                total: count9,
+                page: page,
+                pageSize: limit,
+                pageCount: Math.ceil(count9 / limit),
+                last_page: Math.ceil(count9 / limit),
               },
             },
           };
@@ -821,8 +1002,8 @@ module.exports = {
             total: count,
             page: page,
             pageSize: limit,
-            pageCount: Math.ceil(data.length / limit),
-            last_page: Math.ceil(data.length / limit),
+            pageCount: Math.ceil(count / limit),
+            last_page: Math.ceil(count / limit),
           },
         },
       };
