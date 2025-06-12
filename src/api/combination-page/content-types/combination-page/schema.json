@@ -68,6 +68,17 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::outlet.outlet"
+    },
+    "Variant": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::car.car"
+    },
+    "Min_Price": {
+      "type": "biginteger"
+    },
+    "Max_Price": {
+      "type": "biginteger"
     }
   }
 }

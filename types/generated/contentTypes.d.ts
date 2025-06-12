@@ -672,6 +672,8 @@ export interface ApiCombinationPageCombinationPage
     > &
       Schema.Attribute.Private;
     Location: Schema.Attribute.Relation<'oneToOne', 'api::location.location'>;
+    Max_Price: Schema.Attribute.BigInteger;
+    Min_Price: Schema.Attribute.BigInteger;
     Model: Schema.Attribute.Relation<'oneToOne', 'api::model.model'>;
     Outlet: Schema.Attribute.Relation<'oneToOne', 'api::outlet.outlet'>;
     Page_Heading: Schema.Attribute.String;
@@ -689,6 +691,7 @@ export interface ApiCombinationPageCombinationPage
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    Variant: Schema.Attribute.Relation<'oneToOne', 'api::car.car'>;
   };
 }
 
