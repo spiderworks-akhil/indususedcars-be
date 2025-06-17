@@ -27,10 +27,10 @@ module.exports = {
         case 'static-pages':
 
           ctx.body = [
-            { url: '/' },
-            // { url: '/about' },
-            { url: '/contact' },
-            { url: '/cars' }
+            { Slug: '/' },
+            // { Slug: '/about' },
+            { Slug: '/contact' },
+            { Slug: '/cars' }
           ];
           break;
 
