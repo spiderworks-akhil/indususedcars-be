@@ -245,7 +245,8 @@ module.exports = {
                   if (Object.keys(updateData).length > 0) {
                     await strapi.documents("api::blog.blog").update({
                       where: { id: existingBlog.id },
-                      data: updateData
+                      data: updateData,
+                      status:'published'
                     });
                     console.log(`Updated images for blog: ${blog?.slug}`);
                   }
@@ -296,6 +297,11 @@ module.exports = {
                 str && str.length > maxLength
                   ? str.substring(0, maxLength)
                   : str;
+
+              const processedContent = await processContent(blogDetail?.content || "");
+              if (processedContent) {
+                blogDetail.content = processedContent;
+              }
 
               // Create blog data
               const blogData = {
