@@ -265,6 +265,9 @@ module.exports = {
             Brand: {
               populate: "*",
             },
+            Outlet:{
+              populate:'*'
+            },
             Model: {
               populate: "*",
             },
@@ -330,11 +333,7 @@ module.exports = {
               populate: "*",
             },
             Outlet: {
-              populate: {
-                Location: {
-                  populate: '*'
-                }
-              }
+              populate: '*'
             },
             Variant: {
               populate: '*'
@@ -570,7 +569,7 @@ module.exports = {
             }),
           ]);
 
-          console.log({ data3, count3 });
+         
 
           ctx.status = 200;
           ctx.body = {
@@ -783,13 +782,21 @@ module.exports = {
             console.log(fetchPage?.Slug);
   
             const baseFilters7 = {};
-            
-            if (fetchPage?.Location?.Slug) {
+            if(fetchPage?.Outlet?.Location?.Slug){
+              console.log('yes inside outlet location');
+              
+              baseFilters7.Outlet = {
+                Location: {
+                  Slug: fetchPage.Outlet.Location.Slug
+                }
+              };
+            }else if(fetchPage?.Location?.Slug){
               baseFilters7.Location = {
-                Slug: fetchPage.Slug
+                Slug: fetchPage.Location.Slug
               };
             }
-            if (fetchPage?.Model?.Slug) {
+            
+            if (fetchPage?.Model) {
               baseFilters7.Model = {
                 Slug: fetchPage.Model.Slug
               };
@@ -807,15 +814,13 @@ module.exports = {
                 filters: baseFilters7,
                 start: (page - 1) * limit,
                 limit: limit,
-                populate: ["Location", "Model"],
+                populate: ["Location", "Model", "Outlet"],
               }),
               strapi.documents("api::car.car").count({
                 filters: baseFilters7,
-                populate: ["Location", "Model"],
+                populate: ["Location", "Model", "Outlet"],
               }),
             ]);
-  
-            console.log({ data7, count7 });
   
             ctx.status = 200;
             ctx.body = {

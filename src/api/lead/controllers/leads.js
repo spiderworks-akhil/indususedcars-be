@@ -19,8 +19,9 @@ module.exports = {
         recaptcha_token,
         source_url,
         car_id,
-        message
+        message,
       } = ctx.request.body;
+      const nodemailer = require("nodemailer");
 
       console.log(ctx.request.body);
 
@@ -49,32 +50,31 @@ module.exports = {
       let car;
 
       if (car_id) {
-        console.log('yes');
+        console.log("yes");
 
-        car = await strapi.documents('api::car.car').findOne({
+        car = await strapi.documents("api::car.car").findOne({
           documentId: car_id,
           populate: {
             Brand: {
-              populate: '*'
+              populate: "*",
             },
             Model: {
-              populate: '*'
+              populate: "*",
             },
             Location: {
-              populate: '*'
+              populate: "*",
             },
             Outlet: {
               populate: {
                 Location: {
-                  populate: '*'
-                }
-              }
-            }
-          }
+                  populate: "*",
+                },
+              },
+            },
+          },
         });
 
         console.log({ car });
-
       }
 
       // Create lead based on type
@@ -86,15 +86,15 @@ module.exports = {
         utmSource: utmsource,
         SourceType: source_type,
         SourceURL: source_url,
-        CustomerEmail: email
+        CustomerEmail: email,
       };
 
       if (message) {
-        leadData.Notes = message
+        leadData.Notes = message;
       }
 
-      if (lead_type == 'Test Drive') {
-        console.log('yes');
+      if (lead_type == "Test Drive") {
+        console.log("yes");
         console.log({ car });
 
         leadData.Car = {
@@ -106,7 +106,7 @@ module.exports = {
           Outlet: car?.Outlet?.Name,
           Color: car?.Color,
           Location: car?.Outlet?.Location?.Name,
-        }
+        };
         console.log(leadData);
         const data = await strapi.documents("api::lead.lead").create({
           data: leadData,
@@ -121,7 +121,6 @@ module.exports = {
         };
 
         return;
-
       }
 
       if (lead_type === "Book") {
@@ -135,23 +134,23 @@ module.exports = {
 
       // Send email notifications
       try {
-        const admin = await strapi.query('admin::user').findMany({
+        const admin = await strapi.query("admin::user").findMany({
           where: {
             roles: {
-              code: 'strapi-super-admin'
-            }
+              code: "strapi-super-admin",
+            },
           },
-          select: ['email']
+          select: ["email"],
         });
 
         console.log({ admin });
 
         // Define email templates based on lead type
         const emailTemplates = {
-          'Test Drive': {
+          "Test Drive": {
             admin: {
-              subject: 'New Test Drive Request',
-              text: 'New test drive request received',
+              subject: "New Test Drive Request",
+              text: "New test drive request received",
               html: `
                 <!DOCTYPE html>
                 <html>
@@ -205,11 +204,11 @@ module.exports = {
                   </div>
                 </body>
                 </html>
-              `
+              `,
             },
             user: {
-              subject: 'Test Drive Request Confirmation',
-              text: 'Thank you for requesting a test drive',
+              subject: "Test Drive Request Confirmation",
+              text: "Thank you for requesting a test drive",
               html: `
                 <!DOCTYPE html>
                 <html>
@@ -242,13 +241,13 @@ module.exports = {
                   </div>
                 </body>
                 </html>
-              `
-            }
+              `,
+            },
           },
-          'Book': {
+          Book: {
             admin: {
-              subject: 'New Car Booking Request',
-              text: 'New car booking request received',
+              subject: "New Car Booking Request",
+              text: "New car booking request received",
               html: `
                 <!DOCTYPE html>
                 <html>
@@ -283,11 +282,11 @@ module.exports = {
                   </div>
                 </body> 
                 </html>
-              `
+              `,
             },
             user: {
-              subject: 'Booking Request Confirmation',
-              text: 'Thank you for your booking request',
+              subject: "Booking Request Confirmation",
+              text: "Thank you for your booking request",
               html: `
                 <div style="max-width: 600px; margin: 0 auto;">
                   <h2>Booking Request Confirmation</h2>
@@ -296,13 +295,13 @@ module.exports = {
                   <p>We appreciate your interest in our services and will be in touch with you soon to proceed with the next steps.</p>
                   <p>Best regards,<br>Team Indus Motors</p>
                 </div>
-              `
-            }
+              `,
+            },
           },
-          'Buy': {
+          Buy: {
             admin: {
-              subject: 'New Car Purchase Inquiry',
-              text: 'New car purchase inquiry received',
+              subject: "New Car Purchase Inquiry",
+              text: "New car purchase inquiry received",
               html: `
                 <!DOCTYPE html>
                 <html>
@@ -336,24 +335,24 @@ module.exports = {
                   </div>
                 </body>
                 </html>
-              `
+              `,
             },
             user: {
-              subject: 'Purchase Inquiry Confirmation',
-              text: 'Thank you for your purchase inquiry',
+              subject: "Purchase Inquiry Confirmation",
+              text: "Thank you for your purchase inquiry",
               html: `
                 <h2>Purchase Inquiry Confirmation</h2>
                 <p>Dear Mr/Ms. <%= data.name %>,</p>
                 <p>Thank you for your interest in purchasing a car from Indus Motors. We have received your inquiry and our team is currently reviewing the details.</p>
                 <p>We look forward to assisting you in finding the perfect vehicle that meets your requirements.</p>
                 <p>Best regards,<br>Team Indus Motors</p>
-              `
-            }
+              `,
+            },
           },
-          'Sell': {
+          Sell: {
             admin: {
-              subject: 'New Car Sell Request',
-              text: 'New car sell request received',
+              subject: "New Car Sell Request",
+              text: "New car sell request received",
               html: `
                 <!DOCTYPE html>
                 <html>
@@ -387,24 +386,24 @@ module.exports = {
                   </div>
                 </body>
                 </html>
-              `
+              `,
             },
             user: {
-              subject: 'Car Sell Request Confirmation',
-              text: 'Thank you for your car sell request',
+              subject: "Car Sell Request Confirmation",
+              text: "Thank you for your car sell request",
               html: `
                 <h2>Car Sell Request Confirmation</h2>
                 <p>Dear Mr/Ms. <%= data.name %>,</p>
                 <p>Thank you for considering Indus Motors to sell your car. We have received your request and our team is currently reviewing the details.</p>
                 <p>We look forward to assisting you with the sale of your vehicle and will be in touch soon to discuss the next steps.</p>
                 <p>Best regards,<br>Team Indus Motors</p>
-              `
-            }
+              `,
+            },
           },
-          'Request Callback': {
+          "Request Callback": {
             admin: {
-              subject: 'New Callback Request',
-              text: 'New callback request received',
+              subject: "New Callback Request",
+              text: "New callback request received",
               html: `
                 <!DOCTYPE html>
                 <html>
@@ -438,24 +437,24 @@ module.exports = {
                   </div>
                 </body>
                 </html>
-              `
+              `,
             },
             user: {
-              subject: 'Callback Request Confirmation',
-              text: 'Thank you for your callback request',
+              subject: "Callback Request Confirmation",
+              text: "Thank you for your callback request",
               html: `
                 <h2>Callback Request Confirmation</h2>
                 <p>Dear Mr/Ms. <%= data.name %>,</p>
                 <p>Thank you for requesting a callback from Indus Motors. We have received your request and our team is currently reviewing the details.</p>
                 <p>We appreciate your interest and look forward to connecting with you soon.</p>
                 <p>Best regards,<br>Team Indus Motors</p>
-              `
-            }
+              `,
+            },
           },
-          'default': {
+          default: {
             admin: {
-              subject: 'New Lead Generated',
-              text: 'New lead generated',
+              subject: "New Lead Generated",
+              text: "New lead generated",
               html: `
                 <!DOCTYPE html>
                 <html>
@@ -490,23 +489,23 @@ module.exports = {
                   </div>
                 </body>
                 </html>
-              `
+              `,
             },
             user: {
-              subject: 'Thank You for Contacting Us',
-              text: 'Thank you for contacting us',
+              subject: "Thank You for Contacting Us",
+              text: "Thank you for contacting us",
               html: `
                 <h2>Thank You for Contacting Us</h2>
                 <p>Dear Mr/Ms. <%= data.name %>,</p>
                 <p>Thank you for reaching out to Indus Motors. We have received your message and our team is currently reviewing the details.</p>
                 <p>We look forward to assisting you and will be in touch soon.</p>
                 <p>Best regards,<br>Team Indus Motors</p>
-              `
-            }
-          }
+              `,
+            },
+          },
         };
 
-        const template = emailTemplates[lead_type] || emailTemplates['default'];
+        const template = emailTemplates[lead_type] || emailTemplates["default"];
         const templateData = {
           name,
           email,
@@ -517,58 +516,119 @@ module.exports = {
           utmsource,
           source_url,
           car,
-          date: new Date().toISOString().slice(0, 10)
+          date: new Date().toISOString().slice(0, 10),
         };
 
         // Send email to admin
         try {
           if (Array.isArray(admin) && admin.length > 0) {
-            const adminEmails = admin.filter(user => user?.email).map(user => user.email);
+            const adminEmails = admin
+              .filter((user) => user?.email)
+              .map((user) => user.email);
             if (adminEmails.length > 0) {
               try {
-                await strapi.plugins['email'].services.email.sendTemplatedEmail(
+                await strapi.plugins["email"].services.email.sendTemplatedEmail(
                   {
                     to: adminEmails,
-                    from: `${process.env.SMTP_DEFAULT_NAME} <${process.env.SMTP_USERNAME}>`
+                    from: `${process.env.SMTP_DEFAULT_NAME} <${process.env.SMTP_USERNAME}>`,
                   },
                   template.admin,
                   {
-                    data: templateData
+                    data: templateData,
                   }
                 );
-                console.log(`Admin emails sent successfully to ${adminEmails.length} recipients`);
+                console.log(
+                  `Admin emails sent successfully to ${adminEmails.length} recipients`
+                );
               } catch (error) {
-                console.error('Failed to send admin emails:', error);
+                console.error("Failed to send admin emails:", error);
                 throw error;
               }
             } else {
-              console.warn('No valid admin email addresses found');
+              console.warn("No valid admin email addresses found");
             }
           } else {
-            console.warn('No admin users found');
+            console.warn("No admin users found");
           }
 
           // Send email to user if email is provided
           if (email) {
-            await strapi.plugins['email'].services.email.sendTemplatedEmail(
+            try {
+              const smtp = await strapi
+                .documents("api::general.general")
+                .findFirst({
+                  filters: {},
+                  populate: {
+                    SMTP: {
+                      populate: "*",
+                    },
+                  },
+                });
+
+              if (smtp) {
+                const transporter = nodemailer.createTransport({
+                  host: smtp.SMTP.Host || "smtp.gmail.com",
+                  port: smtp.SMTP.Port || 587,
+                  secure: true,
+                  auth: {
+                    user: smtp.SMTP.User || process.env.SMTP_USERNAME,
+                    pass: smtp.SMTP.Password || process.env.SMTP_PASSWORD,
+                  },
+                });
+
+                const mailOptions = {
+                  from: `${smtp.SMTP.From_Name || process.env.SMTP_DEFAULT_NAME} <${smtp.SMTP.from_Mail_Address || process.env.SMTP_USERNAME}>`,
+                  to: email,
+                  subject: template.user.subject,
+                  html: template.user.html.replace(
+                    /<%= data\.([^%>]+)%>/g,
+                    (match, p1) => {
+                      const keys = p1.trim().split(".");
+                      let value = templateData;
+                      for (const key of keys) {
+                        value = value?.[key];
+                      }
+                      return value || "";
+                    }
+                  ),
+                };
+
+                await transporter.sendMail(mailOptions);
+              }
+              console.log("Email Sent Successfully");
+              console.log({ smtp });
+              ctx.status = 200;
+              ctx.body = {
+                message: "Form Submitted Successfully",
+                success: true,
+              };
+              return;
+            } catch (error) {
+              console.error("Failed to fetch SMTP settings:", error);
+              // Continue execution as this is not critical for lead creation
+            }
+
+            await strapi.plugins["email"].services.email.sendTemplatedEmail(
               {
                 to: email,
-                from: `${process.env.SMTP_DEFAULT_NAME} <${process.env.SMTP_USERNAME}>`
+                from: `${process.env.SMTP_DEFAULT_NAME} <${process.env.SMTP_USERNAME}>`,
               },
               template.user,
               {
-                data: templateData
+                data: templateData,
               }
             );
-            console.log('User email sent successfully');
+            console.log("User email sent successfully");
           }
         } catch (sendError) {
-          console.error('Email sending error:', sendError?.response?.data || sendError.message);
+          console.error(
+            "Email sending error:",
+            sendError?.response?.data || sendError.message
+          );
           // Continue execution as email sending is not critical
         }
-
       } catch (emailError) {
-        console.error('Failed to send email notification:', emailError);
+        console.error("Failed to send email notification:", emailError);
         // Don't throw error as lead is already created
       }
 
@@ -646,9 +706,8 @@ module.exports = {
           success: true,
           message: "Latest Leads Not Found",
           leads: leads,
-        }
+        };
       }
-
     } catch (error) {
       console.log(error?.message);
     }
@@ -672,7 +731,10 @@ module.exports = {
       // Generate buffer and send response
       const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
 
-      ctx.set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      ctx.set(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
       ctx.set("Content-Disposition", 'attachment; filename="leads.xlsx"');
       return ctx.send(buffer);
     } catch (err) {
@@ -680,6 +742,3 @@ module.exports = {
     }
   },
 };
-
-
-
