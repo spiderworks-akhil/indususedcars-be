@@ -275,6 +275,33 @@ module.exports = {
         }
       }
 
+      const cars = await strapi.documents("api::car.car").findMany({});
+      for (let car of cars) {
+        console.log(car);
+
+        const slug = `${car?.Name}-${car.documentId}`
+          .toLowerCase()
+          .replace(/\s+/g, '-')       // Replace spaces with -
+          .replace(/[^\w\-~._]+/g, '') // Remove all non-word chars except -~._
+          .replace(/\-\-+/g, '-')      // Replace multiple - with single -
+          .replace(/^-+/, '')          // Trim - from start of text
+          .replace(/-+$/, '');         // Trim - from end of text
+
+        if (slug == car.Slug) {
+          continue;
+        }
+        console.log(slug);
+
+        await strapi.documents("api::car.car").update({
+          documentId: car.documentId,
+          data: {
+            Slug: slug, // Use the generated slug here
+          },
+          status: "published",
+        });
+        console.log("updated");
+      }
+
       ctx.body = {
         success: true,
         message: "Cars imported successfully",

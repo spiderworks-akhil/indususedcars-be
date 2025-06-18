@@ -501,7 +501,7 @@ module.exports = {
 
           if (modelArray.length > 0 && modelArray[0]!== '') {
             filters.Model = {
-              Name: {
+              Slug: {
                 $in: modelArray,
               },
             };
@@ -538,7 +538,7 @@ module.exports = {
 
           if (brandArray.length > 0 && brandArray[0] !== '') {
             filters.Brand = {
-              Name: {
+              Slug: {
                 $in: brandArray,
               },
             };
