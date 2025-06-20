@@ -698,6 +698,7 @@ export interface SharedSeo extends Struct.ComponentSchema {
           preset: 'defaultHtml';
         }
       >;
+    Extra_JS: Schema.Attribute.Text;
     Keywords: Schema.Attribute.Text;
     Meta_Description: Schema.Attribute.Text;
     Meta_Image: Schema.Attribute.Media<'images' | 'files'>;

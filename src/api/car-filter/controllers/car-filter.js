@@ -209,7 +209,7 @@ module.exports = {
           limit: pagination.limit,
           start: pagination.start,
         });
-        console.log(brand);
+        // console.log(brand);
 
         ctx.status = 200;
         ctx.body = {
@@ -267,23 +267,30 @@ module.exports = {
 
       if(brand && brand !== '[]') {
         try {
+          console.log('yes inside brand model');
+          
           // Remove brackets and split by comma
           const cleanedBrand = brand.replace(/[\[\]{}]/g, "");
           const brandArray = cleanedBrand.split(",").map(b => b.trim());
 
           if (brandArray.length > 0 && brandArray[0] !== '') {
-            console.log(
-              'yes'
-            );
+            // console.log(
+            //   'yes'
+            // );
             
             const [models, count] = await Promise.all([
               strapi.documents('api::model.model').findMany({
                 filters: {
                   Brand: {
-                    Name: {
+                    Slug: {
                       $in: brandArray
                     }
-                  }
+                  },
+                  ...(search && {
+                    Slug: {
+                      $containsi: search
+                    }
+                  })
                 },
                 limit: pagination.limit,
                 start: pagination.start,
@@ -292,10 +299,15 @@ module.exports = {
               strapi.documents('api::model.model').count({
                 filters: {
                   Brand: {
-                    Name: {
+                    Slug: {
                       $in: brandArray
                     }
-                  }
+                  },
+                  ...(search && {
+                    Slug: {
+                      $containsi: search
+                    }
+                  })
                 }
               })
             ]);
@@ -326,7 +338,7 @@ module.exports = {
           limit: pagination.limit,
           start: pagination.start,
         });
-        console.log(model);
+        // console.log(model);
 
         ctx.status = 200;
         ctx.body = {
@@ -472,8 +484,10 @@ module.exports = {
         pageSize = 10,
         high
       } = ctx.query;
-      console.log(ctx.query);
-      console.log({fuel:fuel?.length,brand:brand?.length,transmission:transmission?.length,year:year?.length,kilometers:kilometers?.length,price:price?.length});
+      console.log({brand,model});
+      // console.log(ctx.query);
+      // console.log({fuel:fuel?.length,brand:brand?.length,transmission:transmission?.length,year:year?.length,kilometers:kilometers?.length,price:price?.length});
+      
       
  
       // Calculate pagination values
@@ -516,7 +530,7 @@ module.exports = {
           // Remove brackets and split by comma
           const cleanedFuel = fuel.replace(/[\[\]{}]/g, "");
           const fuelArray = cleanedFuel.split(",").map((f) => f.trim());  
-          console.log(fuelArray);
+          // console.log(fuelArray);
 
           if (fuelArray.length > 0 && fuelArray[0] !== '') {
             filters.Fuel_Type = {
@@ -555,7 +569,7 @@ module.exports = {
           const transmissionArray = cleanedTransmission
             .split(",")
             .map((t) => t.trim());
-          console.log(transmissionArray);
+          // console.log(transmissionArray);
 
           if (transmissionArray.length > 0 && transmissionArray[0] !== '') {
             filters.Transmission_Type = {
@@ -568,7 +582,7 @@ module.exports = {
       }
 
       if (year && year !== '[]') {
-        console.log(year);
+        // console.log(year);
         const years = JSON.parse(year);
         if (years.length > 0) {
           filters.Year_Of_Month = {
@@ -587,10 +601,10 @@ module.exports = {
       if (price && price !== '[]') {
         const prices = JSON.parse(price);
         if (prices.length > 0) {
-          console.log(
-            typeof prices[0].toString(),
-            prices[1].toFixed(2).toString()
-          );
+          // console.log(
+          //   typeof prices[0].toString(),
+          //   prices[1].toFixed(2).toString()
+          // );
 
           filters.PSP = {
             $between: [prices[0], prices[1]],
@@ -631,6 +645,10 @@ module.exports = {
         }),
       ]);
 
+
+      console.log({filter:cars});
+      
+
       ctx.status = 200;
       ctx.body = {
         data: cars,
@@ -659,7 +677,7 @@ module.exports = {
           data: { Amount: car.PSP },
           status: "published",
         });
-        console.log(carUpdate);
+        // console.log(carUpdate);
       } 
 
       ctx.status = 200;

@@ -484,6 +484,7 @@ export interface ApiBrandBrand extends Struct.CollectionTypeSchema {
     Model: Schema.Attribute.Relation<'oneToMany', 'api::model.model'>;
     Name: Schema.Attribute.String & Schema.Attribute.Unique;
     publishedAt: Schema.Attribute.DateTime;
+    SEO: Schema.Attribute.Component<'shared.seo', false>;
     Slug: Schema.Attribute.UID<'Name'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
