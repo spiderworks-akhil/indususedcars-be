@@ -265,8 +265,8 @@ module.exports = {
             Brand: {
               populate: "*",
             },
-            Outlet:{
-              populate:'*'
+            Outlet: {
+              populate: "*",
             },
             Model: {
               populate: "*",
@@ -333,13 +333,12 @@ module.exports = {
               populate: "*",
             },
             Outlet: {
-              populate: '*'
+              populate: "*",
             },
             Variant: {
-              populate: '*'
-            }
+              populate: "*",
+            },
           },
-
         });
 
       console.log(fetchPage);
@@ -359,14 +358,17 @@ module.exports = {
           const baseFilters = {
             Model: {
               Slug: fetchPage?.Slug,
-            }
+            },
           };
 
           if (fetchPage?.Min_Price) {
             baseFilters.PSP = { $gte: Number(fetchPage.Min_Price) };
           }
           if (fetchPage?.Max_Price) {
-            baseFilters.PSP = { ...baseFilters.PSP, $lte: Number(fetchPage.Max_Price) };
+            baseFilters.PSP = {
+              ...baseFilters.PSP,
+              $lte: Number(fetchPage.Max_Price),
+            };
           }
 
           const [data, count] = await Promise.all([
@@ -400,8 +402,6 @@ module.exports = {
 
           return;
 
-      
-
         case `App\\Models\\Indus\\Brand`:
           console.log("yes");
 
@@ -409,14 +409,17 @@ module.exports = {
             Brand: {
               Slug: fetchPage?.Slug,
             },
-            ...(fetchPage?.Model && { Model: { Slug: fetchPage.Model.Slug } })
+            ...(fetchPage?.Model && { Model: { Slug: fetchPage.Model.Slug } }),
           };
 
           if (fetchPage?.Min_Price) {
             baseFilters1.PSP = { $gte: Number(fetchPage.Min_Price) };
           }
           if (fetchPage?.Max_Price) {
-            baseFilters1.PSP = { ...baseFilters1.PSP, $lte: Number(fetchPage.Max_Price) };
+            baseFilters1.PSP = {
+              ...baseFilters1.PSP,
+              $lte: Number(fetchPage.Max_Price),
+            };
           }
 
           const [data1, count1] = await Promise.all([
@@ -471,7 +474,10 @@ module.exports = {
             baseFilters2.PSP = { $gte: Number(fetchPage.Min_Price) };
           }
           if (fetchPage?.Max_Price) {
-            baseFilters2.PSP = { ...baseFilters2.PSP, $lte: Number(fetchPage.Max_Price) };
+            baseFilters2.PSP = {
+              ...baseFilters2.PSP,
+              $lte: Number(fetchPage.Max_Price),
+            };
           }
 
           const [data2, count2] = await Promise.all([
@@ -492,7 +498,6 @@ module.exports = {
                 Fuel_Type: {
                   populate: "*",
                 },
-               
               },
             }),
             strapi.documents("api::car.car").count({
@@ -519,7 +524,7 @@ module.exports = {
           return;
 
         case `App\\Models\\BrandDistrict`:
-          console.log('yes inside brand district');
+          console.log("yes inside brand district");
           console.log({ fetchPage });
 
           const baseFilters3 = {
@@ -529,7 +534,7 @@ module.exports = {
             Outlet: {
               Location: {
                 Slug: fetchPage?.Location?.Slug || null,
-              }
+              },
             },
           };
 
@@ -537,7 +542,10 @@ module.exports = {
             baseFilters3.PSP = { $gte: Number(fetchPage.Min_Price) };
           }
           if (fetchPage?.Max_Price) {
-            baseFilters3.PSP = { ...baseFilters3.PSP, $lte: Number(fetchPage.Max_Price) };
+            baseFilters3.PSP = {
+              ...baseFilters3.PSP,
+              $lte: Number(fetchPage.Max_Price),
+            };
           }
 
           const [data3, count3] = await Promise.all([
@@ -559,8 +567,8 @@ module.exports = {
                   populate: "*",
                 },
                 Outlet: {
-                  populate: '*'
-                }
+                  populate: "*",
+                },
               },
             }),
             strapi.documents("api::car.car").count({
@@ -568,8 +576,6 @@ module.exports = {
               populate: ["Brand", "Outlet"],
             }),
           ]);
-
-         
 
           ctx.status = 200;
           ctx.body = {
@@ -590,11 +596,15 @@ module.exports = {
         case "App\\Models\\BrandLocation":
           const baseFilters4 = {
             Outlet: {
-              Slug: fetchPage?.Outlet?.Slug ? fetchPage.Outlet.Slug : (fetchPage?.Location?.Slug ? {
-                Location: {
-                  Slug: fetchPage.Location.Slug
-                }
-              } : null),
+              Slug: fetchPage?.Outlet?.Slug
+                ? fetchPage.Outlet.Slug
+                : fetchPage?.Location?.Slug
+                  ? {
+                      Location: {
+                        Slug: fetchPage.Location.Slug,
+                      },
+                    }
+                  : null,
             },
             Brand: {
               Slug: fetchPage?.Brand?.Slug || null,
@@ -605,7 +615,10 @@ module.exports = {
             baseFilters4.PSP = { $gte: Number(fetchPage.Min_Price) };
           }
           if (fetchPage?.Max_Price) {
-            baseFilters4.PSP = { ...baseFilters4.PSP, $lte: Number(fetchPage.Max_Price) };
+            baseFilters4.PSP = {
+              ...baseFilters4.PSP,
+              $lte: Number(fetchPage.Max_Price),
+            };
           }
 
           const [data4, count4] = await Promise.all([
@@ -658,7 +671,7 @@ module.exports = {
             Outlet: {
               Location: {
                 Slug: fetchPage?.Location?.Slug || null,
-              }
+              },
             },
           };
 
@@ -666,7 +679,10 @@ module.exports = {
             baseFilters5.PSP = { $gte: Number(fetchPage.Min_Price) };
           }
           if (fetchPage?.Max_Price) {
-            baseFilters5.PSP = { ...baseFilters5.PSP, $lte: Number(fetchPage.Max_Price) };
+            baseFilters5.PSP = {
+              ...baseFilters5.PSP,
+              $lte: Number(fetchPage.Max_Price),
+            };
           }
 
           const [data5, count5] = await Promise.all([
@@ -716,7 +732,6 @@ module.exports = {
 
           return;
 
-
         case "App\\Models\\Indus\\Dealership":
           const baseFilters6 = {
             Outlet: {
@@ -728,7 +743,10 @@ module.exports = {
             baseFilters6.PSP = { $gte: Number(fetchPage.Min_Price) };
           }
           if (fetchPage?.Max_Price) {
-            baseFilters6.PSP = { ...baseFilters6.PSP, $lte: Number(fetchPage.Max_Price) };
+            baseFilters6.PSP = {
+              ...baseFilters6.PSP,
+              $lte: Number(fetchPage.Max_Price),
+            };
           }
 
           const [data6, count6] = await Promise.all([
@@ -778,93 +796,99 @@ module.exports = {
 
           return;
 
-          case `App\\Models\\ModelDistrict`:
-            console.log(fetchPage?.Slug);
-  
-            const baseFilters7 = {};
-            if(fetchPage?.Outlet?.Location?.Slug){
-              console.log('yes inside outlet location');
-              
-              baseFilters7.Outlet = {
-                Location: {
-                  Slug: fetchPage.Outlet.Location.Slug
-                }
-              };
-            }else if(fetchPage?.Location?.Slug){
-              baseFilters7.Location = {
-                Slug: fetchPage.Location.Slug
-              };
-            }
-            
-            if (fetchPage?.Model) {
-              baseFilters7.Model = {
-                Slug: fetchPage.Model.Slug
-              };
-            }
-  
-            if (fetchPage?.Min_Price) {
-              baseFilters7.PSP = { $gte: Number(fetchPage.Min_Price) };
-            }
-            if (fetchPage?.Max_Price) {
-              baseFilters7.PSP = { ...baseFilters7.PSP, $lte: Number(fetchPage.Max_Price) };
-            }
-  
-            const [data7, count7] = await Promise.all([
-              strapi.documents("api::car.car").findMany({
-                filters: baseFilters7,
-                start: (page - 1) * limit,
-                limit: limit,
-                populate: ["Location", "Model", "Outlet"],
-              }),
-              strapi.documents("api::car.car").count({
-                filters: baseFilters7,
-                populate: ["Location", "Model", "Outlet"],
-              }),
-            ]);
-  
-            ctx.status = 200;
-            ctx.body = {
-              data: data7,
-              meta: {
-                pagination: {
-                  total: count7,
-                  page: page,
-                  pageSize: limit,
-                  pageCount: Math.ceil(count7 / limit),
-                  last_page: Math.ceil(count7 / limit),
-                },
+        case `App\\Models\\ModelDistrict`:
+          console.log(fetchPage?.Slug);
+
+          const baseFilters7 = {};
+          if (fetchPage?.Outlet?.Location?.Slug) {
+            console.log("yes inside outlet location");
+
+            baseFilters7.Outlet = {
+              Location: {
+                Slug: fetchPage.Outlet.Location.Slug,
               },
             };
-  
-            return;
+          } else if (fetchPage?.Location?.Slug) {
+            baseFilters7.Location = {
+              Slug: fetchPage.Location.Slug,
+            };
+          }
+
+          if (fetchPage?.Model) {
+            baseFilters7.Model = {
+              Slug: fetchPage.Model.Slug,
+            };
+          }
+
+          if (fetchPage?.Min_Price) {
+            baseFilters7.PSP = { $gte: Number(fetchPage.Min_Price) };
+          }
+          if (fetchPage?.Max_Price) {
+            baseFilters7.PSP = {
+              ...baseFilters7.PSP,
+              $lte: Number(fetchPage.Max_Price),
+            };
+          }
+
+          const [data7, count7] = await Promise.all([
+            strapi.documents("api::car.car").findMany({
+              filters: baseFilters7,
+              start: (page - 1) * limit,
+              limit: limit,
+              populate: ["Location", "Model", "Outlet"],
+            }),
+            strapi.documents("api::car.car").count({
+              filters: baseFilters7,
+              populate: ["Location", "Model", "Outlet"],
+            }),
+          ]);
+
+          ctx.status = 200;
+          ctx.body = {
+            data: data7,
+            meta: {
+              pagination: {
+                total: count7,
+                page: page,
+                pageSize: limit,
+                pageCount: Math.ceil(count7 / limit),
+                last_page: Math.ceil(count7 / limit),
+              },
+            },
+          };
+
+          return;
 
         case `App\\Models\\Indus\\ModelLocation`:
           console.log({ slug: fetchPage });
 
           const baseFilters8 = {
             Model: {
-              Slug: fetchPage?.Slug
-            }
+              Slug: fetchPage?.Slug,
+            },
           };
 
           if (fetchPage?.Outlet?.Slug) {
             baseFilters8.Outlet = {
-              Slug: fetchPage.Outlet.Slug
+              Slug: fetchPage.Outlet.Slug,
             };
           } else if (fetchPage?.Location?.Slug) {
-            console.log('yes inside location ');
-            
+            console.log("yes inside location ");
+
             baseFilters8.Outlet = {
               Location: {
-                Slug: fetchPage.Location.Slug
-              }
+                Slug: fetchPage.Location.Slug,
+              },
             };
           }
           if (fetchPage?.Min_Price) {
             baseFilters8.PSP = { $gte: Number(fetchPage.Min_Price) };
           }
           if (fetchPage?.Max_Price) {
-            baseFilters8.PSP = { ...baseFilters8.PSP, $lte: Number(fetchPage.Max_Price) };
+            baseFilters8.PSP = {
+              ...baseFilters8.PSP,
+              $lte: Number(fetchPage.Max_Price),
+            };
           }
 
           const [data8, count8] = await Promise.all([
@@ -911,7 +935,10 @@ module.exports = {
             baseFilters9.PSP = { $gte: Number(fetchPage.Min_Price) };
           }
           if (fetchPage?.Max_Price) {
-            baseFilters9.PSP = { ...baseFilters9.PSP, $lte: Number(fetchPage.Max_Price) };
+            baseFilters9.PSP = {
+              ...baseFilters9.PSP,
+              $lte: Number(fetchPage.Max_Price),
+            };
           }
 
           const [data9, count9] = await Promise.all([
@@ -1015,6 +1042,53 @@ module.exports = {
     } catch (error) {
       ctx.status = 500;
       ctx.body = error;
+    }
+  },
+  updateContent: async (ctx, next) => {
+    try {
+      const combinationPageList = await strapi
+        .documents("api::combination-page.combination-page")
+        .findMany({
+          filters: {},
+          populate: {
+            SEO: {
+              populate: "*",
+            },
+          },
+        });
+
+      for (const page of combinationPageList) {
+        console.log({page});
+        
+      const update =  await strapi
+          .documents("api::combination-page.combination-page")
+          .update({
+            documentId: page.documentId,
+            data: {
+              SEO: {
+                Extra_JS: page.Extra_JS,
+              },
+            },
+            populate:{
+              SEO:{
+                populate:'*'
+              }
+            },
+            status:'published'
+          });
+          console.log({update});
+          
+      }
+
+      ctx.status = 200;
+      ctx.body = {
+        data: "Combination Page Updated Successfully",
+      };
+    } catch (error) {
+      ctx.status = 500;
+      ctx.body = {
+        err: error,
+      };
     }
   },
 };

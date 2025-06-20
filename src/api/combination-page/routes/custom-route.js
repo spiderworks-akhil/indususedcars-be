@@ -24,8 +24,8 @@ module.exports = {
     },
     {
       method: "GET",
-      path: "/combination-page/:slug",
-      handler: "custom.detail",
+      path: "/combination-page/update-content",
+      handler: "custom.updateContent",
       config: {
         auth: false,
         policies: [],
@@ -42,5 +42,16 @@ module.exports = {
         middlewares: [],
       },
     },
+    {
+      method: "GET",
+      path: "/combination-page/:slug",
+      handler: "custom.detail",
+      config: {
+        auth: false,
+        policies: [],
+        middlewares: [],
+      },
+    },
+    
   ],
 };
