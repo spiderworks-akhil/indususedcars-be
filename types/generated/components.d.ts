@@ -639,7 +639,7 @@ export interface SettingsSmtp extends Struct.ComponentSchema {
     From_Mail_Address: Schema.Attribute.Email & Schema.Attribute.Required;
     From_Name: Schema.Attribute.String & Schema.Attribute.Required;
     Host: Schema.Attribute.String & Schema.Attribute.Required;
-    Password: Schema.Attribute.Password;
+    Password: Schema.Attribute.Password & Schema.Attribute.Private;
     Port: Schema.Attribute.Integer & Schema.Attribute.Required;
     User: Schema.Attribute.String & Schema.Attribute.Required;
   };

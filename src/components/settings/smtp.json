@@ -20,7 +20,8 @@
     },
     "Password": {
       "type": "password",
-      "required": false
+      "required": false,
+      "private": true
     },
     "From_Mail_Address": {
       "type": "email",
