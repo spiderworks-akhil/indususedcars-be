@@ -30,6 +30,16 @@ module.exports = {
             policies: [],
             middleware: []
         }
+    },
+    {
+        method: 'GET',
+        path: '/outlets/:slug',
+        handler: 'outletslist.outletDetail',
+        config: {
+            auth: false,
+            policies: [],
+            middleware: []
+        }
     }
     ]
 }
