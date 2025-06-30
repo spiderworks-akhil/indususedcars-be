@@ -43,6 +43,16 @@
       "type": "component",
       "repeatable": false,
       "component": "shared.seo"
+    },
+    "Top_Description": {
+      "type": "customField",
+      "options": {
+        "preset": "defaultHtml"
+      },
+      "customField": "plugin::ckeditor5.CKEditor"
+    },
+    "Title": {
+      "type": "string"
     }
   }
 }

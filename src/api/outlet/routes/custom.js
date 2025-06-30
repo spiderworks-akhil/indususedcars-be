@@ -20,6 +20,16 @@ module.exports = {
             policies: [],
             middleware: []
         }
+    },
+    {
+        method: 'GET',
+        path: '/outlets/fetch',
+        handler: 'outletslist.fetchDetails',
+        config: {
+            auth: false,
+            policies: [],
+            middleware: []
+        }
     }
     ]
 }
