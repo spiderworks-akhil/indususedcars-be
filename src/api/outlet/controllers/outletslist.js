@@ -140,8 +140,10 @@ module.exports = {
   },
   outletDetail: async (ctx, next) => {
     try {
+      console.log('inside outlet detail');
+      
       const { slug } = ctx.params;
-
+      console.log({slug});
       const findOutlet = await strapi
         .documents("api::outlet.outlet")
         .findFirst({
@@ -154,6 +156,9 @@ module.exports = {
             }
           }
         });
+
+        console.log({findOutlet});
+        
 
       if (!findOutlet) {
         ctx.status = 404;
@@ -175,7 +180,7 @@ module.exports = {
     try {
       const fetchOuletList= await axios.get('https://indususedcars.com/locations_all');
 
-      console.log({outlet:fetchOuletList?.data});
+     
 
       // Helper function to upload image to Strapi
       const uploadImage = async (imageUrl) => {
@@ -261,6 +266,7 @@ module.exports = {
         const updateData = {
           Title: outlet?.page_title,
           Location:findLocation?.documentId,
+          Top_Description:outlet?.top_description,
           SEO: {
             Meta_Title: outlet?.browser_title,
             Meta_Description: outlet?.meta_description,

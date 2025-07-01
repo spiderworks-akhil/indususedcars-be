@@ -316,7 +316,7 @@ module.exports = {
       }
       console.log(extract);
 
-      const fetchPage = await strapi
+      let fetchPage = await strapi
         .documents("api::combination-page.combination-page")
         .findFirst({
           filters: {
@@ -341,14 +341,35 @@ module.exports = {
           },
         });
 
-      console.log(fetchPage);
-
       if (!fetchPage) {
-        ctx.status = 404;
-        ctx.body = {
-          err: "Not Found",
-        };
-        return;
+        // Try to find in outlet if not found in combination-page
+        fetchPage = await strapi
+          .documents("api::outlet.outlet")
+          .findFirst({
+            filters: {
+              Slug: slug,
+            },
+            populate: {
+              Location: {
+                populate: "*",
+              },
+              SEO:{
+                populate:{
+                  Meta_Image:{
+                    populate:'*'
+                  }
+                }
+              }
+            },
+          });
+
+        if (!fetchPage) {
+          ctx.status = 404;
+          ctx.body = {
+            err: "Not Found",
+          };
+          return;
+        }
       }
 
       switch (fetchPage?.Related_Type) {
