@@ -1,0 +1,26 @@
+name: Deploy Backend to Server
+
+on:
+  push:
+    branches:
+      - master 
+
+jobs:
+  deploy:
+    name: SSH & Deploy Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run backend deploy script on server
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/indususedcars.com/
+            chmod +x deploy-backend.sh
+            ./deploy-backend.sh
