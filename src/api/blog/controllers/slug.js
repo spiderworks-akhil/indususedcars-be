@@ -6,6 +6,37 @@ const axios = require("axios");
  */
 
 module.exports = {
+  blogStaticPage: async (ctx, next) => {
+    try {
+      const blogPage = await strapi
+        .documents("api::blog-page.blog-page")
+        .findFirst({
+          filters: {},
+          populate: {
+            Banner: {
+              populate: "*",
+            },
+            SEO: {
+              populate: {
+                Meta_Image: {
+                  populate: "*",
+                },
+              },
+            },
+          },
+        });
+
+      ctx.status = 200;
+      ctx.body = {
+        data: blogPage,
+      };
+    } catch (err) {
+      ctx.status = 500;
+      ctx.body = {
+        err: err,
+      };
+    }
+  },
   getBlog: async (ctx, next) => {
     try {
       const { slug } = ctx.params;
@@ -576,11 +607,12 @@ module.exports = {
       // Get total count of blogs
       const total = await strapi.documents("api::blog.blog").count();
 
-      // Fetch paginated results
+      // Fetch paginated results sorted by publishedAt in descending order
       const results = await strapi.documents("api::blog.blog").findMany({
         start: (Number(start) - 1) * Number(limit),
         limit: Number(limit),
         status: "published",
+        sort: { publishedAt: "desc" }, // Sort by latest published blogs first
         populate: {
           Featured_Image: {
             populate: "*",
@@ -944,6 +976,54 @@ module.exports = {
       };
     } catch (err) {
       console.error("Error in updateBlogContent:", err);
+      ctx.status = 500;
+      ctx.body = {
+        error: "Internal Server Error",
+        details: err.message,
+      };
+    }
+  },
+
+  updateBlogDates: async (ctx, next) => {
+    try {
+      const blogs = await strapi.documents("api::blog.blog").findMany({
+        populate: [
+          "Featured_Image",
+          "Banner_Image",
+          "SEO.Meta_Image",
+          "Author",
+        ],
+        status: "published",
+      });
+
+      for (const blog of blogs) {
+        const blogDetail = (
+          await axios.get(`https://indususedcars.com/api/pages/${blog.Slug}`)
+        ).data;
+
+        if (blogDetail?.created_at) {
+          await strapi.documents("api::blog.blog").update({
+            documentId: blog.documentId,
+            data: {
+              publishedAt: blogDetail.created_at,
+              createdAt: blogDetail.created_at,
+              updatedAt: blogDetail.created_at,
+            },
+            status: "published",
+          });
+        }
+      }
+
+      ctx.status = 200;
+      ctx.body = {
+        data: {
+          success: true,
+          message: "All blog dates updated successfully",
+          count: blogs.length,
+        },
+      };
+    } catch (err) {
+      console.error("Error in updateBlogDates:", err);
       ctx.status = 500;
       ctx.body = {
         error: "Internal Server Error",

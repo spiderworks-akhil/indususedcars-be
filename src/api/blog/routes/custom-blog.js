@@ -3,6 +3,16 @@
 module.exports = {
   routes: [
     {
+      method: "GET",
+      path: "/blogs",
+      handler: "slug.blogStaticPage",
+      config: {
+        auth: false,
+        policies: [],
+        middleware: [],
+      },
+    },
+    {
         method: "GET",
         path: "/blogs/list",
         handler: "slug.blogsList",
@@ -36,6 +46,16 @@ module.exports = {
       method: "GET",
       path: "/blogs/updateContent",
       handler: "slug.updateBlogContent",
+      config: {
+        auth: false,
+        policies: [],
+        middleware: [],
+      },
+    },
+    {
+      method: "GET",
+      path: "/blogs/update-date",
+      handler: "slug.updateBlogDates",
       config: {
         auth: false,
         policies: [],
