@@ -343,25 +343,23 @@ module.exports = {
 
       if (!fetchPage) {
         // Try to find in outlet if not found in combination-page
-        fetchPage = await strapi
-          .documents("api::outlet.outlet")
-          .findFirst({
-            filters: {
-              Slug: slug,
+        fetchPage = await strapi.documents("api::outlet.outlet").findFirst({
+          filters: {
+            Slug: slug,
+          },
+          populate: {
+            Location: {
+              populate: "*",
             },
-            populate: {
-              Location: {
-                populate: "*",
+            SEO: {
+              populate: {
+                Meta_Image: {
+                  populate: "*",
+                },
               },
-              SEO:{
-                populate:{
-                  Meta_Image:{
-                    populate:'*'
-                  }
-                }
-              }
             },
-          });
+          },
+        });
 
         if (!fetchPage) {
           ctx.status = 404;
@@ -1079,26 +1077,26 @@ module.exports = {
         });
 
       for (const page of combinationPageList) {
-        console.log({page});
-        
-      const update =  await strapi
+        console.log({ page });
+
+        const update = await strapi
           .documents("api::combination-page.combination-page")
           .update({
             documentId: page.documentId,
             data: {
               SEO: {
                 Extra_JS: page.Extra_JS,
+                Bottom_Description: page.Top_Description,
               },
             },
-            populate:{
-              SEO:{
-                populate:'*'
-              }
+            populate: {
+              SEO: {
+                populate: "*",
+              },
             },
-            status:'published'
+            status: "published",
           });
-          console.log({update});
-          
+        console.log({ update });
       }
 
       ctx.status = 200;
