@@ -466,11 +466,13 @@ export interface HomeCarJourney extends Struct.ComponentSchema {
 export interface HomeJourneyList extends Struct.ComponentSchema {
   collectionName: 'components_home_journey_lists';
   info: {
+    description: '';
     displayName: 'Journey List';
   };
   attributes: {
     Description: Schema.Attribute.Text;
     Image: Schema.Attribute.Media<'images' | 'files'>;
+    Link: Schema.Attribute.String;
     Title: Schema.Attribute.String;
   };
 }
