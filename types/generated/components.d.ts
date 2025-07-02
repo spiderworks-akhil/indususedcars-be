@@ -1,5 +1,16 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
+export interface BlogBanner extends Struct.ComponentSchema {
+  collectionName: 'components_blog_banners';
+  info: {
+    displayName: 'Banner';
+  };
+  attributes: {
+    Image: Schema.Attribute.Media<'images'>;
+    Title: Schema.Attribute.String;
+  };
+}
+
 export interface BlogBlogAuthor extends Struct.ComponentSchema {
   collectionName: 'components_blog_blog_authors';
   info: {
@@ -791,6 +802,7 @@ export interface WidgetShorts extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
+      'blog.banner': BlogBanner;
       'blog.blog-author': BlogBlogAuthor;
       'button.button': ButtonButton;
       'button.section': ButtonSection;
