@@ -997,8 +997,8 @@ module.exports = {
             meta: {
               pagination: {
                 total: count9,
-                page: page,
-                pageSize: limit,
+                page: parseInt(page),
+                pageSize: parseInt(limit),
                 pageCount: Math.ceil(count9 / limit),
                 last_page: Math.ceil(count9 / limit),
               },
