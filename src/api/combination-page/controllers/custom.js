@@ -9,6 +9,29 @@ const ExcelJS = require("exceljs");
 
 module.exports = {
   fetchCombinationPage: async (ctx, next) => {
+    // Helper to sleep for ms milliseconds
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    // Helper to fetch with retry on 429
+    const fetchWithRetry = async (url, retries = 3) => {
+      let attempt = 0;
+      while (attempt < retries) {
+        try {
+          return await axios.get(url);
+        } catch (error) {
+          if (error.response && error.response.status === 429) {
+            attempt++;
+            if (attempt < retries) {
+              console.log(`429 Too Many Requests for ${url}. Waiting 20 seconds before retrying (attempt ${attempt + 1}/${retries})...`);
+              await sleep(20000); // 20 seconds
+              continue;
+            }
+          }
+          throw error;
+        }
+      }
+    };
+
     try {
       console.log("models");
       const nonDetailSlugs = [];
@@ -34,7 +57,7 @@ module.exports = {
         return null; // Slug is valid
       };
 
-      const data = await axios.get(
+      const data = await fetchWithRetry(
         "https://indususedcars.com/api/combination-pages"
       );
       console.log(data);
@@ -44,7 +67,7 @@ module.exports = {
         console.log(`processing page ${page}`);
 
         try {
-          const pageData = await axios.get(
+          const pageData = await fetchWithRetry(
             `https://indususedcars.com/api/combination-pages?page=${page}`
           );
 
@@ -68,7 +91,7 @@ module.exports = {
 
               if (!existingModel) {
                 try {
-                  const modelData = await axios.get(
+                  const modelData = await fetchWithRetry(
                     `https://indususedcars.com/api/combination-pages/${model.slug}`
                   );
 

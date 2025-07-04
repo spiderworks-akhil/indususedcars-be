@@ -43,4 +43,29 @@ module.exports = {
       ctx.body = err;
     }
   },
+
+  fetchBrand:async(ctx,next)=>{
+    try {
+      const fetchBrabdCombinationPage = await strapi.documents('api::combination-page.combination-page').findMany({
+        filters:{
+          Related_Type: "App\\Models\\Indus\\Brand"
+        },
+        populate:['SEO','SEO.Meta_Image']
+      })
+
+      console.log({length:fetchBrabdCombinationPage.length});
+
+      ctx.status = 200;
+      ctx.body ={
+        sample:fetchBrabdCombinationPage,
+        len:fetchBrabdCombinationPage.length
+      }
+
+    } catch (error) {
+      ctx.status =500;
+      ctx.body={
+        err:error
+      }
+    }
+  }
 };
