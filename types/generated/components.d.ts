@@ -720,6 +720,13 @@ export interface SharedSeo extends Struct.ComponentSchema {
     OG_Title: Schema.Attribute.String;
     Script: Schema.Attribute.Text;
     Structured_Data: Schema.Attribute.JSON;
+    Top_Description: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultHtml';
+        }
+      >;
   };
 }
 

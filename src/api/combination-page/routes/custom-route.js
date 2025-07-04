@@ -24,6 +24,16 @@ module.exports = {
     },
     {
       method: "GET",
+      path: "/combination-page/seperate",
+      handler: "custom.seperatePage",
+      config: {
+        auth: false,
+        policies: [],
+        middlewares: [],
+      },
+    },
+    {
+      method: "GET",
       path: "/combination-page/update-content",
       handler: "custom.updateContent",
       config: {

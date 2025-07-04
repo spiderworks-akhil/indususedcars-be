@@ -1109,7 +1109,8 @@ module.exports = {
             data: {
               SEO: {
                 Extra_JS: page.Extra_JS,
-                Bottom_Description: page.Top_Description,
+                Bottom_Description: page.Bottom_Description,
+                Top_Description:page.Top_Description
               },
             },
             populate: {
@@ -1131,6 +1132,426 @@ module.exports = {
       ctx.body = {
         err: error,
       };
+    }
+  },
+
+  seperatePage: async (ctx, next) => {
+    // Helper to sleep for ms milliseconds
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    // Helper to fetch with retry on 429
+    const fetchWithRetry = async (url, retries = 3) => {
+      let attempt = 0;
+      while (attempt < retries) {
+        try {
+          return await axios.get(url);
+        } catch (error) {
+          if (error.response && error.response.status === 429) {
+            attempt++;
+            if (attempt < retries) {
+              console.log(`429 Too Many Requests for ${url}. Waiting 20 seconds before retrying (attempt ${attempt + 1}/${retries})...`);
+              await sleep(20000); // 20 seconds
+              continue;
+            }
+          }
+          throw error;
+        }
+      }
+    };
+
+    try {
+      console.log("models");
+      const nonDetailSlugs = [];
+
+      const verifySlug = (slug) => {
+        if (!slug) {
+          return "Slug is empty";
+        }
+        if (typeof slug !== "string") {
+          return "Slug is not a string";
+        }
+
+        // Generate a clean slug if invalid
+        if (slug.length > 100 || !/^[a-z0-9-]+$/.test(slug)) {
+          return slug
+            .toLowerCase()
+            .replace(/[^a-z0-9-]/g, "-") // Replace invalid chars with -
+            .replace(/-+/g, "-") // Replace multiple - with single -
+            .replace(/^-|-$/g, "") // Remove leading/trailing -
+            .substring(0, 100); // Truncate to max length
+        }
+
+        return null; // Slug is valid
+      };
+
+      const data = await fetchWithRetry(
+        "https://indususedcars.com/api/combination-pages"
+      );
+      console.log(data);
+
+      // Process pages from 1 to 40
+      for (let page = 1; page <= data?.data?.last_page; page++) {
+        console.log(`processing page ${page}`);
+
+        try {
+          const pageData = await fetchWithRetry(
+            `https://indususedcars.com/api/combination-pages?page=${page}`
+          );
+
+          for (const model of pageData.data?.data) {
+            try {
+              let slug = model.slug;
+              const slugError = verifySlug(slug);
+              if (slugError) {
+                slug = slugError;
+                nonDetailSlugs.push({
+                  slug: model.slug,
+                  problem: "Invalid slug, generated new one",
+                });
+              }
+
+              const modelData = await fetchWithRetry(
+                `https://indususedcars.com/api/combination-pages/${model.slug}`
+              );
+
+              if (![200, 201].includes(modelData.status)) continue;
+
+              let uploadedImage = null;
+              if (modelData?.data?.og_image?.file_path) {
+                const imageResponse = await axios.get(
+                  `https://indususedcars.com/${modelData.data.og_image.file_path}`,
+                  { responseType: "arraybuffer" }
+                );
+
+                const formData = new FormData();
+                const imageBlob = new Blob(
+                  [Buffer.from(imageResponse.data)],
+                  { type: imageResponse.headers["content-type"] }
+                );
+                formData.append(
+                  "files",
+                  imageBlob,
+                  modelData.data.og_image.file_path.split("/").pop()
+                );
+
+                const uploadResponse =
+                  await strapi.plugins.upload.services.upload.upload({
+                    data: {},
+                    files: formData,
+                  });
+
+                if (uploadResponse?.length > 0) {
+                  uploadedImage = uploadResponse[0].id;
+                }
+              }
+
+              const commonData = {
+                Slug: slug,
+                Page_Heading: modelData?.data?.page_heading,
+                Top_Description: modelData?.data?.top_description,
+                Bottom_Description: modelData?.data?.bottom_description,
+                Extra_JS: modelData?.data?.extra_js,
+                Related_Type: modelData?.data?.related_type,
+                FAQ: {
+                  Title: modelData?.data?.faq?.name,
+                },
+                SEO: {
+                  Meta_Title: modelData?.data?.browser_title,
+                  Meta_Description: modelData?.data?.meta_description,
+                  Meta_Keywords: modelData?.data?.meta_keywords,
+                  Meta_Image: uploadedImage || modelData?.data?.og_image_id,
+                  OG_Title: modelData?.data?.og_title,
+                  OG_Description: modelData?.data?.og_description,
+                  Bottom_Description: modelData?.data?.bottom_description||modelData?.data?.top_description,
+                  Top_Description: modelData?.data?.top_description,
+                },
+              };
+
+              const relatedType = modelData?.data?.related_type;
+              let targetCollection = 'api::combination-page.combination-page';
+
+              switch (relatedType) {
+                case 'App\\Models\\Indus\\Brand': {
+                  // BRAND: create or update Brand
+                  const brandData = {
+                    Name: modelData?.data?.brand_name || modelData?.data?.page_heading,
+                    Slug: slug,
+                    Page_Heading: modelData?.data?.page_heading,
+                    SEO: commonData.SEO,
+                    Image: uploadedImage || undefined,
+                    Featured: modelData?.data?.featured || false,
+                  };
+                  const existingBrand = await strapi.documents('api::brand.brand').findFirst({ filters: { Slug: slug } });
+                  if (existingBrand) {
+                    await strapi.documents('api::brand.brand').update({
+                      documentId: existingBrand.documentId,
+                      data: brandData,
+                      status: "published",
+                      populate: ["SEO"],
+                    });
+                    console.log(`Updated Brand: ${slug}`);
+                  } else {
+                    await strapi.documents('api::brand.brand').create({
+                      data: brandData,
+                      status: "published",
+                      populate: ["SEO"],
+                    });
+                    console.log(`Created Brand: ${slug}`);
+                  }
+                  break;
+                }
+
+                case 'App\\Models\\Indus\\Location': {
+                  // LOCATION: create or update Location
+                  const locationData = {
+                    Place: modelData?.data?.location_name || modelData?.data?.page_heading,
+                    Slug: slug,
+                    Title: modelData?.data?.browser_title,
+                    Description: modelData?.data?.meta_description,
+                    SEO: commonData.SEO,
+                    Image: uploadedImage || undefined,
+                    Featured: modelData?.data?.featured || false,
+                  };
+                  const existingLocation = await strapi.documents('api::location.location').findFirst({ filters: { Slug: slug } });
+                  if (existingLocation) {
+                    await strapi.documents('api::location.location').update({
+                      documentId: existingLocation.documentId,
+                      data: locationData,
+                      status: "published",
+                      populate: ["SEO"],
+                    });
+                    console.log(`Updated Location: ${slug}`);
+                  } else {
+                    await strapi.documents('api::location.location').create({
+                      data: locationData,
+                      status: "published",
+                      populate: ["SEO"],
+                    });
+                    console.log(`Created Location: ${slug}`);
+                  }
+                  break;
+                }
+
+                case 'App\\Models\\Indus\\Model': {
+                  // MODEL: ensure Brand exists, then create/update Model
+                  let brandSlug = modelData?.data?.brand_slug;
+                  let brand = null;
+                  if (brandSlug) {
+                    brand = await strapi.documents('api::brand.brand').findFirst({ filters: { Slug: brandSlug } });
+                    if (!brand) {
+                      brand = await strapi.documents('api::brand.brand').create({
+                        data: { Name: modelData?.data?.brand_name, Slug: brandSlug },
+                        status: "published",
+                      });
+                    }
+                  }
+                  const modelDataObj = {
+                    Name: modelData?.data?.model_name || modelData?.data?.page_heading,
+                    Slug: slug,
+                    Page_Heading: modelData?.data?.page_heading,
+                    Top_Description: modelData?.data?.top_description,
+                    Bottom_Description: modelData?.data?.bottom_description,
+                    Extra_JS: modelData?.data?.extra_js,
+                    Related_Type: modelData?.data?.related_type,
+                    SEO: commonData.SEO,
+                    Brand: brand ? brand.documentId : undefined,
+                  };
+                  const existingModel = await strapi.documents('api::model.model').findFirst({ filters: { Slug: slug } });
+                  if (existingModel) {
+                    await strapi.documents('api::model.model').update({
+                      documentId: existingModel.documentId,
+                      data: modelDataObj,
+                      status: "published",
+                      populate: ["SEO", "Brand"],
+                    });
+                    console.log(`Updated Model: ${slug}`);
+                  } else {
+                    await strapi.documents('api::model.model').create({
+                      data: modelDataObj,
+                      status: "published",
+                      populate: ["SEO", "Brand"],
+                    });
+                    console.log(`Created Model: ${slug}`);
+                  }
+                  break;
+                }
+
+                case 'App\\Models\\Indus\\DealerLocation': {
+                  // OUTLET: ensure Location exists, then create/update Outlet
+                  let locationSlug = modelData?.data?.location_slug;
+                  let location = null;
+                  if (locationSlug) {
+                    location = await strapi.documents('api::location.location').findFirst({ filters: { Slug: locationSlug } });
+                    if (!location) {
+                      location = await strapi.documents('api::location.location').create({
+                        data: { Place: modelData?.data?.location_name, Slug: locationSlug },
+                        status: "published",
+                      });
+                    }
+                  }
+                  const outletData = {
+                    Name: modelData?.data?.outlet_name || modelData?.data?.page_heading,
+                    Slug: slug,
+                    Title: modelData?.data?.browser_title,
+                    Top_Description: modelData?.data?.top_description,
+                    SEO: commonData.SEO,
+                    Location: location ? location.documentId : undefined,
+                    Featured: modelData?.data?.featured || false,
+                    Image: uploadedImage || undefined,
+                  };
+                  const existingOutlet = await strapi.documents('api::outlet.outlet').findFirst({ filters: { Slug: slug } });
+                  if (existingOutlet) {
+                    await strapi.documents('api::outlet.outlet').update({
+                      documentId: existingOutlet.documentId,
+                      data: outletData,
+                      status: "published",
+                      populate: ["SEO", "Location"],
+                    });
+                    console.log(`Updated Outlet (DealerLocation): ${slug}`);
+                  } else {
+                    await strapi.documents('api::outlet.outlet').create({
+                      data: outletData,
+                      status: "published",
+                      populate: ["SEO", "Location"],
+                    });
+                    console.log(`Created Outlet (DealerLocation): ${slug}`);
+                  }
+                  break;
+                }
+
+                case 'App\\Models\\Indus\\Dealership': {
+                  // DEALER LIST: ensure Outlet exists, then create/update Dealer List
+                  let outletSlug = modelData?.data?.outlet_slug;
+                  let outlet = null;
+                  if (outletSlug) {
+                    outlet = await strapi.documents('api::outlet.outlet').findFirst({ filters: { Slug: outletSlug } });
+                    if (!outlet) {
+                      outlet = await strapi.documents('api::outlet.outlet').create({
+                        data: { Name: modelData?.data?.outlet_name, Slug: outletSlug },
+                        status: "published",
+                      });
+                    }
+                  }
+                  const dealerListData = {
+                    Slug: slug,
+                    Page_Heading: modelData?.data?.page_heading,
+                    Top_Description: modelData?.data?.top_description,
+                    Bottom_Description: modelData?.data?.bottom_description,
+                    Related_Type: modelData?.data?.related_type,
+                    SEO: commonData.SEO,
+                    Outlet: outlet ? outlet.documentId : undefined,
+                  };
+                  const existingDealerList = await strapi.documents('api::dealer-list.dealer-list').findFirst({ filters: { Slug: slug } });
+                  if (existingDealerList) {
+                    await strapi.documents('api::dealer-list.dealer-list').update({
+                      documentId: existingDealerList.documentId,
+                      data: dealerListData,
+                      status: "published",
+                      populate: ["SEO", "Outlet"],
+                    });
+                    console.log(`Updated Dealer List (Dealership): ${slug}`);
+                  } else {
+                    await strapi.documents('api::dealer-list.dealer-list').create({
+                      data: dealerListData,
+                      status: "published",
+                      populate: ["SEO", "Outlet"],
+                    });
+                    console.log(`Created Dealer List (Dealership): ${slug}`);
+                  }
+                  break;
+                }
+
+                case 'App\\Models\\Indus\\Outlet': {
+                  // OUTLET: ensure Location exists, then create/update Outlet
+                  let locationSlug = modelData?.data?.location_slug;
+                  let location = null;
+                  if (locationSlug) {
+                    location = await strapi.documents('api::location.location').findFirst({ filters: { Slug: locationSlug } });
+                    if (!location) {
+                      location = await strapi.documents('api::location.location').create({
+                        data: { Place: modelData?.data?.location_name, Slug: locationSlug },
+                        status: "published",
+                      });
+                    }
+                  }
+                  const outletData = {
+                    Name: modelData?.data?.outlet_name || modelData?.data?.page_heading,
+                    Slug: slug,
+                    Title: modelData?.data?.browser_title,
+                    Top_Description: modelData?.data?.top_description,
+                    SEO: commonData.SEO,
+                    Location: location ? location.documentId : undefined,
+                    Featured: modelData?.data?.featured || false,
+                    Image: uploadedImage || undefined,
+                  };
+                  const existingOutlet = await strapi.documents('api::outlet.outlet').findFirst({ filters: { Slug: slug } });
+                  if (existingOutlet) {
+                    await strapi.documents('api::outlet.outlet').update({
+                      documentId: existingOutlet.documentId,
+                      data: outletData,
+                      status: "published",
+                      populate: ["SEO", "Location"],
+                    });
+                    console.log(`Updated Outlet: ${slug}`);
+                  } else {
+                    await strapi.documents('api::outlet.outlet').create({
+                      data: outletData,
+                      status: "published",
+                      populate: ["SEO", "Location"],
+                    });
+                    console.log(`Created Outlet: ${slug}`);
+                  }
+                  break;
+                }
+
+                default: {
+                  // Default: Combination Page
+                  const existingDoc = await strapi.documents('api::combination-page.combination-page').findFirst({ filters: { Slug: slug } });
+                  if (existingDoc) {
+                    await strapi.documents('api::combination-page.combination-page').update({
+                      documentId: existingDoc.documentId,
+                      data: commonData,
+                      status: "published",
+                      populate: ["SEO", "FAQ"],
+                    });
+                    console.log(`Updated Combination Page: ${slug}`);
+                  } else {
+                    await strapi.documents('api::combination-page.combination-page').create({
+                      data: commonData,
+                      status: "published",
+                      populate: ["SEO", "FAQ"],
+                    });
+                    console.log(`Created Combination Page: ${slug}`);
+                  }
+                  break;
+                }
+              }
+
+            } catch (error) {
+              if (error.response?.status === 404) {
+                console.log(`No detail page found for slug: ${model.slug}`);
+                nonDetailSlugs.push({
+                  slug: model.slug,
+                  problem: "No detail page found",
+                });
+              } else {
+                console.log(`Error processing item with slug ${model.slug}:`, error.message);
+                nonDetailSlugs.push({ slug: model.slug, problem: error.message });
+                continue;
+              }
+            }
+          }
+        } catch (error) {
+          console.log(`Error fetching page ${page}:`, error.message);
+          nonDetailSlugs.push({ slug: `Page ${page}`, problem: error.message });
+          continue;
+        }
+      }
+
+      console.log("Non-detail pages:", nonDetailSlugs);
+      ctx.body = { success: true, msg: "Process completed", nonDetailSlugs };
+    } catch (err) {
+      ctx.body = err;
     }
   },
 };

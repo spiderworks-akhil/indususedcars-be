@@ -512,6 +512,7 @@ export interface ApiBrandBrand extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     Model: Schema.Attribute.Relation<'oneToMany', 'api::model.model'>;
     Name: Schema.Attribute.String & Schema.Attribute.Unique;
+    Page_Heading: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     SEO: Schema.Attribute.Component<'shared.seo', false>;
     Slug: Schema.Attribute.UID<'Name'>;
