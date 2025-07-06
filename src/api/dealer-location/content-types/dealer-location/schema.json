@@ -1,0 +1,51 @@
+{
+  "kind": "collectionType",
+  "collectionName": "dealer_locations",
+  "info": {
+    "singularName": "dealer-location",
+    "pluralName": "dealer-locations",
+    "displayName": "Dealer Location",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "Place": {
+      "type": "string"
+    },
+    "Page_Heading": {
+      "type": "string"
+    },
+    "Description": {
+      "type": "customField",
+      "options": {
+        "preset": "defaultHtml"
+      },
+      "customField": "plugin::ckeditor5.CKEditor"
+    },
+    "SEO": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo"
+    },
+    "Slug": {
+      "type": "uid",
+      "targetField": "Place"
+    },
+    "Image": {
+      "allowedTypes": [
+        "images"
+      ],
+      "type": "media",
+      "multiple": false
+    },
+    "Dealer_Lists": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::dealer-list.dealer-list",
+      "mappedBy": "Dealer_Location"
+    }
+  }
+}

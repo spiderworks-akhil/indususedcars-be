@@ -402,6 +402,7 @@ export interface ApiBlogCategoryBlogCategory
 export interface ApiBlogPageBlogPage extends Struct.SingleTypeSchema {
   collectionName: 'blog_pages';
   info: {
+    description: '';
     displayName: 'Blog Page';
     pluralName: 'blog-pages';
     singularName: 'blog-page';
@@ -411,9 +412,11 @@ export interface ApiBlogPageBlogPage extends Struct.SingleTypeSchema {
   };
   attributes: {
     Banner: Schema.Attribute.Component<'blog.banner', false>;
+    Brand: Schema.Attribute.Component<'widget.brand-section', false>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    FAQ: Schema.Attribute.Component<'common.faq', false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -814,6 +817,10 @@ export interface ApiDealerListDealerList extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     Dealer_Detail: Schema.Attribute.Component<'dealer.dealer', false>;
+    Dealer_Location: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::dealer-location.dealer-location'
+    >;
     FAQ: Schema.Attribute.Component<'common.faq', false>;
     Head: Schema.Attribute.Component<'dealer.head', false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
@@ -837,6 +844,51 @@ export interface ApiDealerListDealerList extends Struct.CollectionTypeSchema {
           preset: 'defaultHtml';
         }
       >;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiDealerLocationDealerLocation
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'dealer_locations';
+  info: {
+    description: '';
+    displayName: 'Dealer Location';
+    pluralName: 'dealer-locations';
+    singularName: 'dealer-location';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    Dealer_Lists: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::dealer-list.dealer-list'
+    >;
+    Description: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultHtml';
+        }
+      >;
+    Image: Schema.Attribute.Media<'images'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::dealer-location.dealer-location'
+    > &
+      Schema.Attribute.Private;
+    Page_Heading: Schema.Attribute.String;
+    Place: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    SEO: Schema.Attribute.Component<'shared.seo', false>;
+    Slug: Schema.Attribute.UID<'Place'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1932,6 +1984,7 @@ declare module '@strapi/strapi' {
       'api::contact-form-ui.contact-form-ui': ApiContactFormUiContactFormUi;
       'api::contact.contact': ApiContactContact;
       'api::dealer-list.dealer-list': ApiDealerListDealerList;
+      'api::dealer-location.dealer-location': ApiDealerLocationDealerLocation;
       'api::dealer.dealer': ApiDealerDealer;
       'api::fuel-type.fuel-type': ApiFuelTypeFuelType;
       'api::general.general': ApiGeneralGeneral;
