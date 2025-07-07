@@ -58,7 +58,7 @@ module.exports = {
       };
 
       const data = await fetchWithRetry(
-        "https://indususedcars.com/api/combination-pages"
+        `${process.env.OLD_BACKEND_URL}/api/combination-pages`
       );
       console.log(data);
 
@@ -68,7 +68,7 @@ module.exports = {
 
         try {
           const pageData = await fetchWithRetry(
-            `https://indususedcars.com/api/combination-pages?page=${page}`
+            `${process.env.OLD_BACKEND_URL}/api/combination-pages?page=${page}`
           );
 
           for (const model of pageData.data?.data) {
@@ -92,14 +92,14 @@ module.exports = {
               if (!existingModel) {
                 try {
                   const modelData = await fetchWithRetry(
-                    `https://indususedcars.com/api/combination-pages/${model.slug}`
+                    `${process.env.OLD_BACKEND_URL}/api/combination-pages/${model.slug}`
                   );
 
                   if ([200, 201].includes(modelData.status)) {
                     let uploadedImage = null;
                     if (modelData?.data?.og_image?.file_path) {
                       const imageResponse = await axios.get(
-                        `https://indususedcars.com/${modelData.data.og_image.file_path}`,
+                        `${process.env.OLD_BACKEND_URL}/${modelData.data.og_image.file_path}`,
                         { responseType: "arraybuffer" }
                       );
 
@@ -1185,7 +1185,7 @@ module.exports = {
       };
 
       const data = await fetchWithRetry(
-        "https://indususedcars.com/api/combination-pages"
+        `${process.env.OLD_BACKEND_URL}/api/combination-pages`
       );
       console.log(data);
 
@@ -1195,7 +1195,7 @@ module.exports = {
 
         try {
           const pageData = await fetchWithRetry(
-            `https://indususedcars.com/api/combination-pages?page=${page}`
+            `${process.env.OLD_BACKEND_URL}/api/combination-pages?page=${page}`
           );
 
           for (const model of pageData.data?.data) {
@@ -1211,7 +1211,7 @@ module.exports = {
               }
 
               const modelData = await fetchWithRetry(
-                `https://indususedcars.com/api/combination-pages/${model.slug}`
+                `${process.env.OLD_BACKEND_URL}/api/combination-pages/${model.slug}`
               );
 
               if (![200, 201].includes(modelData.status)) continue;
@@ -1219,7 +1219,7 @@ module.exports = {
               let uploadedImage = null;
               if (modelData?.data?.og_image?.file_path) {
                 const imageResponse = await axios.get(
-                  `https://indususedcars.com/${modelData.data.og_image.file_path}`,
+                  `${process.env.OLD_BACKEND_URL}/${modelData.data.og_image.file_path}`,
                   { responseType: "arraybuffer" }
                 );
 
@@ -1306,7 +1306,7 @@ module.exports = {
                   const locationData = {
                     Place: modelData?.data?.location_name || modelData?.data?.page_heading,
                     Slug: slug,
-                    Title: modelData?.data?.page_heading,
+                    Title: modelData?.data?.browser_title,
                     Description: modelData?.data?.meta_description,
                     SEO: commonData.SEO,
                     Image: uploadedImage || undefined,
@@ -1383,8 +1383,8 @@ module.exports = {
                   if (locationSlug) {
                     location = await strapi.documents('api::dealer-location.dealer-location').findFirst({ filters: { Slug: locationSlug } });
                     if (!location) {
-                      location = await strapi.documents('api::dealer-location.dealer-location').create({
-                        data: { Place: modelData?.data?.page_heading, Slug: locationSlug },
+                      location = await strapi.documents('api::location.location').create({
+                        data: { Place: modelData?.data?.location_name, Slug: locationSlug },
                         status: "published",
                       });
                     }

@@ -110,7 +110,7 @@ module.exports = {
               return await axios.get(
                 cleanedPath.startsWith("https://")
                   ? cleanedPath
-                  : `https://indususedcars.com/${cleanedPath}`,
+                  : `${process.env.OLD_BACKEND_URL}/${cleanedPath}`,
                 { responseType: "arraybuffer", timeout: 30000 }
               );
             } catch (error) {
@@ -230,11 +230,11 @@ module.exports = {
       // Track failed blogs for reporting
       const failedBlogs = [];
 
-      const blogsCount = await axios.get(`https://indususedcars.com/api/pages`);
+      const blogsCount = await axios.get(`${process.env.OLD_BACKEND_URL}/api/pages`);
       let blogList;
       for (let i = 1; i <= blogsCount?.data?.last_page; i++) {
         blogList = await axios.get(
-          `https://indususedcars.com/api/pages?page=${i}`
+          `${process.env.OLD_BACKEND_URL}/api/pages?page=${i}`
         );
 
         for (const blog of blogList?.data?.data) {
@@ -252,7 +252,7 @@ module.exports = {
               if (!existingBlog.Featured_Image || !existingBlog.Banner_Image) {
                 try {
                   const blogDetail = await axios.get(
-                    `https://indususedcars.com/api/pages/${blog?.slug}`
+                    `${process.env.OLD_BACKEND_URL}/api/pages/${blog?.slug}`
                   );
                   const updateData = {};
 
@@ -336,7 +336,7 @@ module.exports = {
 
               const blogDetail = (
                 await axios.get(
-                  `https://indususedcars.com/api/pages/${blog?.slug}`
+                  `${process.env.OLD_BACKEND_URL}/api/pages/${blog?.slug}`
                 )
               ).data;
 
@@ -449,7 +449,7 @@ module.exports = {
 
                 const blogDetail = (
                   await axios.get(
-                    `https://indususedcars.com/api/pages/${blog?.slug}`
+                    `${process.env.OLD_BACKEND_URL}/api/pages/${blog?.slug}`
                   )
                 ).data;
 
@@ -476,7 +476,7 @@ module.exports = {
 
                 const blogDetail = (
                   await axios.get(
-                    `https://indususedcars.com/api/pages/${blog?.slug}`
+                    `${process.env.OLD_BACKEND_URL}/api/pages/${blog?.slug}`
                   )
                 ).data;
 
@@ -500,7 +500,7 @@ module.exports = {
                 console.log(blog?.og_image?.file_path);
                 const blogDetail = (
                   await axios.get(
-                    `https://indususedcars.com/api/pages/${blog?.slug}`
+                    `${process.env.OLD_BACKEND_URL}/api/pages/${blog?.slug}`
                   )
                 ).data;
                 updateData.Content = blogDetail?.content || "";
@@ -551,7 +551,7 @@ module.exports = {
               //update blog date
               const blogDetail = (
                 await axios.get(
-                  `https://indususedcars.com/api/pages/${blog?.slug}`
+                  `${process.env.OLD_BACKEND_URL}/api/pages/${blog?.slug}`
                 )
               ).data;
 
@@ -690,17 +690,17 @@ module.exports = {
       // Track failed blogs for reporting
       const failedBlogs = [];
 
-      const blogsCount = await axios.get(`https://indususedcars.com/api/pages`);
+      const blogsCount = await axios.get(`${process.env.OLD_BACKEND_URL}/api/pages`);
       for (let i = 1; i <= blogsCount?.data?.last_page; i++) {
         const blogList = await axios.get(
-          `https://indususedcars.com/api/pages?page=${i}`
+          `${process.env.OLD_BACKEND_URL}/api/pages?page=${i}`
         );
 
         for (const blog of blogList?.data?.data) {
           if (blog?.type === "Blog") {
             const blogDetail = (
               await axios.get(
-                `https://indususedcars.com/api/pages/${blog?.slug}`
+                `${process.env.OLD_BACKEND_URL}/api/pages/${blog?.slug}`
               )
             ).data;
 
@@ -742,7 +742,7 @@ module.exports = {
           const response = await axios.get(
             filePath.startsWith("http")
               ? filePath
-              : `https://indususedcars.com/${filePath}`,
+              : `${process.env.OLD_BACKEND_URL}/${filePath}`,
             { responseType: "arraybuffer" }
           );
 
@@ -869,7 +869,7 @@ module.exports = {
           const fileName = `image_${uniqueId}.jpg`;
 
           const response = await axios.get(
-            `https://indususedcars.com/${cleanedPath}`,
+            `${process.env.OLD_BACKEND_URL}/${cleanedPath}`,
             { responseType: "arraybuffer", timeout: 30000 }
           );
 
@@ -998,7 +998,7 @@ module.exports = {
 
       for (const blog of blogs) {
         const blogDetail = (
-          await axios.get(`https://indususedcars.com/api/pages/${blog.Slug}`)
+          await axios.get(`${process.env.OLD_BACKEND_URL}/api/pages/${blog.Slug}`)
         ).data;
 
         if (blogDetail?.created_at) {

@@ -14,7 +14,7 @@ module.exports = {
           filters: {
             Slug: slug,
           },
-          populate:['SEO','SEO.Meta_Image']
+          populate: ['SEO', 'SEO.Meta_Image', 'dealer-lists']
         });
 
       if (!findLocation) {
@@ -29,4 +29,25 @@ module.exports = {
       ctx.body = err;
     }
   },
+
+  List: async (ctx, next) => {
+    try {
+      const locationList = await strapi.documents('api::dealer-location.dealer-location').findMany({
+        filters: {},
+        populate: {
+          SEO: {
+            Meta_Image: {
+              populate: '*'
+            }
+          }
+        }
+      });
+
+      ctx.status = 200;
+      ctx.body = locationList;
+    } catch (error) {
+      ctx.status = 500;
+      ctx.body = error;
+    }
+  }
 };

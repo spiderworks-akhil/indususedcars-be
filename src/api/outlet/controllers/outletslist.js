@@ -178,7 +178,7 @@ module.exports = {
   },
   fetchDetails:async(ctx,next)=>{
     try {
-      const fetchOuletList= await axios.get('https://indususedcars.com/locations_all');
+      const fetchOuletList= await axios.get(`${process.env.OLD_BACKEND_URL}/locations_all`);
 
      
 
@@ -222,7 +222,7 @@ module.exports = {
         // Upload OG image if available
         let ogImageId = null;
         if (outlet.og_image) {
-          const imageUrl = `https://www.indususedcars.com/${outlet.og_image?.file_path}`;
+          const imageUrl = `${process.env.OLD_BACKEND_URL}/${outlet.og_image?.file_path}`;
           ogImageId = await uploadImage(imageUrl);
         }
 

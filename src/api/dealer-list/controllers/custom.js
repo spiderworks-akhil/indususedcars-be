@@ -20,7 +20,7 @@ module.exports = {
 
     try {
       const fetchDealerAPI = await axios.get(
-        "https://indususedcars.com/api/dealers"
+        `${process.env.OLD_BACKEND_URL}/api/dealers`
       );
       const dealerList = fetchDealerAPI.data;
 

@@ -11,12 +11,12 @@ module.exports = {
     try {
       console.log("fetchStaticPages");
 
-      const fetchPages = await axios.get('https://indususedcars.com/api/pages');
+      const fetchPages = await axios.get(`${process.env.OLD_BACKEND_URL}/api/pages`);
       let pages = [];
       for (let i = 1; i <= fetchPages?.data?.last_page; i++) {
         console.log("fetchPages", i);
 
-        const pageList = await axios.get(`https://indususedcars.com/api/pages?page=${i}`);
+        const pageList = await axios.get(`${process.env.OLD_BACKEND_URL}/api/pages?page=${i}`);
         for (const page of pageList?.data?.data) {
 
           if (page?.type == "Page") {
@@ -27,7 +27,7 @@ module.exports = {
             })
 
             if (!static_page_exist) {
-              const fetch_static_page = await axios.get(`https://indususedcars.com/api/pages/${page?.slug}`);
+              const fetch_static_page = await axios.get(`${process.env.OLD_BACKEND_URL}/api/pages/${page?.slug}`);
               console.log(fetch_static_page?.data);
 
               const static_page = await strapi.documents('api::static-page.static-page').create({

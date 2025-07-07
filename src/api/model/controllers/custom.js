@@ -30,7 +30,7 @@ module.exports = {
       };
 
       const data = await axios.get(
-        "https://indususedcars.com/api/combination-pages"
+        `${process.env.OLD_BACKEND_URL}/api/combination-pages`
       );
 
       // Process pages from 1 to 40
@@ -39,7 +39,7 @@ module.exports = {
 
         try {
           const pageData = await axios.get(
-            `https://indususedcars.com/api/combination-pages?page=${page}`
+            `${process.env.OLD_BACKEND_URL}/api/combination-pages?page=${page}`
           );
 
           for (const model of pageData.data?.data) {
@@ -58,14 +58,14 @@ module.exports = {
             if (!existingModel) {
               try {
                 const modelData = await axios.get(
-                  `https://indususedcars.com/api/combination-pages/${model.slug}`
+                  `${process.env.OLD_BACKEND_URL}/api/combination-pages/${model.slug}`
                 );
 
                 if ([200, 201].includes(modelData.status)) {
                   let uploadedImage = null;
                   if (modelData?.data?.og_image?.file_path) {
                     const imageResponse = await axios.get(
-                      `https://indususedcars.com/${modelData.data.og_image.file_path}`,
+                      `${process.env.OLD_BACKEND_URL}/${modelData.data.og_image.file_path}`,
                       { responseType: "arraybuffer" }
                     );
 
