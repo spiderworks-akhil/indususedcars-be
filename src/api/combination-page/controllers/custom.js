@@ -1185,7 +1185,7 @@ module.exports = {
       };
 
       const data = await fetchWithRetry(
-        `${process.env.OLD_BACKEND_URL}/api/combination-pages`
+        `${process.env.OLD_BACKEND_URL}/api/combination-pages?page=1&limit=1000`
       );
       console.log(data);
 
