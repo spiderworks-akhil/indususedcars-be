@@ -612,7 +612,7 @@ module.exports = {
         start: (Number(start) - 1) * Number(limit),
         limit: Number(limit),
         status: "published",
-        sort: { publishedAt: "desc" }, // Sort by latest published blogs first
+        sort: { createdAt: "desc" }, // Sort by latest published blogs first
         populate: {
           Featured_Image: {
             populate: "*",
