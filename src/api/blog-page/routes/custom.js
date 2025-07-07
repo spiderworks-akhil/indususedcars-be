@@ -1,0 +1,12 @@
+module.exports={
+    routes:[{
+        method:'GET',
+        path:'/blog-page',
+        handler:'custom.blogStaticPage',
+        config:{
+            auth:false,
+            policies:[],
+            middlewares:[]
+        }
+    }]
+}

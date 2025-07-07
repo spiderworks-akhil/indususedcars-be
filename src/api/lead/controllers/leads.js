@@ -87,6 +87,7 @@ module.exports = {
         SourceType: source_type,
         SourceURL: source_url,
         CustomerEmail: email,
+        API_Status: false,
       };
 
       if (message) {

@@ -78,6 +78,12 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::location.location"
+    },
+    "Dealer_Location": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::dealer-location.dealer-location",
+      "inversedBy": "Dealer_Lists"
     }
   }
 }

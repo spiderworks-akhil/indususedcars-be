@@ -1306,7 +1306,7 @@ module.exports = {
                   const locationData = {
                     Place: modelData?.data?.location_name || modelData?.data?.page_heading,
                     Slug: slug,
-                    Title: modelData?.data?.browser_title,
+                    Title: modelData?.data?.page_heading,
                     Description: modelData?.data?.meta_description,
                     SEO: commonData.SEO,
                     Image: uploadedImage || undefined,
@@ -1381,10 +1381,10 @@ module.exports = {
                   let locationSlug = modelData?.data?.location_slug;
                   let location = null;
                   if (locationSlug) {
-                    location = await strapi.documents('api::location.location').findFirst({ filters: { Slug: locationSlug } });
+                    location = await strapi.documents('api::dealer-location.dealer-location').findFirst({ filters: { Slug: locationSlug } });
                     if (!location) {
-                      location = await strapi.documents('api::location.location').create({
-                        data: { Place: modelData?.data?.location_name, Slug: locationSlug },
+                      location = await strapi.documents('api::dealer-location.dealer-location').create({
+                        data: { Place: modelData?.data?.page_heading, Slug: locationSlug },
                         status: "published",
                       });
                     }
