@@ -33,6 +33,16 @@ module.exports = {
     },
     {
         method: 'GET',
+        path: '/outlets/extract',
+        handler: 'outletslist.extractDetails',
+        config: {
+            auth: false,
+            policies: [],
+            middleware: []
+        }
+    },
+    {
+        method: 'GET',
         path: '/outlets/:slug',
         handler: 'outletslist.outletDetail',
         config: {

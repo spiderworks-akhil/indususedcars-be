@@ -1246,7 +1246,7 @@ export interface ApiOutletOutlet extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     Location: Schema.Attribute.Relation<'manyToOne', 'api::location.location'>;
-    Name: Schema.Attribute.String & Schema.Attribute.Required;
+    Name: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     SEO: Schema.Attribute.Component<'shared.seo', false>;
     Slug: Schema.Attribute.UID<'Name'>;
