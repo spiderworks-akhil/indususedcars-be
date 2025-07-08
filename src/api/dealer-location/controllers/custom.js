@@ -14,7 +14,7 @@ module.exports = {
           filters: {
             Slug: slug,
           },
-          populate: ['SEO', 'SEO.Meta_Image', 'dealer-lists']
+          populate: ['SEO', 'SEO.Meta_Image', 'Dealer_Lists']
         });
 
       if (!findLocation) {
