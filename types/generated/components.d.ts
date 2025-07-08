@@ -629,6 +629,7 @@ export interface SeoGoogleTagManager extends Struct.ComponentSchema {
 export interface SettingsContact extends Struct.ComponentSchema {
   collectionName: 'components_settings_contacts';
   info: {
+    description: '';
     displayName: 'Contact';
   };
   attributes: {
@@ -637,8 +638,8 @@ export interface SettingsContact extends Struct.ComponentSchema {
     Email: Schema.Attribute.Email & Schema.Attribute.Required;
     Google_Map_Embed_Code: Schema.Attribute.String;
     Google_Map_URL: Schema.Attribute.String;
-    Phone_Number: Schema.Attribute.String & Schema.Attribute.Required;
-    WhatsApp_Number: Schema.Attribute.String & Schema.Attribute.Required;
+    Phone_Number: Schema.Attribute.String;
+    WhatsApp_Number: Schema.Attribute.String;
   };
 }
 

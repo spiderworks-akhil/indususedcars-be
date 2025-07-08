@@ -1,7 +1,8 @@
 {
   "collectionName": "components_settings_contacts",
   "info": {
-    "displayName": "Contact"
+    "displayName": "Contact",
+    "description": ""
   },
   "options": {},
   "attributes": {
@@ -18,11 +19,11 @@
     },
     "Phone_Number": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "WhatsApp_Number": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "Google_Map_Embed_Code": {
       "type": "string"
