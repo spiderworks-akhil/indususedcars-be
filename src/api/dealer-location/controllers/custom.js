@@ -36,9 +36,12 @@ module.exports = {
         filters: {},
         populate: {
           SEO: {
-            Meta_Image: {
-              populate: '*'
+            populate: {
+              Meta_Image: {
+                populate: '*'
+              }
             }
+
           }
         }
       });
