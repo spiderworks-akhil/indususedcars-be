@@ -837,6 +837,7 @@ export interface ApiDealerListDealerList extends Struct.CollectionTypeSchema {
     Related_Type: Schema.Attribute.String;
     SEO: Schema.Attribute.Component<'shared.seo', false>;
     Slug: Schema.Attribute.UID;
+    Title: Schema.Attribute.String;
     Top_Description: Schema.Attribute.RichText &
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',

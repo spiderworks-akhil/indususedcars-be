@@ -84,6 +84,9 @@
       "relation": "manyToOne",
       "target": "api::dealer-location.dealer-location",
       "inversedBy": "Dealer_Lists"
+    },
+    "Title": {
+      "type": "string"
     }
   }
 }
