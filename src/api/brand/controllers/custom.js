@@ -1,5 +1,7 @@
 "use strict";
 
+const axios = require("axios");
+
 /**
  * A set of functions called "actions" for `custom`
  */
@@ -111,5 +113,126 @@ module.exports = {
         message: 'Failed to process brands'
       };
     }
-  }
+  },
+  extractDetails: async (ctx, next) => {
+    // Helper to sleep for ms milliseconds
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    // Helper to fetch with retry on 429
+    const fetchWithRetry = async (url, retries = 3) => {
+      let attempt = 0;
+      while (attempt < retries) {
+        try {
+          return await axios.get(url);
+        } catch (error) {
+          if (error.response && error.response.status === 429) {
+            attempt++;
+            if (attempt < retries) {
+              console.log(`429 Too Many Requests for ${url}. Waiting 20 seconds before retrying (attempt ${attempt + 1}/${retries})...`);
+              await sleep(20000); // 20 seconds
+              continue;
+            }
+          }
+          throw error;
+        }
+      }
+    };
+
+    try {
+      console.log("brands");
+      const nonDetailSlugs = [];
+
+      const data = await fetchWithRetry(
+        `${process.env.OLD_BACKEND_URL}/api/combination-pages?page=1&limit=1000`
+      );
+      console.log(data);
+
+      // Process pages from 1 to 40
+      for (let page = 1; page <= data?.data?.last_page; page++) {
+        console.log(`processing page ${page}`);
+
+        try {
+          const pageData = await fetchWithRetry(
+            `${process.env.OLD_BACKEND_URL}/api/combination-pages?page=${page}&limit=1000`
+          );
+
+          for (const brand of pageData.data?.data) {
+            try {
+              if (brand.related_type === 'App\\Models\\Indus\\Brand') {
+                const fetchData = await fetchWithRetry(
+                  `${process.env.OLD_BACKEND_URL}/api/combination-pages/${brand?.slug}`
+                );
+
+                const exist = await strapi.documents('api::brand.brand').findFirst({
+                  filters: {
+                    Slug: brand.slug
+                  }
+                })
+
+                if (exist) {
+                  await strapi.documents('api::brand.brand').update({
+                    documentId: exist.documentId,
+                    data: {
+                      Page_Heading: fetchData?.data?.page_heading,
+                      SEO: {
+                        Meta_Title: fetchData?.data?.browser_title,
+                        Meta_Description: fetchData?.data?.meta_description,
+                        Keywords: fetchData?.data?.meta_keywords,
+                        OG_Title: fetchData?.data?.browser_title,
+                        OG_Description: fetchData?.data?.meta_description,
+                        Bottom_Description: fetchData?.data?.bottom_description == null ? fetchData?.data?.top_description : fetchData?.data?.bottom_description,
+                        Top_Description: fetchData?.data?.top_description == null ? null : fetchData?.data?.bottom_description,
+                        Extra_JS: fetchData?.data?.extra_js
+                      }
+                    },
+                    populate: ['SEO', 'SEO.Meta_Image'],
+                    status: 'published',
+                  })
+                } else {
+                  await strapi.documents('api::brand.brand').create({
+                    data: {
+                      Slug: brand.slug,
+                      Page_Heading: fetchData?.data?.page_heading,
+                      SEO: {
+                        Meta_Title: fetchData?.data?.browser_title,
+                        Meta_Description: fetchData?.data?.meta_description,
+                        Keywords: fetchData?.data?.meta_keywords,
+                        OG_Title: fetchData?.data?.browser_title,
+                        OG_Description: fetchData?.data?.meta_description,
+                        Bottom_Description: fetchData?.data?.bottom_description == null ? fetchData?.data?.top_description : fetchData?.data?.bottom_description,
+                        Top_Description: fetchData?.data?.top_description == null ? null : fetchData?.data?.bottom_description,
+                        Extra_JS: fetchData?.data?.extra_js
+                      }
+                    },
+                    populate: ['SEO', 'SEO.Meta_Image'],
+                    status: 'published'
+                  })
+                }
+
+                console.log('SUCCESS');
+              }
+            } catch (error) {
+              console.log('FAILED');
+              console.log(
+                `Error processing item with slug ${brand.slug}:`,
+                error.message
+              );
+              nonDetailSlugs.push({ slug: brand.slug, problem: error.message });
+              continue;
+            }
+          }
+          console.log('COMPLETED');
+        } catch (error) {
+          console.log(`Error fetching page ${page}:`, error.message);
+          nonDetailSlugs.push({ slug: `Page ${page}`, problem: error.message });
+          continue;
+        }
+      }
+
+      console.log("Non-detail pages:", nonDetailSlugs);
+      ctx.body = { success: true, msg: "Process completed", nonDetailSlugs };
+    } catch (err) {
+      ctx.body = err;
+    }
+  },
 };

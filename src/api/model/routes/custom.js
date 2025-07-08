@@ -24,6 +24,16 @@ module.exports = {
     },
     {
       method: "GET",
+      path: "/models/extract",
+      handler: "custom.extractDetails",
+      config: {
+        auth: false,
+        policies: [],
+        middlewares: [],
+      },
+    },
+    {
+      method: "GET",
       path: "/models/:slug",
       handler: "custom.fetchBySlug",
       config: {
