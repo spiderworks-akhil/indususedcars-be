@@ -316,6 +316,15 @@ module.exports = {
             },
           },
         });
+
+
+      if (!dealer) {
+        ctx.status = 404;
+        ctx.body = {
+          err: 'Not Found'
+        }
+      }
+
       ctx.status = 200;
       ctx.body = {
         data: dealer,
