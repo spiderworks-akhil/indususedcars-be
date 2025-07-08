@@ -428,10 +428,14 @@ export interface FooterCustomerSupport extends Struct.ComponentSchema {
 export interface FooterShowroom extends Struct.ComponentSchema {
   collectionName: 'components_footer_showrooms';
   info: {
+    description: '';
     displayName: 'Showroom';
   };
   attributes: {
-    Locations: Schema.Attribute.Relation<'oneToMany', 'api::location.location'>;
+    Locations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::dealer-location.dealer-location'
+    >;
     Title: Schema.Attribute.String;
   };
 }
