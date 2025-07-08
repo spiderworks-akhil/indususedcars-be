@@ -54,6 +54,9 @@ module.exports = {
                 SEO: {
                   populate: "*",
                 },
+                FAQ:{
+                  populate:'*'
+                }
               },
             });
 
@@ -323,6 +326,7 @@ module.exports = {
         ctx.body = {
           err: 'Not Found'
         }
+        return;
       }
 
       ctx.status = 200;
@@ -331,6 +335,9 @@ module.exports = {
       };
     } catch (err) {
       ctx.status = 500;
+      ctx.body={
+        err:err
+      }
     }
   },
 };

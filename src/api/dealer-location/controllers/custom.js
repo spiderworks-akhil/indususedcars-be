@@ -22,10 +22,13 @@ module.exports = {
         ctx.body = {
           err: "Location Not Found",
         };
+
+        return
       }
       ctx.status = 200;
       ctx.body = findLocation;
     } catch (err) {
+      ctx.status = 500;
       ctx.body = err;
     }
   },
