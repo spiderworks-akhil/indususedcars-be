@@ -128,4 +128,35 @@ module.exports = {
       ctx.body = err;
     }
   },
+  getBySlug: async (ctx, next) => {
+    try {
+      const { slug } = ctx.params;
+      const findLocation = await strapi.documents('api::location.location').findFirst({
+        filters: {
+          Slug: slug
+        },
+        populate: ['SEO', 'SEO.Meta_Image', 'Outlets', 'Benefit_Section', 'FAQ', 'Assurance_Section', 'Exclusive_Section', 'Offer_Section']
+      })
+
+      if (!findLocation) {
+        ctx.status = 404;
+        ctx.body = {
+          err: 'Not Found'
+        }
+
+        return;
+      }
+
+      ctx.status = 200;
+      ctx.body = {
+        data: findLocation
+      }
+
+    } catch (error) {
+      ctx.status = 404;
+      ctx.body = {
+        err: error?.message
+      }
+    }
+  }
 };

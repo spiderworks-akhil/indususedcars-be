@@ -8,5 +8,16 @@ module.exports = {
             middlewares: [],
             policies: []
         }
-    }]
+    },
+    {
+        method: 'GET',
+        path: '/location/:slug',
+        handler: 'custom.getBySlug',
+        config: {
+            auth: false,
+            middlewares: [],
+            policies: []
+        }
+    }
+    ]
 }
