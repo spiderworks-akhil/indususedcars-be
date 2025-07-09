@@ -904,4 +904,78 @@ module.exports = {
       ctx.throw(500, err);
     }
   },
+  exportLeadsByDate: async (ctx) => {
+    try {
+      const { startDate, endDate } = ctx.request.body;
+
+      console.log({startDate,endDate});
+      
+
+      if (!startDate || !endDate) {
+        return ctx.badRequest("Both start and end dates are required");
+      }
+
+      // Fetch leads filtered by date range
+      const leads = await strapi.documents('api::lead.lead').findMany({
+        filters: {
+          createdAt: {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate),
+          }
+        },
+        populate: '*',
+        status: 'published'
+      });
+
+      if (!leads || leads.length === 0) {
+        ctx.status = 404;
+        ctx.body = { message: "No leads found for the given date range." };
+        return;
+      }
+
+      // Map leads to flat objects with desired columns and order
+      const exportData = leads.map(lead => ({
+        "Customer Name": lead.CustomerName,
+        "Customer Email": lead.CustomerEmail,
+        "Mobile Number": lead.MobileNumber,
+        "Lead Type": lead.Lead_Type,
+        "Date": lead.Date,
+        "Notes": lead.Notes,
+        "utmSource": lead.utmSource,
+        "SourceType": lead.SourceType,
+        "City": lead.City,
+        "API_Status": lead.API_Status,
+        "SourceURL": lead.SourceURL,
+        "Car": lead.Car ? JSON.stringify(lead.Car) : "",
+        "Created At": lead.createdAt,
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData, { header: [
+        "Customer Name",
+        "Customer Email",
+        "Mobile Number",
+        "Lead Type",
+        "Date",
+        "Notes",
+        "utmSource",
+        "SourceType",
+        "City",
+        "API_Status",
+        "SourceURL",
+        "Car",
+        "Created At"
+      ]});
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
+
+      // Generate buffer and send response
+      const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+
+      ctx.set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      ctx.set("Content-Disposition", `attachment; filename=\"leads_${startDate}_to_${endDate}.xlsx\"`);
+      ctx.body = buffer; // <-- Use ctx.body, not ctx.send
+    } catch (err) {
+      ctx.throw(500, err);
+    }
+  },
 };

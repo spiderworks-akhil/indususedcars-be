@@ -1,3 +1,4 @@
+import React, { lazy, Suspense } from "react";
 import Logo from "./extensions/logo.png";
 import favicon from "./extensions/favicon.ico";
 
@@ -15,7 +16,6 @@ const config = {
   notifications: {
     releases: false,
   },
-
   translations: {
     en: {
       "app.components.LeftMenu.navbrand.title": "Indus Motors Dashboard",
@@ -31,7 +31,30 @@ const config = {
 };
 
 const bootstrap = (app) => {
-  console.log(app);
+  const cm = app.getPlugin("content-manager");
+  console.log({cm});
+  
+  if (cm && cm.injectComponent) {
+    const DownloadExcel = lazy(() => import("./components/DowloadExcel.jsx"));
+    cm.injectComponent("listView", "actions", {
+      name: "download-excel",
+      Component: (props) => {
+        // Only show for leads collection type
+       
+          return (
+            <Suspense fallback={null}>
+              <DownloadExcel/>
+            </Suspense>
+          );
+        
+        return null;
+      },
+    });
+  } else {
+    console.warn(
+      "Content Manager plugin not found or injectComponent not available"
+    );
+  }
 };
 
 export default {

@@ -30,5 +30,13 @@ module.exports = {
         auth: false, // Change to true if authentication is required
       },
     },
+    {
+      method: "POST",
+      path: "/leads/export",
+      handler: "leads.exportLeadsByDate",
+      config: {
+        auth: false, // Change to true if authentication is required
+      },
+    },
   ],
 };

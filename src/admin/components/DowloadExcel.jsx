@@ -1,99 +1,151 @@
-import { Button, Field, Modal } from "@strapi/design-system";
+import {
+  Alert,
+  Button,
+  Field,
+  Modal,
+  DatePicker
+} from "@strapi/design-system";
 import React, { useState } from "react";
-import { useNotification } from "@strapi/helper-plugin";
+import { unstable_useContentManagerContext as useContentManagerContext } from "@strapi/strapi/admin";
+import { Download } from "@strapi/icons";
 import axios from "axios";
 
 const DownloadExcel = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const { model } = useContentManagerContext();
+  console.log({ model });
+
   const [isLoading, setIsLoading] = useState(false);
-  const toggleNotification = useNotification();
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [startDate, setStartDate] = useState(null); // null by default
+  const [endDate, setEndDate] = useState(null); // null by default
 
-  const handleExport = async () => {
-    if (!startDate || !endDate) {
-      toggleNotification({
-        type: "warning",
-        message: "Please select both start and end dates",
-      });
-      return;
-    }
-
-    setIsLoading(true);
+  const handleExportLeads = async () => {
     try {
-      const response = await axios.get("/cars/export-excel", {
-        params: { startDate, endDate },
-        responseType: "blob",
+      setIsLoading(true);
+      if (!startDate || !endDate) {
+        setError("Please select both start and end dates");
+        return;
+      }
+      if (startDate > endDate) {
+        setError("Start date cannot be after end date");
+        return;
+      }
+
+      const response = await axios.post("/api/leads/export", {
+
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString()
+      }, {
+        responseType: "blob", // <-- important to treat as binary
       });
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", `cars_${startDate}_to_${endDate}.xlsx`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      console.log({ response: response?.data });
 
-      toggleNotification({
-        type: "success",
-        message: "Excel exported successfully",
-      });
+
+      if (response.data) {
+        setSuccess("Leads exported successfully");
+        // Create download link for the Excel file
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `leads_${startDate.toISOString().split('T')[0]}_to_${endDate.toISOString().split('T')[0]}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+
+        setTimeout(() => {
+          setSuccess("");
+          setIsOpen(false);
+        }, 3000);
+      } else {
+        setError("Failed to export leads");
+      }
     } catch (error) {
-      toggleNotification({
-        type: "error",
-        message: "Failed to export Excel",
-      });
-      console.error(error);
+      console.log({ error });
+
+      setError(error?.response?.data?.message || error?.message || "An error occurred");
+      setTimeout(() => setError(""), 5000);
     } finally {
       setIsLoading(false);
-      setIsVisible(false);
     }
   };
 
+  if (model !== "api::lead.lead") return null;
+
   return (
     <>
-      <Modal.Root>
-        <Modal.Trigger>
-          <Button>Export Excel</Button>
+      <Modal.Root open={isOpen} defaultOpen={false} onOpenChange={() => setIsOpen(!isOpen)}>
+        <Modal.Trigger onClick={() => setIsOpen(true)}>
+          <Button startIcon={<Download />}>Export Leads</Button>
         </Modal.Trigger>
-        <Modal.Content>
+        <Modal.Content style={{ height: "300px" }}>
           <Modal.Header>
-            <Modal.Title>Export Cars Data</Modal.Title>
+            <Modal.Title>Export Leads</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Field.Root>
-              <Field.Label>Start Date</Field.Label>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                required
-              />
-            </Field.Root>
-            <Field.Root style={{ marginTop: "1rem" }}>
-              <Field.Label>End Date</Field.Label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                required
-              />
-            </Field.Root>
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
+              <Field.Root style={{ flex: 1 }} name="startDate" required>
+                <Field.Label>Start Date</Field.Label>
+                <DatePicker
+                  selectedDate={startDate}
+                  onChange={setStartDate}
+                  onClear={() => setStartDate(null)}
+                  size="M"
+                  locale="en-GB"
+                />
+              </Field.Root>
+              <Field.Root style={{ flex: 1 }} name="endDate" required>
+                <Field.Label>End Date</Field.Label>
+                <DatePicker
+                  selectedDate={endDate}
+                  onChange={setEndDate}
+                  onClear={() => setEndDate(null)}
+                  size="M"
+                  locale="en-GB"
+                />
+              </Field.Root>
+            </div>
           </Modal.Body>
           <Modal.Footer>
             <Modal.Close>
-              <Button variant="tertiary">Cancel</Button>
+              <Button variant="tertiary" onClick={() => setIsOpen(false)}>
+                Cancel
+              </Button>
             </Modal.Close>
             <Button
-              onClick={handleExport}
-              loading={isLoading}
-              disabled={isLoading}
+              onClick={handleExportLeads}
+              disabled={isLoading || !startDate || !endDate || startDate > endDate}
             >
-              Export
+              {isLoading ? "Exporting..." : "Export"}
             </Button>
           </Modal.Footer>
         </Modal.Content>
       </Modal.Root>
+
+      {error && (
+        <Alert
+          style={{ position: "fixed", top: "5px", right: "5px" }}
+          closeLabel="Close"
+          title="Error"
+          variant="danger"
+        >
+          {error}
+        </Alert>
+      )}
+
+      {success && (
+        <Alert
+          style={{ position: "fixed", top: "5px", right: "5px" }}
+          closeLabel="Close"
+          title="Success"
+          variant="success"
+        >
+          {success}
+        </Alert>
+      )}
     </>
   );
 };
