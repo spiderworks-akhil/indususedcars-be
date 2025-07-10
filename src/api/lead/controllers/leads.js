@@ -241,10 +241,7 @@ module.exports = {
                 <body>
                   <div class="container">
                     <div class="content">
-                      <div class="header">
-                        <img src="https://www.indusmotors.com/logo.png" alt="Indus Motors Logo" class="logo">
-                        <div class="company-name">Indus Motors</div>
-                      </div>
+                     
                       <h2>Test Drive Request Confirmation</h2>
                       <div class="message">
                         <p>Dear Mr/Ms. <%= data.name %>,</p>
@@ -293,10 +290,7 @@ module.exports = {
                 <body>
                   <div class="container">
                     <div class="content">
-                      <div class="header">
-                        <img src="https://www.indusmotors.com/logo.png" alt="Indus Motors Logo" class="logo">
-                        <div class="company-name">Indus Motors</div>
-                      </div>
+                     
                       <h2>New Car Booking Request</h2>
                       <table>
                         <tr><th>Name</th><td><%= data.name %></td></tr>
@@ -343,10 +337,7 @@ module.exports = {
                 <body>
                   <div class="container">
                     <div class="content">
-                      <div class="header">
-                        <img src="https://www.indusmotors.com/logo.png" alt="Indus Motors Logo" class="logo">
-                        <div class="company-name">Indus Motors</div>
-                      </div>
+                     
                       <h2>Booking Request Confirmation</h2>
                       <p>Dear Mr/Ms. <%= data.name %>,</p>
                       <p>Thank you for your booking request with Indus Motors. We have received your request and our team is currently reviewing the details.</p>
@@ -394,10 +385,7 @@ module.exports = {
                 <body>
                   <div class="container">
                     <div class="content">
-                      <div class="header">
-                        <img src="https://www.indusmotors.com/logo.png" alt="Indus Motors Logo" class="logo">
-                        <div class="company-name">Indus Motors</div>
-                      </div>
+                     
                       <h2>New Car Purchase Inquiry</h2>
                       <div class="details">
                         <h3>Customer Details</h3>
@@ -424,10 +412,7 @@ module.exports = {
               subject: "Purchase Inquiry Confirmation",
               text: "Thank you for your purchase inquiry",
               html: `
-                <div class="header">
-                  <img src="https://www.indusmotors.com/logo.png" alt="Indus Motors Logo" class="logo">
-                  <div class="company-name">Indus Motors</div>
-                </div>
+              
                 <h2>Purchase Inquiry Confirmation</h2>
                 <p>Dear Mr/Ms. <%= data.name %>,</p>
                 <p>Thank you for your interest in purchasing a car from Indus Motors. We have received your inquiry and our team is currently reviewing the details.</p>
@@ -469,10 +454,7 @@ module.exports = {
                 <body>
                   <div class="container">
                     <div class="content">
-                      <div class="header">
-                        <img src="https://www.indusmotors.com/logo.png" alt="Indus Motors Logo" class="logo">
-                        <div class="company-name">Indus Motors</div>
-                      </div>
+                      
                       <h2>New Car Sell Request</h2>
                       <div class="details">
                         <h3>Customer Details</h3>
@@ -499,10 +481,7 @@ module.exports = {
               subject: "Car Sell Request Confirmation",
               text: "Thank you for your car sell request",
               html: `
-                <div class="header">
-                  <img src="https://www.indusmotors.com/logo.png" alt="Indus Motors Logo" class="logo">
-                  <div class="company-name">Indus Motors</div>
-                </div>
+                
                 <h2>Car Sell Request Confirmation</h2>
                 <p>Dear Mr/Ms. <%= data.name %>,</p>
                 <p>Thank you for considering Indus Motors to sell your car. We have received your request and our team is currently reviewing the details.</p>
@@ -544,10 +523,7 @@ module.exports = {
                 <body>
                   <div class="container">
                     <div class="content">
-                      <div class="header">
-                        <img src="https://www.indusmotors.com/logo.png" alt="Indus Motors Logo" class="logo">
-                        <div class="company-name">Indus Motors</div>
-                      </div>
+                     
                       <h2>New Callback Request</h2>
                       <div class="details">
                         <h3>Customer Details</h3>
@@ -574,10 +550,7 @@ module.exports = {
               subject: "Callback Request Confirmation",
               text: "Thank you for your callback request",
               html: `
-                <div style="text-align: center; margin-bottom: 20px;">
-                  <img src="https://www.indusmotors.com/logo.png" alt="Company Logo" style="max-width: 150px; height: auto;">
-                  <h1 style="color: #1a73e8; font-size: 24px; font-weight: 700; margin: 10px 0;">Indus Motors</h1>
-                </div>
+                
                 <h2>Callback Request Confirmation</h2>
                 <p>Dear Mr/Ms. <%= data.name %>,</p>
                 <p>Thank you for requesting a callback from Indus Motors. We have received your request and our team is currently reviewing the details.</p>
@@ -617,10 +590,7 @@ module.exports = {
                 <body>
                   <div class="container">
                     <div class="content">
-                      <div class="header">
-                        <img src="https://www.indusmotors.com/logo.png" alt="Indus Motors Logo" class="logo">
-                        <div class="company-name">Indus Motors</div>
-                      </div>
+                     
                       <h2>New Lead Details</h2>
                       <div class="details">
                         <h3>Customer Information</h3>
@@ -651,15 +621,11 @@ module.exports = {
               subject: "Thank You for Contacting Us",
               text: "Thank you for contacting us",
               html: `
-                <div class="header">
-                  <img src="https://www.indusmotors.com/logo.png" alt="Company Logo" class="logo">
-                  <div class="company-name">Company Name</div>
-                </div>
                 <h2>Thank You for Contacting Us</h2>
                 <p>Dear Mr/Ms. <%= data.name %>,</p>
-                <p>Thank you for reaching out to Company Name. We have received your message and our team is currently reviewing the details.</p>
+                <p>Thank you for reaching out to Indus Motors. We have received your message and our team is currently reviewing the details.</p>
                 <p>We look forward to assisting you and will be in touch soon.</p>
-                <p>Best regards,<br>Team Company Name</p>
+                <p>Best regards,<br>Team Indus Motors</p>
               `,
             },
           },
