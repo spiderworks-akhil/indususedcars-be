@@ -35,26 +35,81 @@ module.exports = {
 
   List: async (ctx, next) => {
     try {
-      const locationList = await strapi.documents('api::dealer-location.dealer-location').findMany({
-        filters: {},
-        populate: {
-          Image:{
-            populate:'*'
+      const locationList = await
+        strapi.documents("api::dealer-location.dealer-location").findMany({
+          filters: {},
+          populate: {
+            Image: {
+              populate: "*",
+            },
+            SEO: {
+              populate: {
+                Meta_Image: {
+                  populate: "*",
+                },
+              },
+            },
           },
-          SEO: {
-            populate: {
-              Meta_Image: {
-                populate: '*'
-              }
-            }
-
-          }
-        }
-      });
+        })
 
       ctx.status = 200;
       ctx.body = locationList;
     } catch (error) {
+      ctx.status = 500;
+      ctx.body = error;
+    }
+  },
+
+  featuredDealers: async (ctx, next) => {
+    try {
+      const locationList = await
+        strapi.documents("api::dealer-location.dealer-location").findMany({
+          filters: {},
+          populate: {
+            Image: {
+              populate: "*",
+            },
+            SEO: {
+              populate: {
+                Meta_Image: {
+                  populate: "*",
+                },
+              },
+            },
+          },
+        })
+
+      const locationListWithCarCounts = await Promise.all(
+        locationList.map(async (location) => {
+          if (location) {
+            const carCount = await strapi.documents("api::car.car").count({
+              filters: {
+                Outlet: {
+                  Location: {
+                    Slug: location.Slug
+                  }
+                }
+              },
+              populate: ["Outlet","Outlet.Location"]
+            });
+
+            console.log(`Location: ${location.Name}`);
+            console.log(`Car Count: ${carCount}`);
+            console.log('----------------------');
+
+            return {
+              ...location,
+              carCount,
+            };
+          }
+          return location;
+        })
+      );
+
+      ctx.status = 200;
+      ctx.body = locationListWithCarCounts; // Fixed to return the list with car counts
+    } catch (error) {
+      console.error('Error in featuredDealers:', error);
       ctx.status = 500;
       ctx.body = error;
     }

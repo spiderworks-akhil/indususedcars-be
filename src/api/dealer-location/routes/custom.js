@@ -9,7 +9,16 @@ module.exports = {
         policies: [],
         middlewares: [],
       },
-    }, ,
+    }, {
+      method: "GET",
+      handler: "custom.featuredDealers",
+      path: "/dealer-location/featured",
+      config: {
+        auth: false,
+        policies: [],
+        middlewares: [],
+      },
+    } ,
     {
       method: "GET",
       handler: "custom.getBySlug",
