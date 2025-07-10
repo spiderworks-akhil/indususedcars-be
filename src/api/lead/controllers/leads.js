@@ -11,7 +11,7 @@ module.exports = {
       const {
         name,
         email,
-        utmsource,
+        utm_source,
         source_type,
         lead_type,
         phone_number,
@@ -83,7 +83,7 @@ module.exports = {
         MobileNumber: phone_number,
         City: city,
         Lead_Type: lead_type,
-        utmSource: utmsource,
+        utmSource: utm_source,
         SourceType: source_type,
         SourceURL: source_url,
         CustomerEmail: email,
@@ -158,7 +158,7 @@ module.exports = {
                 <head>
                   <meta charset="utf-8">
                   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                  <title>New Test Drive Request - Indus Motors</title>
+                  <title>New Test Drive Request - Indus Used Cars</title>
                   <style>
                     * { margin: 0; padding: 0; box-sizing: border-box; }
                     body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #2c3e50; background-color: #f8f9fa; }
@@ -207,7 +207,7 @@ module.exports = {
                         </table>
                       </div>
                       <div class="footer">
-                        <p>© <%= new Date().getFullYear() %> Indus Motors. All rights reserved.</p>
+                        <p>© <%= new Date().getFullYear() %> Indus Used Cars. All rights reserved.</p>
                       </div>
                     </div>
                   </div>
@@ -245,12 +245,12 @@ module.exports = {
                       <h2>Test Drive Request Confirmation</h2>
                       <div class="message">
                         <p>Dear Mr/Ms. <%= data.name %>,</p>
-                        <p>Thank you for requesting a test drive with Indus Motors. We have received your request for a <%= data.car?.Brand?.Name || '' %> <%= data.car?.Model?.Name || '' %> at our <%= data.car?.Outlet?.Location?.Name || '' %> location.</p>
+                        <p>Thank you for requesting a test drive with Indus Used Cars. We have received your request for a <%= data.car?.Brand?.Name || '' %> <%= data.car?.Model?.Name || '' %> at our <%= data.car?.Outlet?.Location?.Name || '' %> location.</p>
                         <p>Our team is currently reviewing your request and will contact you soon to schedule your test drive at a convenient time.</p>
                         <p>We appreciate your interest in our vehicles and look forward to providing you with an exceptional test drive experience.</p>
                       </div>
                       <div class="footer">
-                        <p>Best regards,<br>Team Indus Motors</p>
+                        <p>Best regards,<br>Team Indus Used Cars</p>
                       </div>
                     </div>
                   </div>
@@ -303,7 +303,7 @@ module.exports = {
                         <tr><th>Source URL</th><td><%= data.source_url %></td></tr>
                       </table>
                       <div class="footer">
-                        <p>This request was received from the Indus Motors website.</p>
+                        <p>This request was received from the Indus Used Cars website.</p>
                       </div>
                     </div>
                   </div>
@@ -340,10 +340,10 @@ module.exports = {
                      
                       <h2>Booking Request Confirmation</h2>
                       <p>Dear Mr/Ms. <%= data.name %>,</p>
-                      <p>Thank you for your booking request with Indus Motors. We have received your request and our team is currently reviewing the details.</p>
+                      <p>Thank you for your booking request with Indus Used Cars. We have received your request and our team is currently reviewing the details.</p>
                       <p>We appreciate your interest in our services and will be in touch with you soon to proceed with the next steps.</p>
                       <div class="footer">
-                        <p>Best regards,<br>Team Indus Motors</p>
+                        <p>Best regards,<br>Team Indus Used Cars</p>
                       </div>
                     </div>
                   </div>
@@ -362,7 +362,7 @@ module.exports = {
                 <head>
                   <meta charset="utf-8">
                   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                  <title>New Car Purchase Inquiry - Indus Motors</title>
+                  <title>New Car Purchase Inquiry - Indus Used Cars</title>
                   <style>
                     * { margin: 0; padding: 0; box-sizing: border-box; }
                     body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #2c3e50; background-color: #f8f9fa; }
@@ -400,7 +400,7 @@ module.exports = {
                         </table>
                       </div>
                       <div class="footer">
-                        <p>Best regards,<br>Team Indus Motors</p>
+                        <p>Best regards,<br>Team Indus Used Cars</p>
                       </div>
                     </div>
                   </div>
@@ -415,9 +415,9 @@ module.exports = {
               
                 <h2>Purchase Inquiry Confirmation</h2>
                 <p>Dear Mr/Ms. <%= data.name %>,</p>
-                <p>Thank you for your interest in purchasing a car from Indus Motors. We have received your inquiry and our team is currently reviewing the details.</p>
+                <p>Thank you for your interest in purchasing a car from Indus Used Cars. We have received your inquiry and our team is currently reviewing the details.</p>
                 <p>We look forward to assisting you in finding the perfect vehicle that meets your requirements.</p>
-                <p>Best regards,<br>Team Indus Motors</p>
+                <p>Best regards,<br>Team Indus Used Cars</p>
               `,
             },
           },
@@ -431,7 +431,7 @@ module.exports = {
                 <head>
                   <meta charset="utf-8">
                   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                  <title>New Car Sell Request - Indus Motors</title>
+                  <title>New Car Sell Request - Indus Used Cars</title>
                   <style>
                     * { margin: 0; padding: 0; box-sizing: border-box; }
                     body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #2c3e50; background-color: #f8f9fa; }
@@ -469,7 +469,7 @@ module.exports = {
                         </table>
                       </div>
                       <div class="footer">
-                        <p>Best regards,<br>Team Indus Motors</p>
+                        <p>Best regards,<br>Team Indus Used Cars</p>
                       </div>
                     </div>
                   </div>
@@ -484,9 +484,9 @@ module.exports = {
                 
                 <h2>Car Sell Request Confirmation</h2>
                 <p>Dear Mr/Ms. <%= data.name %>,</p>
-                <p>Thank you for considering Indus Motors to sell your car. We have received your request and our team is currently reviewing the details.</p>
+                <p>Thank you for considering Indus Used Cars to sell your car. We have received your request and our team is currently reviewing the details.</p>
                 <p>We look forward to assisting you with the sale of your vehicle and will be in touch soon to discuss the next steps.</p>
-                <p>Best regards,<br>Team Indus Motors</p>
+                <p>Best regards,<br>Team Indus Used Cars</p>
               `,
             },
           },
@@ -500,7 +500,7 @@ module.exports = {
                 <head>
                   <meta charset="utf-8">
                   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                  <title>New Callback Request - Indus Motors</title>
+                  <title>New Callback Request - Indus Used Cars</title>
                   <style>
                     * { margin: 0; padding: 0; box-sizing: border-box; }
                     body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #2c3e50; background-color: #f8f9fa; }
@@ -538,7 +538,7 @@ module.exports = {
                         </table>
                       </div>
                       <div class="footer">
-                        <p>Best regards,<br>Team Indus Motors</p>
+                        <p>Best regards,<br>Team Indus Used Cars</p>
                       </div>
                     </div>
                   </div>
@@ -553,9 +553,9 @@ module.exports = {
                 
                 <h2>Callback Request Confirmation</h2>
                 <p>Dear Mr/Ms. <%= data.name %>,</p>
-                <p>Thank you for requesting a callback from Indus Motors. We have received your request and our team is currently reviewing the details.</p>
+                <p>Thank you for requesting a callback from Indus Used Cars. We have received your request and our team is currently reviewing the details.</p>
                 <p>We appreciate your interest and look forward to connecting with you soon.</p>
-                <p>Best regards,<br>Team Indus Motors</p>
+                <p>Best regards,<br>Team Indus Used Cars</p>
               `,
             },
           },
@@ -569,7 +569,7 @@ module.exports = {
                 <head>
                   <meta charset="utf-8">
                   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                  <title>New Lead - Indus Motors</title>
+                  <title>New Lead - Indus Used Cars</title>
                   <style>
                     * { margin: 0; padding: 0; box-sizing: border-box; }
                     body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #2c3e50; background-color: #f8f9fa; }
@@ -609,7 +609,7 @@ module.exports = {
                         </table>
                       </div>
                       <div class="footer">
-                        <p>Best regards,<br>Team Indus Motors</p>
+                        <p>Best regards,<br>Team Indus Used Cars</p>
                       </div>
                     </div>
                   </div>
@@ -623,9 +623,9 @@ module.exports = {
               html: `
                 <h2>Thank You for Contacting Us</h2>
                 <p>Dear Mr/Ms. <%= data.name %>,</p>
-                <p>Thank you for reaching out to Indus Motors. We have received your message and our team is currently reviewing the details.</p>
+                <p>Thank you for reaching out to Indus Used Cars. We have received your message and our team is currently reviewing the details.</p>
                 <p>We look forward to assisting you and will be in touch soon.</p>
-                <p>Best regards,<br>Team Indus Motors</p>
+                <p>Best regards,<br>Team Indus Used Cars</p>
               `,
             },
           },
@@ -883,7 +883,7 @@ module.exports = {
         filters: {
           createdAt: {
             $gte: new Date(startDate),
-            $lte: new Date(endDate),
+            $lt: new Date(new Date(endDate).setDate(new Date(endDate).getDate() + 1)),
           }
         },
         populate: '*',
