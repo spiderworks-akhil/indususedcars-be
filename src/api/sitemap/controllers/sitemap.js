@@ -202,6 +202,18 @@ module.exports = {
             .findMany({
               fields: ["Slug"],
               status: "published",
+              populate: {
+                Model: {
+                  fields: ["Slug"],
+                },
+                Location: {
+                  fields: ["Slug"],
+                }
+              },
+              filters: {
+                Model: { $notNull: true },
+                Location: { $notNull: true }
+              }
             });
 
           // Format the response to include /buy/ before the slug
