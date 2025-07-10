@@ -313,6 +313,10 @@ module.exports = {
         ctx.status = 200;
         ctx.body = data;
         return;
+      }else{
+      ctx.status = 404;
+      ctx.body = { message: "Not Found" };
+      return;
       }
 
       data = await strapi
@@ -2354,4 +2358,54 @@ module.exports = {
       ctx.body = err;
     }
   },
+
+  removeTopContent: async (ctx, next) => {
+    try {
+      const combionationPages = await strapi.documents('api::combination-page.combination-page').findMany({
+        filters: {},
+        populate: ['SEO', 'SEO.Meta_Image']
+      })
+
+      for (const list of combionationPages) {
+        if (list?.SEO?.Top_Description == list?.SEO?.Bottom_Description) {
+          console.log('yes inside');
+          
+          await strapi.documents('api::combination-page.combination-page').update({
+            documentId: list?.documentId,
+            data: {
+              Top_Description: null
+            }
+          })
+        }
+      }
+
+      const models = await strapi.documents('api::model.model').findMany({
+        filters: {},
+        populate: ['SEO', 'SEO.Meta_Image']
+      })
+
+      for (const list of models) {
+        if (list?.SEO?.Top_Description == list?.SEO?.Bottom_Description) {
+          console.log('yes inside');
+          
+          await strapi.documents('api::model.model').update({
+            documentId: list?.documentId,
+            data: {
+              Top_Description: null
+            }
+          })
+        }
+      }
+      ctx.status = 200;
+      ctx.body={
+        msg:'Completed'
+      }
+
+    } catch (error) {
+      ctx.status = 500;
+      ctx.body = {
+        err: error?.message
+      }
+    }
+  }
 };

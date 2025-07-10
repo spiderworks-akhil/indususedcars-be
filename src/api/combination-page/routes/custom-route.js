@@ -54,6 +54,16 @@ module.exports = {
     },
     {
       method: "GET",
+      path: "/combination-page/remove-top",
+      handler: "custom.removeTopContent",
+      config: {
+        auth: false,
+        policies: [],
+        middlewares: [],
+      },
+    },
+    {
+      method: "GET",
       path: "/combination-page/:slug",
       handler: "custom.detail",
       config: {
