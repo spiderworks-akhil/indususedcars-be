@@ -802,6 +802,7 @@ module.exports = {
               await strapi.documents("api::lead.lead").update({
                 documentId: lead.documentId,
                 data: { API_Status: true },
+                status:'published'
               });
             } else {
               ctx.body = {
