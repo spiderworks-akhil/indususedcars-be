@@ -1316,7 +1316,7 @@ module.exports = {
               }
 
             },
-            populate:['Outlet','Outlet.Location']
+            populate: ['Outlet', 'Outlet.Location']
           }),
         ]);
 
@@ -1390,646 +1390,376 @@ module.exports = {
         }
       }
 
-      switch (fetchPage?.Related_Type) {
-        case `App\\Models\\Indus\\Model`:
-          console.log(fetchPage?.Slug);
+      // switch (fetchPage?.Related_Type) {
 
-          const baseFilters = {
-            Model: {
-              Slug: fetchPage?.Slug,
-            },
+
+      // case `App\\Models\\Indus\\Variant`:
+
+      if (fetchPage?.Variant) {
+        console.log({ slug: fetchPage });
+
+        const baseFilters2 = {
+          Variant: fetchPage?.Variant?.Variant,
+        };
+
+        if (fetchPage?.Min_Price && fetchPage?.Max_Price) {
+          baseFilters2.PSP = {
+            $gte: Number(fetchPage.Min_Price),
+            $lte: Number(fetchPage.Max_Price)
           };
+        } else if (fetchPage?.Min_Price) {
+          baseFilters2.PSP = { $gte: Number(fetchPage.Min_Price) };
+        } else if (fetchPage?.Max_Price) {
+          baseFilters2.PSP = { $lte: Number(fetchPage.Max_Price) };
+        }
 
-          if (fetchPage?.Min_Price) {
-            baseFilters.PSP = { $gte: Number(fetchPage.Min_Price) };
-          }
-          if (fetchPage?.Max_Price) {
-            baseFilters.PSP = {
-              ...baseFilters.PSP,
-              $lte: Number(fetchPage.Max_Price),
-            };
-          }
-
-          const [data, count] = await Promise.all([
-            strapi.documents("api::car.car").findMany({
-              filters: baseFilters,
-              start: (page - 1) * limit,
-              limit: limit,
-              populate: ["Model"],
-            }),
-            strapi.documents("api::car.car").count({
-              filters: baseFilters,
-              populate: ["Model"],
-            }),
-          ]);
-
-          console.log({ data, count });
-
-          ctx.status = 200;
-          ctx.body = {
-            data: data,
-            meta: {
-              pagination: {
-                total: count,
-                page: page,
-                pageSize: limit,
-                pageCount: Math.ceil(count / limit),
-                last_page: Math.ceil(count / limit),
+        const [data2, count2] = await Promise.all([
+          strapi.documents("api::car.car").findMany({
+            filters: baseFilters2,
+            start: (page - 1) * limit,
+            limit: limit,
+            populate: {
+              Model: {
+                populate: "*",
               },
-            },
-          };
-
-          return;
-
-        case `App\\Models\\Indus\\Brand`:
-          console.log("yes");
-
-          const baseFilters1 = {
-            Brand: {
-              Slug: fetchPage?.Slug,
-            },
-            ...(fetchPage?.Model && { Model: { Slug: fetchPage.Model.Slug } }),
-          };
-
-          if (fetchPage?.Min_Price) {
-            baseFilters1.PSP = { $gte: Number(fetchPage.Min_Price) };
-          }
-          if (fetchPage?.Max_Price) {
-            baseFilters1.PSP = {
-              ...baseFilters1.PSP,
-              $lte: Number(fetchPage.Max_Price),
-            };
-          }
-
-          const [data1, count1] = await Promise.all([
-            strapi.documents("api::car.car").findMany({
-              filters: baseFilters1,
-              start: (page - 1) * limit,
-              limit: limit,
-              populate: {
-                Model: {
-                  populate: "*",
-                },
-                Brand: {
-                  populate: "*",
-                },
-                Location: {
-                  populate: "*",
-                },
+              Brand: {
+                populate: "*",
               },
-            }),
-            strapi.documents("api::car.car").count({
-              filters: baseFilters1,
-              populate: ["Brand", "Model"],
-            }),
-          ]);
-
-          console.log({ data1, count1 });
-
-          ctx.status = 200;
-          ctx.body = {
-            data: data1,
-            meta: {
-              pagination: {
-                total: count1,
-                page: page,
-                pageSize: limit,
-                pageCount: Math.ceil(count1 / limit),
-                last_page: Math.ceil(count1 / limit),
-              },
-            },
-          };
-
-          return;
-
-        case `App\\Models\\Indus\\Variant`:
-          console.log({ slug: fetchPage });
-
-          const baseFilters2 = {
-            Variant: fetchPage?.Variant?.Variant,
-          };
-
-          if (fetchPage?.Min_Price) {
-            baseFilters2.PSP = { $gte: Number(fetchPage.Min_Price) };
-          }
-          if (fetchPage?.Max_Price) {
-            baseFilters2.PSP = {
-              ...baseFilters2.PSP,
-              $lte: Number(fetchPage.Max_Price),
-            };
-          }
-
-          const [data2, count2] = await Promise.all([
-            strapi.documents("api::car.car").findMany({
-              filters: baseFilters2,
-              start: (page - 1) * limit,
-              limit: limit,
-              populate: {
-                Model: {
-                  populate: "*",
-                },
-                Brand: {
-                  populate: "*",
-                },
-                Location: {
-                  populate: "*",
-                },
-                Fuel_Type: {
-                  populate: "*",
-                },
-              },
-            }),
-            strapi.documents("api::car.car").count({
-              filters: baseFilters2,
-              populate: ["Brand"],
-            }),
-          ]);
-
-          console.log({ data2, count2 });
-
-          ctx.status = 200;
-          ctx.body = {
-            data: data2,
-            meta: {
-              pagination: {
-                total: count2,
-                page: page,
-                pageSize: limit,
-                pageCount: Math.ceil(count2 / limit),
-                last_page: Math.ceil(count2 / limit),
-              },
-            },
-          };
-          return;
-
-        case `App\\Models\\BrandDistrict`:
-          console.log("yes inside brand district");
-          console.log({ fetchPage });
-
-          const baseFilters3 = {
-            Brand: {
-              Slug: fetchPage?.Brand?.Slug || null,
-            },
-            Outlet: {
               Location: {
-                Slug: fetchPage?.Location?.Slug || null,
+                populate: "*",
+              },
+              Fuel_Type: {
+                populate: "*",
               },
             },
-          };
+          }),
+          strapi.documents("api::car.car").count({
+            filters: baseFilters2,
+            populate: ["Brand"],
+          }),
+        ]);
 
-          if (fetchPage?.Min_Price) {
-            baseFilters3.PSP = { $gte: Number(fetchPage.Min_Price) };
-          }
-          if (fetchPage?.Max_Price) {
-            baseFilters3.PSP = {
-              ...baseFilters3.PSP,
-              $lte: Number(fetchPage.Max_Price),
-            };
-          }
+        console.log({ data2, count2 });
 
-          const [data3, count3] = await Promise.all([
-            strapi.documents("api::car.car").findMany({
-              filters: baseFilters3,
-              start: (page - 1) * limit,
-              limit: limit,
-              populate: {
-                Model: {
-                  populate: "*",
-                },
-                Brand: {
-                  populate: "*",
-                },
-                Location: {
-                  populate: "*",
-                },
-                Fuel_Type: {
-                  populate: "*",
-                },
-                Outlet: {
-                  populate: "*",
-                },
-              },
-            }),
-            strapi.documents("api::car.car").count({
-              filters: baseFilters3,
-              populate: ["Brand", "Outlet"],
-            }),
-          ]);
-
-          ctx.status = 200;
-          ctx.body = {
-            data: data3,
-            meta: {
-              pagination: {
-                total: count3,
-                page: page,
-                pageSize: limit,
-                pageCount: Math.ceil(count3 / limit),
-                last_page: Math.ceil(count3 / limit),
-              },
+        ctx.status = 200;
+        ctx.body = {
+          data: data2,
+          meta: {
+            pagination: {
+              total: count2,
+              page: page,
+              pageSize: limit,
+              pageCount: Math.ceil(count2 / limit),
+              last_page: Math.ceil(count2 / limit),
             },
-          };
-
-          return;
-
-        case "App\\Models\\BrandLocation":
-          const baseFilters4 = {
-            Outlet: {
-              Slug: fetchPage?.Outlet?.Slug
-                ? fetchPage.Outlet.Slug
-                : fetchPage?.Location?.Slug
-                  ? {
-                    Location: {
-                      Slug: fetchPage.Location.Slug,
-                    },
-                  }
-                  : null,
-            },
-            Brand: {
-              Slug: fetchPage?.Brand?.Slug || null,
-            },
-          };
-
-          if (fetchPage?.Min_Price) {
-            baseFilters4.PSP = { $gte: Number(fetchPage.Min_Price) };
-          }
-          if (fetchPage?.Max_Price) {
-            baseFilters4.PSP = {
-              ...baseFilters4.PSP,
-              $lte: Number(fetchPage.Max_Price),
-            };
-          }
-
-          const [data4, count4] = await Promise.all([
-            strapi.documents("api::car.car").findMany({
-              filters: baseFilters4,
-              start: (page - 1) * limit,
-              limit: limit,
-              populate: {
-                Model: {
-                  populate: "*",
-                },
-                Brand: {
-                  populate: "*",
-                },
-                Location: {
-                  populate: "*",
-                },
-                Fuel_Type: {
-                  populate: "*",
-                },
-                Outlet: {
-                  populate: "*",
-                },
-              },
-            }),
-            strapi.documents("api::car.car").count({
-              filters: baseFilters4,
-              populate: ["Brand", "Outlet"],
-            }),
-          ]);
-
-          console.log({ data4, count4 });
-
-          ctx.status = 200;
-          ctx.body = {
-            data: data4,
-            meta: {
-              pagination: {
-                total: count4,
-                page: page,
-                pageSize: limit,
-                pageCount: Math.ceil(count4 / limit),
-                last_page: Math.ceil(count4 / limit),
-              },
-            },
-          };
-
-        case "App\\Models\\Indus\\DealerLocation":
-          const baseFilters5 = {
-            Outlet: {
-              Location: {
-                Slug: fetchPage?.Location?.Slug || null,
-              },
-            },
-          };
-
-          if (fetchPage?.Min_Price) {
-            baseFilters5.PSP = { $gte: Number(fetchPage.Min_Price) };
-          }
-          if (fetchPage?.Max_Price) {
-            baseFilters5.PSP = {
-              ...baseFilters5.PSP,
-              $lte: Number(fetchPage.Max_Price),
-            };
-          }
-
-          const [data5, count5] = await Promise.all([
-            strapi.documents("api::car.car").findMany({
-              filters: baseFilters5,
-              start: (page - 1) * limit,
-              limit: limit,
-              populate: {
-                Model: {
-                  populate: "*",
-                },
-                Brand: {
-                  populate: "*",
-                },
-                Location: {
-                  populate: "*",
-                },
-                Fuel_Type: {
-                  populate: "*",
-                },
-                Outlet: {
-                  populate: "*",
-                },
-              },
-            }),
-            strapi.documents("api::car.car").count({
-              filters: baseFilters5,
-              populate: ["Location"],
-            }),
-          ]);
-
-          console.log({ data5, count5 });
-
-          ctx.status = 200;
-          ctx.body = {
-            data: data5,
-            meta: {
-              pagination: {
-                total: count5,
-                page: page,
-                pageSize: limit,
-                pageCount: Math.ceil(count5 / limit),
-                last_page: Math.ceil(count5 / limit),
-              },
-            },
-          };
-
-          return;
-
-        case "App\\Models\\Indus\\Dealership":
-          const baseFilters6 = {
-            Outlet: {
-              Slug: fetchPage?.Outlet?.Slug || null,
-            },
-          };
-
-          if (fetchPage?.Min_Price) {
-            baseFilters6.PSP = { $gte: Number(fetchPage.Min_Price) };
-          }
-          if (fetchPage?.Max_Price) {
-            baseFilters6.PSP = {
-              ...baseFilters6.PSP,
-              $lte: Number(fetchPage.Max_Price),
-            };
-          }
-
-          const [data6, count6] = await Promise.all([
-            strapi.documents("api::car.car").findMany({
-              filters: baseFilters6,
-              start: (page - 1) * limit,
-              limit: limit,
-              populate: {
-                Model: {
-                  populate: "*",
-                },
-                Brand: {
-                  populate: "*",
-                },
-                Location: {
-                  populate: "*",
-                },
-                Fuel_Type: {
-                  populate: "*",
-                },
-                Outlet: {
-                  populate: "*",
-                },
-              },
-            }),
-            strapi.documents("api::car.car").count({
-              filters: baseFilters6,
-              populate: ["Outlet"],
-            }),
-          ]);
-
-          console.log({ data6, count6 });
-
-          ctx.status = 200;
-          ctx.body = {
-            data: data6,
-            meta: {
-              pagination: {
-                total: count6,
-                page: page,
-                pageSize: limit,
-                pageCount: Math.ceil(count6 / limit),
-                last_page: Math.ceil(count6 / limit),
-              },
-            },
-          };
-
-          return;
-
-        case `App\\Models\\ModelDistrict`:
-          console.log(fetchPage?.Slug);
-
-          const baseFilters7 = {};
-          if (fetchPage?.Outlet?.Location?.Slug) {
-            console.log("yes inside outlet location");
-
-            baseFilters7.Outlet = {
-              Location: {
-                Slug: fetchPage.Outlet.Location.Slug,
-              },
-            };
-          } else if (fetchPage?.Location?.Slug) {
-            baseFilters7.Location = {
-              Slug: fetchPage.Location.Slug,
-            };
-          }
-
-          if (fetchPage?.Model) {
-            baseFilters7.Model = {
-              Slug: fetchPage.Model.Slug,
-            };
-          }
-
-          if (fetchPage?.Min_Price) {
-            baseFilters7.PSP = { $gte: Number(fetchPage.Min_Price) };
-          }
-          if (fetchPage?.Max_Price) {
-            baseFilters7.PSP = {
-              ...baseFilters7.PSP,
-              $lte: Number(fetchPage.Max_Price),
-            };
-          }
-
-          const [data7, count7] = await Promise.all([
-            strapi.documents("api::car.car").findMany({
-              filters: baseFilters7,
-              start: (page - 1) * limit,
-              limit: limit,
-              populate: ["Location", "Model", "Outlet"],
-            }),
-            strapi.documents("api::car.car").count({
-              filters: baseFilters7,
-              populate: ["Location", "Model", "Outlet"],
-            }),
-          ]);
-
-          ctx.status = 200;
-          ctx.body = {
-            data: data7,
-            meta: {
-              pagination: {
-                total: count7,
-                page: page,
-                pageSize: limit,
-                pageCount: Math.ceil(count7 / limit),
-                last_page: Math.ceil(count7 / limit),
-              },
-            },
-          };
-
-          return;
-
-        case `App\\Models\\Indus\\ModelLocation`:
-          console.log({ slug: fetchPage });
-
-          const baseFilters8 = {
-            Model: {
-              Slug: fetchPage?.Slug,
-            },
-          };
-
-          if (fetchPage?.Outlet?.Slug) {
-            baseFilters8.Outlet = {
-              Slug: fetchPage.Outlet.Slug,
-            };
-          } else if (fetchPage?.Location?.Slug) {
-            console.log("yes inside location ");
-
-            baseFilters8.Outlet = {
-              Location: {
-                Slug: fetchPage.Location.Slug,
-              },
-            };
-          }
-          if (fetchPage?.Min_Price) {
-            baseFilters8.PSP = { $gte: Number(fetchPage.Min_Price) };
-          }
-          if (fetchPage?.Max_Price) {
-            baseFilters8.PSP = {
-              ...baseFilters8.PSP,
-              $lte: Number(fetchPage.Max_Price),
-            };
-          }
-
-          const [data8, count8] = await Promise.all([
-            strapi.documents("api::car.car").findMany({
-              filters: baseFilters8,
-              start: (page - 1) * limit,
-              limit: limit,
-              populate: ["Model", "Outlet", "Location"],
-            }),
-            strapi.documents("api::car.car").count({
-              filters: baseFilters8,
-              populate: ["Model", "Outlet", "Location"],
-            }),
-          ]);
-
-          console.log({ data8, count8 });
-
-          ctx.status = 200;
-          ctx.body = {
-            data: data8,
-            meta: {
-              pagination: {
-                total: count8,
-                page: page,
-                pageSize: limit,
-                pageCount: Math.ceil(count8 / limit),
-                last_page: Math.ceil(count8 / limit),
-              },
-            },
-          };
-
-          return;
-
-        case "App\\Models\\Indus\\Location":
-          const baseFilters9 = {
-            Outlet: {
-              Location: {
-                Slug: fetchPage?.Location?.Slug || null,
-              },
-            },
-          };
-
-          if (fetchPage?.Min_Price) {
-            baseFilters9.PSP = { $gte: Number(fetchPage.Min_Price) };
-          }
-          if (fetchPage?.Max_Price) {
-            baseFilters9.PSP = {
-              ...baseFilters9.PSP,
-              $lte: Number(fetchPage.Max_Price),
-            };
-          }
-
-          const [data9, count9] = await Promise.all([
-            strapi.documents("api::car.car").findMany({
-              filters: baseFilters9,
-              start: (page - 1) * limit,
-              limit: limit,
-              populate: {
-                Model: {
-                  populate: "*",
-                },
-                Brand: {
-                  populate: "*",
-                },
-                Location: {
-                  populate: "*",
-                },
-                Fuel_Type: {
-                  populate: "*",
-                },
-                Outlet: {
-                  populate: "*",
-                },
-              },
-            }),
-            strapi.documents("api::car.car").count({
-              filters: baseFilters9,
-              populate: ["Location"],
-            }),
-          ]);
-
-          console.log({ data9, count9 });
-
-          ctx.status = 200;
-          ctx.body = {
-            data: data9,
-            meta: {
-              pagination: {
-                total: count9,
-                page: parseInt(page),
-                pageSize: parseInt(limit),
-                pageCount: Math.ceil(count9 / limit),
-                last_page: Math.ceil(count9 / limit),
-              },
-            },
-          };
-
-          return;
-
-        default:
-          break;
+          },
+        };
+        return;
       }
+
+      // case `App\\Models\\BrandDistrict`:
+
+      if (fetchPage?.Brand && (fetchPage?.Location)) {
+        console.log("yes inside brand district");
+        console.log({ fetchPageBrand: fetchPage?.Brand, fetchPageLocation: fetchPage?.Location });
+
+        const baseFilters3 = {
+          Brand: {
+            Slug: fetchPage?.Brand?.Slug || null,
+          },
+          Outlet: {
+            Location: { Slug: fetchPage.Location.Slug }
+          }
+
+        };
+
+        console.log({ amount: fetchPage?.Max_Price });
+
+        if (fetchPage?.Min_Price && fetchPage?.Max_Price) {
+          baseFilters3.PSP = {
+            $gte: Number(fetchPage.Min_Price),
+            $lte: Number(fetchPage.Max_Price)
+          };
+        } else if (fetchPage?.Min_Price) {
+          baseFilters3.PSP = { $gte: Number(fetchPage.Min_Price) };
+        } else if (fetchPage?.Max_Price) {
+          baseFilters3.PSP = { $lte: Number(fetchPage.Max_Price) };
+        }
+
+        const [data3, count3] = await Promise.all([
+          strapi.documents("api::car.car").findMany({
+            filters: baseFilters3,
+            start: (page - 1) * limit,
+            limit: limit,
+            populate: {
+              Model: {
+                populate: "*",
+              },
+              Brand: {
+                populate: "*",
+              },
+              Location: {
+                populate: "*",
+              },
+              Fuel_Type: {
+                populate: "*",
+              },
+              Outlet: {
+                populate: {
+                  Location: {
+                    populate: '*'
+                  }
+                },
+              },
+            },
+          }),
+          strapi.documents("api::car.car").count({
+            filters: baseFilters3,
+            populate: ["Brand", "Outlet", 'Outlet.Location'],
+          }),
+        ]);
+
+        ctx.status = 200;
+        ctx.body = {
+          data: data3,
+          meta: {
+            pagination: {
+              total: count3,
+              page: page,
+              pageSize: limit,
+              pageCount: Math.ceil(count3 / limit),
+              last_page: Math.ceil(count3 / limit),
+            },
+          },
+        };
+
+        return;
+      }
+
+      // case "App\\Models\\BrandLocation":
+
+      if (fetchPage?.Brand && (fetchPage?.Outlet)) {
+        console.log("Inside the Brand Location", fetchPage?.Brand);
+
+        const baseFilters4 = {
+          Outlet: {
+            Slug: fetchPage?.Outlet?.Slug
+          },
+          Brand: {
+            Slug: fetchPage?.Brand?.Slug || null,
+          },
+        };
+
+        if (fetchPage?.Min_Price && fetchPage?.Max_Price) {
+          baseFilters4.PSP = {
+            $gte: Number(fetchPage.Min_Price),
+            $lte: Number(fetchPage.Max_Price)
+          };
+        } else if (fetchPage?.Min_Price) {
+          baseFilters4.PSP = { $gte: Number(fetchPage.Min_Price) };
+        } else if (fetchPage?.Max_Price) {
+          baseFilters4.PSP = { $lte: Number(fetchPage.Max_Price) };
+        }
+
+
+        const [data4, count4] = await Promise.all([
+          strapi.documents("api::car.car").findMany({
+            filters: baseFilters4,
+            start: (page - 1) * limit,
+            limit: limit,
+            populate: {
+              Model: {
+                populate: "*",
+              },
+              Brand: {
+                populate: "*",
+              },
+              Location: {
+                populate: "*",
+              },
+              Fuel_Type: {
+                populate: "*",
+              },
+              Outlet: {
+                populate: "*",
+              },
+            },
+          }),
+          strapi.documents("api::car.car").count({
+            filters: baseFilters4,
+            populate: ["Brand", "Outlet"],
+          }),
+        ]);
+
+        console.log({ data4, count4 });
+
+        ctx.status = 200;
+        ctx.body = {
+          data: data4,
+          meta: {
+            pagination: {
+              total: count4,
+              page: page,
+              pageSize: limit,
+              pageCount: Math.ceil(count4 / limit),
+              last_page: Math.ceil(count4 / limit),
+            },
+          },
+        };
+
+        return;
+
+      }
+
+      // case `App\\Models\\ModelDistrict`:
+
+      if (fetchPage?.Model?.Slug && (fetchPage?.Location?.Slug || fetchPage?.Outlet?.Location?.Slug)) {
+        console.log(fetchPage);
+
+        const baseFilters7 = {
+          Model: fetchPage?.Model?.Slug
+            ? { Slug: fetchPage.Model.Slug }
+            : null,
+          Outlet: {
+            Location: fetchPage?.Location?.Slug
+              ? { Slug: fetchPage.Location.Slug }
+              : fetchPage?.Outlet?.Location?.Slug
+                ? { Slug: fetchPage.Outlet.Location.Slug }
+                : null
+          }
+
+        };
+
+        if (fetchPage?.Min_Price && fetchPage?.Max_Price) {
+          baseFilters7.PSP = {
+            $gte: Number(fetchPage.Min_Price),
+            $lte: Number(fetchPage.Max_Price)
+          };
+        } else if (fetchPage?.Min_Price) {
+          baseFilters7.PSP = { $gte: Number(fetchPage.Min_Price) };
+        } else if (fetchPage?.Max_Price) {
+          baseFilters7.PSP = { $lte: Number(fetchPage.Max_Price) };
+        }
+
+        console.log({ baseFilters7 });
+
+        const [data7, count7] = await Promise.all([
+          strapi.documents("api::car.car").findMany({
+            filters: baseFilters7,
+            start: (page - 1) * limit,
+            limit: limit,
+            populate: ["Location", "Model", "Outlet", "Outlet.Location"],
+          }),
+          strapi.documents("api::car.car").count({
+            filters: baseFilters7,
+            populate: ["Location", "Model", "Outlet", "Outlet.Location"],
+          }),
+        ]);
+
+        console.log({ data7 });
+
+
+        ctx.status = 200;
+        ctx.body = {
+          data: data7,
+          meta: {
+            pagination: {
+              total: count7,
+              page: page,
+              pageSize: limit,
+              pageCount: Math.ceil(count7 / limit),
+              last_page: Math.ceil(count7 / limit),
+            },
+          },
+        };
+
+        return;
+      }
+
+
+
+      // case `App\\Models\\Indus\\ModelLocation`:
+      console.log({ slug: fetchPage });
+
+
+      if (fetchPage?.Model && fetchPage?.Outlet) {
+
+
+
+        const baseFilters8 = {
+          Model: {
+            Slug: fetchPage?.Slug,
+          },
+        };
+
+        if (fetchPage?.Outlet?.Slug) {
+          baseFilters8.Outlet = {
+            Slug: fetchPage.Outlet.Slug,
+          };
+        } else if (fetchPage?.Location?.Slug) {
+          console.log("yes inside location ");
+
+          baseFilters8.Outlet = {
+            Location: {
+              Slug: fetchPage.Location.Slug,
+            },
+          };
+        } else if (fetchPage?.Outlet?.Location?.Slug) {
+          baseFilters8.Outlet = {
+            Location: {
+              Slug: fetchPage.Outlet.Location.Slug,
+            },
+          };
+        }
+        if (fetchPage?.Min_Price && fetchPage?.Max_Price) {
+          baseFilters8.PSP = {
+            $gte: Number(fetchPage.Min_Price),
+            $lte: Number(fetchPage.Max_Price)
+          };
+        } else if (fetchPage?.Min_Price) {
+          baseFilters8.PSP = { $gte: Number(fetchPage.Min_Price) };
+        } else if (fetchPage?.Max_Price) {
+          baseFilters8.PSP = { $lte: Number(fetchPage.Max_Price) };
+        }
+
+        const [data8, count8] = await Promise.all([
+          strapi.documents("api::car.car").findMany({
+            filters: baseFilters8,
+            start: (page - 1) * limit,
+            limit: limit,
+            populate: ["Model", "Outlet", "Location"],
+          }),
+          strapi.documents("api::car.car").count({
+            filters: baseFilters8,
+            populate: ["Model", "Outlet", "Location"],
+          }),
+        ]);
+
+        console.log({ data8, count8 });
+
+        ctx.status = 200;
+        ctx.body = {
+          data: data8,
+          meta: {
+            pagination: {
+              total: count8,
+              page: page,
+              pageSize: limit,
+              pageCount: Math.ceil(count8 / limit),
+              last_page: Math.ceil(count8 / limit),
+            },
+          },
+        };
+
+        return;
+
+      }
+
+
+
+      //   default:
+      //     break;
+      // }
       const [data, count] = await Promise.all([
         strapi.documents("api::car.car").findMany({
           filters: {
