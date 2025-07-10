@@ -277,7 +277,9 @@ module.exports = {
   detail: async (ctx, next) => {
     const { slug } = ctx.params;
     try {
-      const data = await strapi
+      let data;
+
+      data = await strapi
         .documents("api::combination-page.combination-page")
         .findFirst({
           filters: {
@@ -307,16 +309,86 @@ module.exports = {
           },
         });
 
-      if (!data) {
-        ctx.status = 404;
-        ctx.body = {
-          error: "Not Found",
-        };
+      if (data) {
+        ctx.status = 200;
+        ctx.body = data;
         return;
       }
 
-      ctx.status = 200;
-      ctx.body = data;
+      data = await strapi
+        .documents("api::brand.brand")
+        .findFirst({
+          filters: {
+            Slug: slug,
+          },
+          populate: {
+            SEO: {
+              populate: {
+                Meta_Image: {
+                  populate: "*",
+                },
+              },
+            },
+          },
+        });
+
+      if (data) {
+        ctx.status = 200;
+        ctx.body = data;
+        return;
+      }
+
+      data = await strapi
+        .documents("api::model.model")
+        .findFirst({
+          filters: {
+            Slug: slug,
+          },
+          populate: {
+            SEO: {
+              populate: {
+                Meta_Image: {
+                  populate: "*",
+                },
+              },
+            },
+          },
+        });
+
+      if (data) {
+        ctx.status = 200;
+        ctx.body = data;
+        return;
+      }
+
+      data = await strapi
+        .documents("api::outlet.outlet")
+        .findFirst({
+          filters: {
+            Slug: slug,
+          },
+          populate: {
+            SEO: {
+              populate: {
+                Meta_Image: {
+                  populate: "*",
+                },
+              },
+            },
+          },
+        });
+
+      if (data) {
+        ctx.status = 200;
+        ctx.body = data;
+        return;
+      }
+
+      ctx.status = 404;
+      ctx.body = { message: "Not Found" };
+      return;
+
+
     } catch (error) {
       ctx.status = 500;
       ctx.body = error;

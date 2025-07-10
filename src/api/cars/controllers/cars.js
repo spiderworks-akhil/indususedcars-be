@@ -84,7 +84,15 @@ module.exports = {
           // Check if brand exists
           let brand = await strapi.documents("api::brand.brand").findFirst({
             filters: {
-              Name: carData?.Make,
+              $or: [
+                { Name: carData?.Make },
+                { 
+                  Slug: carData?.Make?.toLowerCase()
+                    ?.trim()
+                    ?.replace(/\s+/g, "-")
+                    ?.replace(/[^a-z0-9-]/g, "")
+                }
+              ]
             },
           });
 
@@ -107,13 +115,28 @@ module.exports = {
           //check model exist
           let model = await strapi.documents("api::model.model").findFirst({
             filters: {
-              Name: carData?.Model,
+              $or: [
+                { Name: carData?.Model },
+                { 
+                  Slug: carData?.Model?.toLowerCase()
+                    ?.trim()
+                    ?.replace(/\s+/g, "-")
+                    ?.replace(/[^a-z0-9-]/g, "")
+                }
+              ]
             },
           });
           console.log({ model });
 
           //if not create new model
           if (!model) {
+            console.log({
+              model_slug: carData?.Model?.toLowerCase()
+                ?.trim()
+                ?.replace(/\s+/g, "-") // Replace spaces with hyphens
+                ?.replace(/[^a-z0-9-]/g, "")
+            ,name:carData?.Model});
+
             model = await strapi.documents("api::model.model").create({
               data: {
                 Name:
@@ -138,7 +161,15 @@ module.exports = {
             .documents("api::fuel-type.fuel-type")
             .findFirst({
               filters: {
-                Name: carData?.Fuel_Type,
+                $or: [
+                  { Name: carData?.Fuel_Type },
+                  { 
+                    Slug: carData?.Fuel_Type?.toLowerCase()
+                      ?.trim()
+                      ?.replace(/\s+/g, "-")
+                      ?.replace(/[^a-z0-9-]/g, "")
+                  }
+                ]
               },
             });
 
@@ -160,7 +191,15 @@ module.exports = {
 
           let outlet = await strapi.documents("api::outlet.outlet").findFirst({
             filters: {
-              Name: carData?.Outlet,
+              $or: [
+                { Name: carData?.Outlet },
+                { 
+                  Slug: carData?.Outlet?.toLowerCase()
+                    ?.trim()
+                    ?.replace(/\s+/g, "-")
+                    ?.replace(/[^a-z0-9-]/g, "")
+                }
+              ]
             },
           });
 
@@ -184,7 +223,15 @@ module.exports = {
             .documents("api::vehicle-category.vehicle-category")
             .findFirst({
               filters: {
-                Name: carData?.Vehicle_Category,
+                $or: [
+                  { Name: carData?.Vehicle_Category },
+                  { 
+                    Slug: carData?.Vehicle_Category?.toLowerCase()
+                      ?.trim()
+                      ?.replace(/\s+/g, "-")
+                      ?.replace(/[^a-z0-9-]/g, "")
+                  }
+                ]
               },
             });
 
@@ -228,6 +275,7 @@ module.exports = {
 
           const car = await strapi.documents("api::car.car").create({
             data: {
+
               Brand: brand,
               Model: model,
               Outlet: outlet,
