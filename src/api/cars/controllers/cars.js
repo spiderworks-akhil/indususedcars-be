@@ -59,7 +59,8 @@ module.exports = {
 
       await strapi.db.query('api::car.car').updateMany({
         data: {
-          Vehicle_Status: 'SOLD'
+          Vehicle_Status: 'SOLD',
+          Newly_Added: false
         }
       });
 
@@ -241,6 +242,7 @@ module.exports = {
               Vehicle_Category: vehicle_category,
               Image_URL: JSON.stringify(imageUrls),
               Name: `${brand?.Name} ${model?.Name} ${carData?.YOM}`,
+              Newly_Added: true,
               // Slug: `${brand?.Name?.toLowerCase()
               //   ?.trim()
               //   ?.replace(/\s+/g, "-") // Replace spaces with hyphens
