@@ -32,12 +32,12 @@ module.exports = {
       switch (slug) {
         case "static_pages":
           ctx.body = [
-            { Slug: "/" },
-            { Slug: "/blog" },
-            { Slug: "/cars" },
-            { Slug: "/contact" },
-            { Slug: "/dealers" },
-            { Slug: "/two-wheelers" },
+            { Slug: "" },
+            { Slug: "blog" },
+            { Slug: "cars" },
+            { Slug: "contact" },
+            { Slug: "dealers" },
+            { Slug: "two-wheelers" },
           ];
           break;
 
@@ -49,7 +49,7 @@ module.exports = {
 
           // Format the response to include /blog/ before blog slug
           const formattedBlogs = blogList.map(blog => ({
-            Slug: `/blog/${blog.Slug}`
+            Slug: `blog/${blog.Slug}`
           }));
 
           ctx.status = 200;
@@ -64,7 +64,10 @@ module.exports = {
           });
 
           ctx.status = 200;
-          ctx.body = carList;
+          const formattedCars = carList.map(car => ({
+            Slug: `cars/${car.Slug}`
+          }));
+          ctx.body = formattedCars;
 
           break;
 
@@ -78,7 +81,7 @@ module.exports = {
 
           // Format the response to include /dealers/ before dealer slug
           const formattedDealers = dealerList.map(dealer => ({
-            Slug: `/dealers/${dealer.Slug}`
+            Slug: `dealers/${dealer.Slug}`
           }));
 
           ctx.status = 200;
@@ -96,7 +99,7 @@ module.exports = {
 
           // Format the response to include /cars/ before brand slug
           const formattedBrands = brandList.map(brand => ({
-            Slug: `/cars/${brand.Slug}`
+            Slug: `cars/${brand.Slug}`
           }));
 
           ctx.status = 200;
@@ -147,9 +150,16 @@ module.exports = {
             });
 
           // Format the response to include location slug before outlet slug
-          const formattedLocations = locationList.map(outlet => ({
-            Slug: `/${outlet.Location.Slug}/${outlet.Slug}` // No need for null check since we filtered
-          }));
+          const formattedLocations = locationList.map(outlet => {
+            const locationSlug = outlet.Location.Slug;
+            const outletSlug = outlet.Slug;
+            if (locationSlug === outletSlug) {
+              return null; // Skip if both slugs are same
+            }
+            return {
+              Slug: `${locationSlug}/${outletSlug}`
+            };
+          }).filter(Boolean); // Remove null entries
 
           ctx.status = 200;
           ctx.body = formattedLocations;
@@ -178,7 +188,7 @@ module.exports = {
 
           // Format the response to include /buy/ before the slug
           const formattedBrandDistricts = brandDistrictList.map(page => ({
-            Slug: `/buy/${page.Slug}`
+            Slug: `buy/${page.Slug}`
           }));
 
           ctx.status = 200;
@@ -196,7 +206,7 @@ module.exports = {
 
           // Format the response to include /buy/ before the slug
           const formattedModelDistricts = modelDistrictList.map(page => ({
-            Slug: `/buy/${page.Slug}`
+            Slug: `buy/${page.Slug}`
           }));
 
           ctx.status = 200;

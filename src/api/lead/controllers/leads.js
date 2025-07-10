@@ -181,10 +181,7 @@ module.exports = {
                 <body>
                   <div class="container">
                     <div class="content">
-                      <div class="header">
-                        <img src="https://www.indusmotors.com/logo.png" alt="Indus Motors Logo" class="logo">
-                        <div class="company-name">Indus Motors</div>
-                      </div>
+                     
                       <h2>New Test Drive Request</h2>
                       <div class="details">
                         <h3>Customer Details</h3>
