@@ -598,6 +598,7 @@ export interface ApiCarCar extends Struct.CollectionTypeSchema {
     Location: Schema.Attribute.Relation<'oneToOne', 'api::location.location'>;
     Model: Schema.Attribute.Relation<'oneToOne', 'api::model.model'>;
     Name: Schema.Attribute.String;
+    Newly_Added: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     Outlet: Schema.Attribute.Relation<'oneToOne', 'api::outlet.outlet'>;
     Owner_Type: Schema.Attribute.String;
     PSP: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<100000>;

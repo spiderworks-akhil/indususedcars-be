@@ -54,6 +54,15 @@ module.exports = {
         throw new Error("Invalid response from cars API");
       }
       let i = 0;
+
+      //Intially set car vehicle status to SOLD 
+
+      await strapi.db.query('api::car.car').updateMany({
+        data: {
+          Vehicle_Status: 'SOLD'
+        }
+      });
+
       // Process each car in the response
       for (const carData of fetchCars.data.getUsedCarDetailsResult) {
         console.log({ car: carData });
@@ -263,15 +272,15 @@ module.exports = {
           // });
 
           console.log({ car });
-        }else{
-        const existingCar = await strapi.documents("api::car.car").update({
-          documentId: checkVehicleRegistration.documentId,
-          data: {
-            Variant: carData?.variant,
-          },
-          status: "published",
-        });
-        console.log({ updatedCar: existingCar });
+        } else {
+          const existingCar = await strapi.documents("api::car.car").update({
+            documentId: checkVehicleRegistration.documentId,
+            data: {
+              Vehicle_Status: 'STOCK'
+            },
+            status: "published",
+          });
+          console.log({ updatedCar: existingCar });
         }
       }
 
@@ -301,6 +310,8 @@ module.exports = {
         });
         console.log("updated");
       }
+
+      await strapi.controller('api::cars.cars').updateSlug(ctx, next);
 
       ctx.body = {
         success: true,
@@ -373,108 +384,108 @@ module.exports = {
           Basic_Information: { populate: "*" }
         },
       });
-      
+
       const count = await strapi.documents("api::car.car").count();
       let i = 1;
-      
+
       for (let car of cars) {
         console.log(`Processing Cars: ${count - i++} left`);
-        if(!car?.Basic_Information){
+        if (!car?.Basic_Information) {
 
-        
-        // Generate clean slug
-        const slug = slugify(`${car.Name}-${car.Vehicle_Reg_No}`, {
-          replacement: "-",
-          remove: /[*+~.()'"!:@]/g,
-          lower: true,
-          strict: true,
-          locale: "en",
-          trim: true,
-        });
 
-        const updateData = {
-          Slug: slug,
-          ...(!car?.Basic_Information && {
-            Basic_Information: {
-              Brand: car?.Brand,
-              Model: car?.Model,
-              Variant: car?.Variant,
-              Color: car?.Color,
-              Vehicle_Category: car?.Vehicle_Category,
-            },
-            Registration_Status: {
-              Vehicle_Reg_No: car?.Vehicle_Reg_No,
-              Registration_Year: car?.Registration_Year,
-              Year_Of_Month: car?.Year_Of_Month,
-              Owner_Type: car?.Owner_Type,
-              Kilometers: car?.Kilometers,
-              Vehicle_Status: car?.Vehicle_Status,
-            },
-            Technical_Performance: {
-              Fuel_Type: car?.Fuel_Type,
-              PSP: car?.PSP,
-              Transmission_Type: car?.Transmission_Type,
-            },
-            Insurance_Inspection: {
-              Insurance_Type: car?.Insurance_Type,
-              Insurance_Validity: car?.Insurance_Validity,
-              Inspection_Report: car?.Inspection_Report ? 
-                (Array.isArray(car.Inspection_Report) ? car.Inspection_Report : [car.Inspection_Report]) : [],
-            },
-            Availability_Features: {
-              Outlet: car?.Outlet,
-              Location: car?.Location,
-              Home_Test_Drive: car?.Home_Test_Drive,
-            },
-            Media: {
-              Image_URL: car?.Image_URL,
-              Image: car?.Image,
-            },
-            Highlight_Recommendation: {
-              Recommended: car?.Recommended,
-              Featured: car?.Featured,
-              Choose_Next: car?.Choose_Next,
-            },
-            Additional_Sections: {
-              Find_More: car?.Find_More ?
-                (Array.isArray(car.Find_More) ? car.Find_More : [car.Find_More]) : [],
-            },
-          })
-        };
+          // Generate clean slug
+          const slug = slugify(`${car.Name}-${car.Vehicle_Reg_No}`, {
+            replacement: "-",
+            remove: /[*+~.()'"!:@]/g,
+            lower: true,
+            strict: true,
+            locale: "en",
+            trim: true,
+          });
 
-        await strapi.documents("api::car.car").update({
-          documentId: car?.documentId,
-          data: updateData,
-          status: "published",
-          populate: {
-            Basic_Information: { populate: "*" },
-            Registration_Status: { populate: "*" },
-            Technical_Performance: { populate: "*" },
-            Insurance_Inspection: { populate: "*" },
-            Availability_Features: {
-              populate: {
-                Outlet: { populate: "*" },
-                Location: { populate: "*" },
+          const updateData = {
+            Slug: slug,
+            ...(!car?.Basic_Information && {
+              Basic_Information: {
+                Brand: car?.Brand,
+                Model: car?.Model,
+                Variant: car?.Variant,
+                Color: car?.Color,
+                Vehicle_Category: car?.Vehicle_Category,
+              },
+              Registration_Status: {
+                Vehicle_Reg_No: car?.Vehicle_Reg_No,
+                Registration_Year: car?.Registration_Year,
+                Year_Of_Month: car?.Year_Of_Month,
+                Owner_Type: car?.Owner_Type,
+                Kilometers: car?.Kilometers,
+                Vehicle_Status: car?.Vehicle_Status,
+              },
+              Technical_Performance: {
+                Fuel_Type: car?.Fuel_Type,
+                PSP: car?.PSP,
+                Transmission_Type: car?.Transmission_Type,
+              },
+              Insurance_Inspection: {
+                Insurance_Type: car?.Insurance_Type,
+                Insurance_Validity: car?.Insurance_Validity,
+                Inspection_Report: car?.Inspection_Report ?
+                  (Array.isArray(car.Inspection_Report) ? car.Inspection_Report : [car.Inspection_Report]) : [],
+              },
+              Availability_Features: {
+                Outlet: car?.Outlet,
+                Location: car?.Location,
+                Home_Test_Drive: car?.Home_Test_Drive,
+              },
+              Media: {
+                Image_URL: car?.Image_URL,
+                Image: car?.Image,
+              },
+              Highlight_Recommendation: {
+                Recommended: car?.Recommended,
+                Featured: car?.Featured,
+                Choose_Next: car?.Choose_Next,
+              },
+              Additional_Sections: {
+                Find_More: car?.Find_More ?
+                  (Array.isArray(car.Find_More) ? car.Find_More : [car.Find_More]) : [],
+              },
+            })
+          };
+
+          await strapi.documents("api::car.car").update({
+            documentId: car?.documentId,
+            data: updateData,
+            status: "published",
+            populate: {
+              Basic_Information: { populate: "*" },
+              Registration_Status: { populate: "*" },
+              Technical_Performance: { populate: "*" },
+              Insurance_Inspection: { populate: "*" },
+              Availability_Features: {
+                populate: {
+                  Outlet: { populate: "*" },
+                  Location: { populate: "*" },
+                },
+              },
+              Media: {
+                populate: {
+                  Image: { populate: "*" },
+                },
+              },
+              Highlight_Recommendation: { populate: "*" },
+              Additional_Sections: {
+                populate: {
+                  Find_More: { populate: "*" },
+                },
               },
             },
-            Media: {
-              populate: {
-                Image: { populate: "*" },
-              },
-            },
-            Highlight_Recommendation: { populate: "*" },
-            Additional_Sections: {
-              populate: {
-                Find_More: { populate: "*" },
-              },
-            },
-          },
-        });
+          });
+        }
       }
-    }
       ctx.status = 200;
       ctx.body = { data: { msg: "updated" } };
-      
+
     } catch (err) {
       ctx.status = 500;
       ctx.body = {

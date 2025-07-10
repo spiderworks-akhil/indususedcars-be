@@ -146,6 +146,10 @@
     },
     "Year_Of_Month": {
       "type": "integer"
+    },
+    "Newly_Added": {
+      "type": "boolean",
+      "default": false
     }
   }
 }
