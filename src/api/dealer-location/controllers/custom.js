@@ -38,6 +38,9 @@ module.exports = {
       const locationList = await strapi.documents('api::dealer-location.dealer-location').findMany({
         filters: {},
         populate: {
+          Image:{
+            populate:'*'
+          },
           SEO: {
             populate: {
               Meta_Image: {
