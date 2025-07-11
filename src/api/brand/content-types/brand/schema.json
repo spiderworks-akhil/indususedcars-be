@@ -46,6 +46,11 @@
     },
     "Page_Heading": {
       "type": "string"
+    },
+    "FAQ": {
+      "type": "component",
+      "repeatable": false,
+      "component": "common.faq"
     }
   }
 }

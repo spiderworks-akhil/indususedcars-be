@@ -2361,51 +2361,32 @@ module.exports = {
 
   removeTopContent: async (ctx, next) => {
     try {
-      const combionationPages = await strapi.documents('api::combination-page.combination-page').findMany({
-        filters: {},
-        populate: ['SEO', 'SEO.Meta_Image']
-      })
-
-      for (const list of combionationPages) {
-        if (list?.SEO?.Top_Description == list?.SEO?.Bottom_Description) {
-          console.log('yes inside');
-          
-          await strapi.documents('api::combination-page.combination-page').update({
-            documentId: list?.documentId,
-            data: {
-              Top_Description: null
-            }
-          })
+      // Update all combination pages using direct database query
+      await strapi.db.query('api::combination-page.combination-page').updateMany({
+        where: {},
+        data: {
+          Top_Description: ''
         }
-      }
+      });
 
-      const models = await strapi.documents('api::model.model').findMany({
-        filters: {},
-        populate: ['SEO', 'SEO.Meta_Image']
-      })
-
-      for (const list of models) {
-        if (list?.SEO?.Top_Description == list?.SEO?.Bottom_Description) {
-          console.log('yes inside');
-          
-          await strapi.documents('api::model.model').update({
-            documentId: list?.documentId,
-            data: {
-              Top_Description: null
-            }
-          })
+      // Update all models using direct database query
+      await strapi.db.query('api::model.model').updateMany({
+        where: {},
+        data: {
+          Top_Description: ''
         }
-      }
+      });
+
       ctx.status = 200;
-      ctx.body={
-        msg:'Completed'
-      }
+      ctx.body = {
+        msg: 'All Top_Description fields have been cleared using database queries'
+      };
 
     } catch (error) {
       ctx.status = 500;
       ctx.body = {
         err: error?.message
-      }
+      };
     }
   }
 };

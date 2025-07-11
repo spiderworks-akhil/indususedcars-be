@@ -35,17 +35,23 @@
       "targetField": "Place"
     },
     "Image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
       "allowedTypes": [
         "images"
-      ],
-      "type": "media",
-      "multiple": false
+      ]
     },
     "Dealer_Lists": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::dealer-list.dealer-list",
       "mappedBy": "Dealer_Location"
+    },
+    "FAQ": {
+      "type": "component",
+      "repeatable": false,
+      "component": "common.faq"
     }
   }
 }

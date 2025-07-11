@@ -150,6 +150,11 @@
     "Newly_Added": {
       "type": "boolean",
       "default": false
+    },
+    "FAQ": {
+      "type": "component",
+      "repeatable": false,
+      "component": "common.faq"
     }
   }
 }

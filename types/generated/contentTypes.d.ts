@@ -468,6 +468,7 @@ export interface ApiBlogBlog extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    FAQ: Schema.Attribute.Component<'common.faq', false>;
     Featured_Image: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios'
     >;
@@ -508,6 +509,7 @@ export interface ApiBrandBrand extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    FAQ: Schema.Attribute.Component<'common.faq', false>;
     Featured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     Image: Schema.Attribute.Media<'images' | 'files'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
@@ -574,6 +576,7 @@ export interface ApiCarCar extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     Description: Schema.Attribute.Text;
+    FAQ: Schema.Attribute.Component<'common.faq', false>;
     Featured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     Find_More: Schema.Attribute.Component<'car.find-more-section', true>;
     Fuel_Type: Schema.Attribute.Relation<
@@ -879,6 +882,7 @@ export interface ApiDealerLocationDealerLocation
           preset: 'defaultHtml';
         }
       >;
+    FAQ: Schema.Attribute.Component<'common.faq', false>;
     Image: Schema.Attribute.Media<'images'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -1238,6 +1242,7 @@ export interface ApiOutletOutlet extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    FAQ: Schema.Attribute.Component<'common.faq', false>;
     Featured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     Image: Schema.Attribute.Media<'images' | 'files'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
