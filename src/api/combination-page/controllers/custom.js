@@ -313,10 +313,10 @@ module.exports = {
         ctx.status = 200;
         ctx.body = data;
         return;
-      }else{
-      ctx.status = 404;
-      ctx.body = { message: "Not Found" };
-      return;
+      } else {
+        ctx.status = 404;
+        ctx.body = { message: "Not Found" };
+        return;
       }
 
       data = await strapi
@@ -2361,32 +2361,60 @@ module.exports = {
 
   removeTopContent: async (ctx, next) => {
     try {
-      // Update all combination pages using direct database query
-      await strapi.db.query('api::combination-page.combination-page').updateMany({
-        where: {},
-        data: {
-          Top_Description: ''
-        }
-      });
+      const combionationPages = await strapi.documents('api::combination-page.combination-page').findMany({
+        filters: {},
+        populate: ['SEO', 'SEO.Meta_Image']
+      })
 
-      // Update all models using direct database query
-      await strapi.db.query('api::model.model').updateMany({
-        where: {},
-        data: {
-          Top_Description: ''
-        }
-      });
+      for (const list of combionationPages) {
+       
 
+          console.log('yes inside', list);
+
+          await strapi.documents('api::combination-page.combination-page').update({
+            documentId: list?.documentId,
+            data: {
+              SEO: {
+                Top_Description: null
+              }
+            },
+            populate: ['SEO'],
+            status: 'published'
+          })
+        
+      }
+
+      const models = await strapi.documents('api::model.model').findMany({
+        filters: {},
+        populate: ['SEO', 'SEO.Meta_Image']
+      })
+
+      for (const list of models) {
+        
+          console.log('yes inside');
+
+          await strapi.documents('api::model.model').update({
+            documentId: list?.documentId,
+            data: {
+              SEO: {
+                Top_Description: null
+              }
+            },
+            populate: ['SEO'],
+            status: 'published'
+          })
+        
+      }
       ctx.status = 200;
       ctx.body = {
-        msg: 'All Top_Description fields have been cleared using database queries'
-      };
+        msg: 'Completed'
+      }
 
     } catch (error) {
       ctx.status = 500;
       ctx.body = {
         err: error?.message
-      };
+      }
     }
   }
 };

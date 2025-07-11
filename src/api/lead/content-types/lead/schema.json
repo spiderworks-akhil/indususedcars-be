@@ -40,8 +40,7 @@
       "type": "date"
     },
     "Notes": {
-      "type": "text",
-      "default": "Test Lead from Spiderworks Technologies"
+      "type": "text"
     },
     "utmSource": {
       "type": "string"

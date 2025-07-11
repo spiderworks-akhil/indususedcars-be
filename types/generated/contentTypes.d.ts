@@ -1079,8 +1079,7 @@ export interface ApiLeadLead extends Struct.CollectionTypeSchema {
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::lead.lead'> &
       Schema.Attribute.Private;
     MobileNumber: Schema.Attribute.String & Schema.Attribute.Required;
-    Notes: Schema.Attribute.Text &
-      Schema.Attribute.DefaultTo<'Test Lead from Spiderworks Technologies'>;
+    Notes: Schema.Attribute.Text;
     publishedAt: Schema.Attribute.DateTime;
     SourceType: Schema.Attribute.String;
     SourceURL: Schema.Attribute.String;
