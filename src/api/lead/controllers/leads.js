@@ -1,6 +1,7 @@
 "use strict";
 const axios = require("axios");
 const XLSX = require("xlsx");
+const ejs = require('ejs');
 /**
  * A set of functions called "actions" for `generateLead`
  */
@@ -701,22 +702,12 @@ module.exports = {
                     pass: smtp.SMTP.Password || process.env.SMTP_PASSWORD,
                   },
                 });
-
+                let html = ejs.render(template?.user?.html, { data: templateData })
                 const mailOptions = {
                   from: `${smtp.SMTP.From_Name || process.env.SMTP_DEFAULT_NAME} <${smtp.SMTP.from_Mail_Address || process.env.SMTP_USERNAME}>`,
                   to: email,
                   subject: template.user.subject,
-                  html: template.user.html.replace(
-                    /<%= data\.([^%>]+)%>/g,
-                    (match, p1) => {
-                      const keys = p1.trim().split(".");
-                      let value = templateData;
-                      for (const key of keys) {
-                        value = value?.[key];
-                      }
-                      return value || "";
-                    }
-                  ),
+                  html: html
                 };
 
                 await transporter.sendMail(mailOptions);
@@ -802,7 +793,7 @@ module.exports = {
               await strapi.documents("api::lead.lead").update({
                 documentId: lead.documentId,
                 data: { API_Status: true },
-                status:'published'
+                status: 'published'
               });
             } else {
               ctx.body = {
@@ -872,8 +863,8 @@ module.exports = {
     try {
       const { startDate, endDate } = ctx.request.body;
 
-      console.log({startDate,endDate});
-      
+      console.log({ startDate, endDate });
+
 
       if (!startDate || !endDate) {
         return ctx.badRequest("Both start and end dates are required");
@@ -914,21 +905,23 @@ module.exports = {
         "Created At": lead.createdAt,
       }));
 
-      const worksheet = XLSX.utils.json_to_sheet(exportData, { header: [
-        "Customer Name",
-        "Customer Email",
-        "Mobile Number",
-        "Lead Type",
-        "Date",
-        "Notes",
-        "utmSource",
-        "SourceType",
-        "City",
-        "API_Status",
-        "SourceURL",
-        "Car",
-        "Created At"
-      ]});
+      const worksheet = XLSX.utils.json_to_sheet(exportData, {
+        header: [
+          "Customer Name",
+          "Customer Email",
+          "Mobile Number",
+          "Lead Type",
+          "Date",
+          "Notes",
+          "utmSource",
+          "SourceType",
+          "City",
+          "API_Status",
+          "SourceURL",
+          "Car",
+          "Created At"
+        ]
+      });
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
 
