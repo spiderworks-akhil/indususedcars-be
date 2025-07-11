@@ -707,18 +707,21 @@ module.exports = {
                   from: `${smtp.SMTP.From_Name || process.env.SMTP_DEFAULT_NAME} <${smtp.SMTP.from_Mail_Address || process.env.SMTP_USERNAME}>`,
                   to: email,
                   subject: template.user.subject,
-                  html: template.user.html.replace(
-                    /<%= data\.([^%>]+)%>/g,
-                    (match, p1) => {
-                      const keys = p1.trim().split(".");
+                  html: template.user.html.replace(/<%= (.*?) %>/g, (match, expression) => {
+                    try {
+                      const keys = expression.trim().split(".");
                       let value = templateData;
                       for (const key of keys) {
                         value = value?.[key];
                       }
-                      return value || "";
+                      return value ?? "";
+                    } catch (err) {
+                      console.error("Error replacing template expression:", expression, err);
+                      return "";
                     }
-                  ),
+                  }),
                 };
+                
 
                 await transporter.sendMail(mailOptions);
               }
