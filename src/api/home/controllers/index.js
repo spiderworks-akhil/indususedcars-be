@@ -52,10 +52,8 @@ module.exports = {
          }
         }
       })
-      const featuredOutlets = await strapi.documents('api::outlet.outlet').findMany({
-        filters: {
-          Featured: true
-        },
+      const featuredOutlets = await strapi.documents('api::dealer-location.dealer-location').findMany({
+        filters: {},
         populate: {
           Image: {
             populate: '*'
@@ -69,7 +67,7 @@ module.exports = {
           const count = await strapi.documents('api::car.car').count({
             filters: {
               Outlet: {
-                Name: outlet.Name
+                Name: outlet.Place
               },
               Vehicle_Status: "STOCK",
             }
@@ -113,10 +111,10 @@ module.exports = {
       const newlyadded=await strapi.documents("api::car.car").findMany({
         filters:{
           Vehicle_Status: "STOCK",
+          Newly_Added: true
         },
         sort: { createdAt: 'desc' },
         populate:['Brand','Model','Outlet','Fuel_Type','Image'],
-        limit: 20
       })
 
       const chooseNextCars=await strapi.documents("api::car.car").findMany({
@@ -202,7 +200,7 @@ module.exports = {
             choose_next: chooseNextCars,
             recommended: recommendedCars,
             newlyadded: newlyadded,
-            featuredOutlets:outletCarCounts
+            featuredOutlets: outletCarCounts.map(outlet => ({ ...outlet, Name: outlet.Place }))
           }
         }
         

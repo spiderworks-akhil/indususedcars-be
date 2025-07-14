@@ -368,6 +368,7 @@ module.exports = {
         message: "Cars imported successfully",
       };
     } catch (err) {
+      console.error(err)
       ctx.body = {
         success: false,
         message: "Failed to import cars",
