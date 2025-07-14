@@ -9,12 +9,18 @@ module.exports = {
     try {
 
       const price=await strapi.documents('api::car.car').findMany({
+        filters:{
+          Vehicle_Status: "STOCK",
+        },
         sort: "PSP:asc",
         limit:1
       })
       const minimun_price=price[0]?.PSP;
 
       const maximumPrice=await strapi.documents('api::car.car').findMany({
+        filters:{
+          Vehicle_Status: "STOCK",
+        },
         sort: "PSP:desc",
         limit:1
       })
@@ -26,6 +32,7 @@ module.exports = {
       const featuredCars=await strapi.documents("api::car.car").findMany({
         filters: {
           Featured: true,
+          Vehicle_Status: "STOCK",
         },
         populate:{
           Brand:{
@@ -63,7 +70,8 @@ module.exports = {
             filters: {
               Outlet: {
                 Name: outlet.Name
-              }
+              },
+              Vehicle_Status: "STOCK",
             }
           });
           return {
@@ -97,12 +105,15 @@ module.exports = {
       const recommendedCars=await strapi.documents("api::car.car").findMany({
         filters: {
           Recommended: true,
+          Vehicle_Status: "STOCK",
         },
         populate:['Brand','Model','Outlet','Fuel_Type','Image'],
       })
 
       const newlyadded=await strapi.documents("api::car.car").findMany({
-        filters:{},
+        filters:{
+          Vehicle_Status: "STOCK",
+        },
         sort: { createdAt: 'desc' },
         populate:['Brand','Model','Outlet','Fuel_Type','Image'],
         limit: 20
@@ -111,6 +122,7 @@ module.exports = {
       const chooseNextCars=await strapi.documents("api::car.car").findMany({
         filters: {
           Choose_Next: true,
+          Vehicle_Status: "STOCK",
         },
         populate:['Brand','Model','Outlet','Fuel_Type','Image'],
       })

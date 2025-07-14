@@ -62,6 +62,7 @@ module.exports = {
             Name: {
               $containsi: query,
             },
+            Vehicle_Status: "STOCK",
           },
           populate: {
             Outlet: {
@@ -74,6 +75,9 @@ module.exports = {
         console.log('yes');
         
         carsList = await strapi.documents("api::car.car").findMany({
+          filters:{
+            Vehicle_Status: "STOCK",
+          },
           populate: {
             Outlet: {
               populate: "*",

@@ -88,7 +88,8 @@ module.exports = {
                   Location: {
                     Slug: location.Slug
                   }
-                }
+                },
+                Vehicle_Status: "STOCK",
               },
               populate: ["Outlet","Outlet.Location"]
             });

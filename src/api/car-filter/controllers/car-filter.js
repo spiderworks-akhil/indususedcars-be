@@ -14,14 +14,17 @@ module.exports = {
     let maxKilometers;
     let Fuels;
     try {
-      console.log(ctx.query); 
-      
+      console.log(ctx.query);
+
       if (ctx?.query?.location) {
         const manimum_price = await strapi.documents("api::car.car").findMany({
-          Location: {
-            Slug: {
-              $eq: ctx?.query?.location,
+          filters: {
+            Location: {
+              Slug: {
+                $eq: ctx?.query?.location,
+              },
             },
+            Vehicle_Status: "STOCK",
           },
           sort: "PSP:asc",
           limit: 1,
@@ -29,70 +32,75 @@ module.exports = {
         minimumPrice = manimum_price[0]?.PSP;
 
         const maximum_price = await strapi.documents("api::car.car").findMany({
-          filters:{
+          filters: {
             Location: {
               Slug: {
                 $eq: ctx?.query?.location,
               },
             },
+            Vehicle_Status: "STOCK",
           },
-          
+
           sort: "PSP:desc",
           limit: 1,
         });
         maximumPrice = maximum_price[0]?.PSP;
 
         const max_year = await strapi.documents("api::car.car").findMany({
-          filters:{
+          filters: {
             Location: {
               Slug: {
                 $eq: ctx?.query?.location,
               },
             },
+            Vehicle_Status: "STOCK",
           },
-         
+
           sort: "Year_Of_Month:desc",
           limit: 1,
         });
         maxYear = max_year[0]?.Year_Of_Month;
 
         const min_year = await strapi.documents("api::car.car").findMany({
-          filters:{
+          filters: {
             Location: {
               Slug: {
                 $eq: ctx?.query?.location,
               },
-            }, 
+            },
+            Vehicle_Status: "STOCK",
           },
-          
+
           sort: "Year_Of_Month:asc",
           limit: 1,
         });
         minYear = min_year[0]?.Year_Of_Month;
 
         const min_kilometers = await strapi.documents("api::car.car").findMany({
-          filters:{
+          filters: {
             Location: {
               Slug: {
                 $eq: ctx?.query?.location,
               },
             },
+            Vehicle_Status: "STOCK",
           },
-          
+
           sort: "Kilometers:asc",
           limit: 1,
         });
         minKilometers = min_kilometers[0]?.Kilometers;
 
         const max_kilometers = await strapi.documents("api::car.car").findMany({
-          filters:{
+          filters: {
             Location: {
               Slug: {
                 $eq: ctx?.query?.location,
               },
             },
+            Vehicle_Status: "STOCK",
           },
-          
+
           sort: "Kilometers:desc",
           limit: 1,
         });
@@ -101,43 +109,61 @@ module.exports = {
         Fuels = await strapi.documents("api::fuel-type.fuel-type").findMany({
           Location: {
             Slug: {
-              $eq: ctx?.query?.location, 
+              $eq: ctx?.query?.location,
             },
           },
           populate: "*",
         });
       } else {
         const manimum_price = await strapi.documents("api::car.car").findMany({
+          filters:{
+            Vehicle_Status: "STOCK",
+          },
           sort: "PSP:asc",
           limit: 1,
         });
         minimumPrice = manimum_price[0]?.PSP;
 
         const maximum_price = await strapi.documents("api::car.car").findMany({
+          filters:{
+            Vehicle_Status: "STOCK",
+          },
           sort: "PSP:desc",
           limit: 1,
         });
         maximumPrice = maximum_price[0]?.PSP;
 
         const max_year = await strapi.documents("api::car.car").findMany({
+          filters:{
+            Vehicle_Status: "STOCK",
+          },
           sort: "Year_Of_Month:desc",
           limit: 1,
         });
         maxYear = max_year[0]?.Year_Of_Month;
 
         const min_year = await strapi.documents("api::car.car").findMany({
+          filters:{
+            Vehicle_Status: "STOCK",
+          },
           sort: "Year_Of_Month:asc",
           limit: 1,
         });
         minYear = min_year[0]?.Year_Of_Month;
 
         const min_kilometers = await strapi.documents("api::car.car").findMany({
+          filters:{
+            Vehicle_Status: "STOCK",
+          },
           sort: "Kilometers:asc",
           limit: 1,
         });
         minKilometers = min_kilometers[0]?.Kilometers;
 
         const max_kilometers = await strapi.documents("api::car.car").findMany({
+          filters:{
+            Vehicle_Status: "STOCK",
+          },
           sort: "Kilometers:desc",
           limit: 1,
         });
@@ -202,7 +228,7 @@ module.exports = {
       };
       let count = await strapi.documents("api::brand.brand").count();
 
-      let brand; 
+      let brand;
       if (!search) {
         brand = await strapi.documents("api::brand.brand").findMany({
           populate: "*",
@@ -265,51 +291,51 @@ module.exports = {
         limit: parseInt(limit),
       };
 
-      if(brand && brand !== '[]') {
+      if (brand && brand !== "[]") {
         try {
-          console.log('yes inside brand model');
-          
+          console.log("yes inside brand model");
+
           // Remove brackets and split by comma
           const cleanedBrand = brand.replace(/[\[\]{}]/g, "");
-          const brandArray = cleanedBrand.split(",").map(b => b.trim());
+          const brandArray = cleanedBrand.split(",").map((b) => b.trim());
 
-          if (brandArray.length > 0 && brandArray[0] !== '') {
+          if (brandArray.length > 0 && brandArray[0] !== "") {
             // console.log(
             //   'yes'
             // );
-            
+
             const [models, count] = await Promise.all([
-              strapi.documents('api::model.model').findMany({
+              strapi.documents("api::model.model").findMany({
                 filters: {
                   Brand: {
                     Slug: {
-                      $in: brandArray
-                    }
+                      $in: brandArray,
+                    },
                   },
                   ...(search && {
                     Slug: {
-                      $containsi: search
-                    }
-                  })
+                      $containsi: search,
+                    },
+                  }),
                 },
                 limit: pagination.limit,
                 start: pagination.start,
-                populate: ['Brand']
+                populate: ["Brand"],
               }),
-              strapi.documents('api::model.model').count({
+              strapi.documents("api::model.model").count({
                 filters: {
                   Brand: {
                     Slug: {
-                      $in: brandArray
-                    }
+                      $in: brandArray,
+                    },
                   },
                   ...(search && {
                     Slug: {
-                      $containsi: search
-                    }
-                  })
-                }
-              })
+                      $containsi: search,
+                    },
+                  }),
+                },
+              }),
             ]);
 
             ctx.status = 200;
@@ -331,7 +357,7 @@ module.exports = {
 
       let count = await strapi.documents("api::model.model").count();
 
-      let model; 
+      let model;
       if (!search) {
         model = await strapi.documents("api::model.model").findMany({
           populate: "*",
@@ -361,7 +387,7 @@ module.exports = {
         },
         limit: pagination.limit,
         start: pagination.start,
-        populate:['Brand']
+        populate: ["Brand"],
       });
       count = await strapi.documents("api::model.model").count({
         filters: {
@@ -385,41 +411,42 @@ module.exports = {
       ctx.body = error;
     }
   },
-  allStaticContent:async(ctx,next)=>{
-    try{
-      const static_content = await strapi.documents('api::cars-listing.cars-listing').findFirst({
-        populate: {
-          Offer_Section: {
-            populate: "*",
-          },
-          Exclusive_Section: {
-            populate: "*",
-          },
-          Assurance_Section: {
-            populate: "*",
-          },
-          Benefit_Section: {
-            populate: "*",
-          },
-          FAQ: {
-            populate: "*",
-          },
-          SEO: {
-            populate: {
-              Meta_Image: {
-                populate: "*",
+  allStaticContent: async (ctx, next) => {
+    try {
+      const static_content = await strapi
+        .documents("api::cars-listing.cars-listing")
+        .findFirst({
+          populate: {
+            Offer_Section: {
+              populate: "*",
+            },
+            Exclusive_Section: {
+              populate: "*",
+            },
+            Assurance_Section: {
+              populate: "*",
+            },
+            Benefit_Section: {
+              populate: "*",
+            },
+            FAQ: {
+              populate: "*",
+            },
+            SEO: {
+              populate: {
+                Meta_Image: {
+                  populate: "*",
+                },
               },
             },
           },
-        },
-      })
+        });
 
-
-      ctx.status=200;
-      ctx.body={
-        data:static_content
-      }
-    }catch(error){
+      ctx.status = 200;
+      ctx.body = {
+        data: static_content,
+      };
+    } catch (error) {
       ctx.status = 500;
       ctx.body = error;
     }
@@ -473,7 +500,7 @@ module.exports = {
       // const { location } = ctx.params;
       const {
         model,
-        location, 
+        location,
         fuel,
         brand,
         transmission,
@@ -482,14 +509,12 @@ module.exports = {
         price,
         page = 1,
         pageSize = 10,
-        high
+        high,
       } = ctx.query;
-      console.log({brand,model});
+      console.log({ brand, model });
       // console.log(ctx.query);
       // console.log({fuel:fuel?.length,brand:brand?.length,transmission:transmission?.length,year:year?.length,kilometers:kilometers?.length,price:price?.length});
-      
-      
- 
+
       // Calculate pagination values
       const limit = parseInt(pageSize);
       const start = (parseInt(page) - 1) * limit;
@@ -497,23 +522,26 @@ module.exports = {
       // Build filters dynamically based on provided query parameters
       const filters = {};
 
+      filters.Vehicle_Status={
+        $eq:"STOCK"
+      }
+
       // Add location filter based on slug
       if (location) {
         filters.Outlet = {
-          Location:{
+          Location: {
             Slug: location,
-          }
-          
+          },
         };
       }
 
-      if (model && model!== '[]') {
+      if (model && model !== "[]") {
         try {
           // Remove brackets and split by comma
           const cleanedModel = model.replace(/[\[\]{}]/g, "");
           const modelArray = cleanedModel.split(",").map((m) => m.trim());
 
-          if (modelArray.length > 0 && modelArray[0]!== '') {
+          if (modelArray.length > 0 && modelArray[0] !== "") {
             filters.Model = {
               Slug: {
                 $in: modelArray,
@@ -525,14 +553,14 @@ module.exports = {
         }
       }
 
-      if (fuel && fuel !== '[]') {
+      if (fuel && fuel !== "[]") {
         try {
           // Remove brackets and split by comma
           const cleanedFuel = fuel.replace(/[\[\]{}]/g, "");
-          const fuelArray = cleanedFuel.split(",").map((f) => f.trim());  
+          const fuelArray = cleanedFuel.split(",").map((f) => f.trim());
           // console.log(fuelArray);
 
-          if (fuelArray.length > 0 && fuelArray[0] !== '') {
+          if (fuelArray.length > 0 && fuelArray[0] !== "") {
             filters.Fuel_Type = {
               Name: {
                 $in: fuelArray,
@@ -544,13 +572,13 @@ module.exports = {
         }
       }
 
-      if (brand && brand !== '[]') {
+      if (brand && brand !== "[]") {
         try {
           // Remove brackets and split by comma
           const cleanedBrand = brand.replace(/[\[\]{}]/g, "");
           const brandArray = cleanedBrand.split(",").map((b) => b.trim());
 
-          if (brandArray.length > 0 && brandArray[0] !== '') {
+          if (brandArray.length > 0 && brandArray[0] !== "") {
             filters.Brand = {
               Slug: {
                 $in: brandArray,
@@ -562,7 +590,7 @@ module.exports = {
         }
       }
 
-      if (transmission && transmission !== '[]') { 
+      if (transmission && transmission !== "[]") {
         try {
           // Remove brackets and split by comma
           const cleanedTransmission = transmission.replace(/[\[\]{}]/g, "");
@@ -571,7 +599,7 @@ module.exports = {
             .map((t) => t.trim());
           // console.log(transmissionArray);
 
-          if (transmissionArray.length > 0 && transmissionArray[0] !== '') {
+          if (transmissionArray.length > 0 && transmissionArray[0] !== "") {
             filters.Transmission_Type = {
               $in: transmissionArray,
             };
@@ -581,7 +609,7 @@ module.exports = {
         }
       }
 
-      if (year && year !== '[]') {
+      if (year && year !== "[]") {
         // console.log(year);
         const years = JSON.parse(year);
         if (years.length > 0) {
@@ -590,7 +618,7 @@ module.exports = {
           };
         }
       }
-      if (kilometers && kilometers !== '[]') {
+      if (kilometers && kilometers !== "[]") {
         const km = JSON.parse(kilometers);
         if (km.length > 0) {
           filters.Kilometers = {
@@ -598,7 +626,7 @@ module.exports = {
           };
         }
       }
-      if (price && price !== '[]') {
+      if (price && price !== "[]") {
         const prices = JSON.parse(price);
         if (prices.length > 0) {
           // console.log(
@@ -612,20 +640,20 @@ module.exports = {
         }
       }
       let locationPage;
-      if(locationPage){
+      if (locationPage) {
         locationPage = await strapi
-        .documents("api::location.location")
-        .findFirst({
-          filters: {
-            Slug: location,
-          },
-        });
-      }else{
+          .documents("api::location.location")
+          .findFirst({
+            filters: {
+              Slug: location,
+            },
+          });
+      } else {
         locationPage = await strapi
-        .documents("api::location.location")
-        .findFirst({});
+          .documents("api::location.location")
+          .findFirst({});
       }
-       
+
       if (!locationPage) {
         ctx.status = 404;
         ctx.body = { error: "Location not found" };
@@ -636,7 +664,7 @@ module.exports = {
         strapi.documents("api::car.car").findMany({
           filters: Object.keys(filters).length > 0 ? filters : undefined,
           populate: ["Brand", "Model", "Outlet", "Fuel_Type", "Image"],
-          sort:`PSP:${high? 'desc':'asc'}`,
+          sort: `PSP:${high ? "desc" : "asc"}`,
           limit,
           start,
         }),
@@ -645,9 +673,7 @@ module.exports = {
         }),
       ]);
 
-
-      console.log({filter:cars});
-      
+      console.log({ filter: cars });
 
       ctx.status = 200;
       ctx.body = {
@@ -678,7 +704,7 @@ module.exports = {
           status: "published",
         });
         // console.log(carUpdate);
-      } 
+      }
 
       ctx.status = 200;
       ctx.body = {

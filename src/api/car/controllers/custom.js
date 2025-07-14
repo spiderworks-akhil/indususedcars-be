@@ -24,6 +24,7 @@ module.exports = {
       const car = await strapi.documents("api::car.car").findFirst({
         filters: {
           Slug: slug,
+          Vehicle_Status: "STOCK",
         },
         populate: {
           Brand: {
@@ -83,7 +84,8 @@ module.exports = {
           Brand: car.Brand.id,
           Slug: {
             $ne: slug // Exclude the current car
-          }
+          },
+          Vehicle_Status: "STOCK",
         },
         populate: {
           Brand: {

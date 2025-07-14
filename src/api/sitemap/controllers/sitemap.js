@@ -59,6 +59,9 @@ module.exports = {
 
         case "sitemap-cars":
           const carList = await strapi.documents("api::car.car").findMany({
+            filters:{
+              Vehicle_Status: "STOCK",
+            },
             fields: ["Slug"],
             status: "published",
           });

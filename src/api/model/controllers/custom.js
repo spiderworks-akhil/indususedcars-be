@@ -168,6 +168,7 @@ module.exports = {
                 $eq: model.Slug,
               },
             },
+            Vehicle_Status: "STOCK",
           },
           populate: "*",
         });

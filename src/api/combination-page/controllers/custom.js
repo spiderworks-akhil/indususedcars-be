@@ -1186,6 +1186,7 @@ module.exports = {
               Brand: {
                 Slug: slug,
               },
+              Vehicle_Status: "STOCK",
             },
             start: (page - 1) * limit,
             limit: limit,
@@ -1206,6 +1207,7 @@ module.exports = {
               Brand: {
                 Slug: slug,
               },
+              Vehicle_Status: "STOCK",
             },
           }),
         ]);
@@ -1242,6 +1244,7 @@ module.exports = {
               Model: {
                 Slug: slug,
               },
+              Vehicle_Status: "STOCK",
             },
             start: (page - 1) * limit,
             limit: limit,
@@ -1262,6 +1265,7 @@ module.exports = {
               Model: {
                 Slug: slug,
               },
+              Vehicle_Status: "STOCK",
             },
           }),
         ]);
@@ -1299,6 +1303,7 @@ module.exports = {
               Outlet: {
                 Slug: slug,
               },
+              Vehicle_Status: "STOCK",
             },
             start: (page - 1) * limit,
             limit: limit,
@@ -1319,6 +1324,7 @@ module.exports = {
               Outlet: {
                 Slug: slug,
               },
+              Vehicle_Status: "STOCK",
             },
           }),
         ]);
@@ -1361,6 +1367,7 @@ module.exports = {
                 }
 
               },
+              Vehicle_Status: "STOCK",
             },
             start: (page - 1) * limit,
             limit: limit,
@@ -1389,7 +1396,8 @@ module.exports = {
                 Location: {
                   Slug: slug,
                 },
-              }
+              },
+              Vehicle_Status: "STOCK",
 
             },
             populate: ['Outlet', 'Outlet.Location']
@@ -1476,6 +1484,7 @@ module.exports = {
 
         const baseFilters2 = {
           Variant: fetchPage?.Variant?.Variant,
+          Vehicle_Status: "STOCK",
         };
 
         if (fetchPage?.Min_Price && fetchPage?.Max_Price) {
@@ -1545,7 +1554,8 @@ module.exports = {
           },
           Outlet: {
             Location: { Slug: fetchPage.Location.Slug }
-          }
+          },
+          Vehicle_Status: "STOCK",
 
         };
 
@@ -1624,6 +1634,7 @@ module.exports = {
           Brand: {
             Slug: fetchPage?.Brand?.Slug || null,
           },
+          Vehicle_Status: "STOCK",
         };
 
         if (fetchPage?.Min_Price && fetchPage?.Max_Price) {
@@ -1702,7 +1713,8 @@ module.exports = {
               : fetchPage?.Outlet?.Location?.Slug
                 ? { Slug: fetchPage.Outlet.Location.Slug }
                 : null
-          }
+          },
+          Vehicle_Status: "STOCK",
 
         };
 
@@ -1766,6 +1778,7 @@ module.exports = {
           Model: {
             Slug: fetchPage?.Slug,
           },
+          Vehicle_Status: "STOCK",
         };
 
         if (fetchPage?.Outlet?.Slug) {
@@ -1845,6 +1858,7 @@ module.exports = {
             Location: {
               Slug: fetchPage?.Location?.Slug || null,
             },
+            Vehicle_Status: "STOCK",
           },
           start: (page - 1) * limit,
           limit: limit,
@@ -1868,6 +1882,7 @@ module.exports = {
             Location: {
               Slug: fetchPage?.Location?.Slug || null,
             },
+            Vehicle_Status: "STOCK",
           },
         }),
       ]);
