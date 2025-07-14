@@ -35,6 +35,14 @@ module.exports = {
         return;
       }
 
+      if (name?.length > 20) {
+        ctx.status = 400;
+        ctx.body = {
+          message: "Name should not exceed 20 characters",
+        };
+        return;
+      }
+
       // Verify reCAPTCHA token
       const recaptchaSecret = process.env.RECAPTCHA_SECRECT_KEY;
       const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaSecret}&response=${recaptcha_token}`;
@@ -640,7 +648,7 @@ module.exports = {
           city,
           lead_type,
           source_type,
-          utm_source,
+          utmsource:utm_source,
           source_url,
           car,
           date: new Date().toISOString().slice(0, 10),
