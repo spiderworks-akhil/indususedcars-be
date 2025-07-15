@@ -24,8 +24,8 @@ module.exports = {
     },
     {
       method: "GET",
-      path: "/combination-page/seperate",
-      handler: "custom.seperatePage",
+      path: "/combination-page/update-meta",
+      handler: "custom.updateMeta",
       config: {
         auth: false,
         policies: [],

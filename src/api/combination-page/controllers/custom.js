@@ -2081,8 +2081,8 @@ module.exports = {
                   Meta_Image: uploadedImage || modelData?.data?.og_image_id,
                   OG_Title: modelData?.data?.og_title,
                   OG_Description: modelData?.data?.og_description,
-                  Bottom_Description: modelData?.data?.bottom_description || modelData?.data?.top_description,
-                  Top_Description: modelData?.data?.top_description,
+                  Bottom_Description:modelData?.data?.top_description,
+                  Top_Description: null,
                 },
               };
 
@@ -2431,5 +2431,225 @@ module.exports = {
         err: error?.message
       }
     }
-  }
+  },
+
+  updateMeta: async (ctx, next) => {
+    // Helper to sleep for ms milliseconds
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    // Helper to fetch with retry on 429
+    const fetchWithRetry = async (url, retries = 3) => {
+      let attempt = 0;
+      while (attempt < retries) {
+        try {
+          return await axios.get(url);
+        } catch (error) {
+          if (error.response && error.response.status === 429) {
+            attempt++;
+            if (attempt < retries) {
+              console.log(`429 Too Many Requests for ${url}. Waiting 20 seconds before retrying (attempt ${attempt + 1}/${retries})...`);
+              await sleep(20000); // 20 seconds
+              continue;
+            }
+          }
+          throw error;
+        }
+      }
+    };
+
+    try {
+      console.log("models");
+      const nonDetailSlugs = [];
+
+      const verifySlug = (slug) => {
+        if (!slug) {
+          return "Slug is empty";
+        }
+        if (typeof slug !== "string") {
+          return "Slug is not a string";
+        }
+
+        // Generate a clean slug if invalid
+        if (slug.length > 100 || !/^[a-z0-9-]+$/.test(slug)) {
+          return slug
+            .toLowerCase()
+            .replace(/[^a-z0-9-]/g, "-") // Replace invalid chars with -
+            .replace(/-+/g, "-") // Replace multiple - with single -
+            .replace(/^-|-$/g, "") // Remove leading/trailing -
+            .substring(0, 100); // Truncate to max length
+        }
+
+        return null; // Slug is valid
+      };
+
+      const data = await fetchWithRetry(
+        `${process.env.OLD_BACKEND_URL}/api/combination-pages?page=1&limit=1000`
+      );
+      console.log(data);
+
+      // Process pages from 1 to 40
+      for (let page = 1; page <= data?.data?.last_page; page++) {
+        console.log(`processing page ${page}`);
+
+        try {
+          const pageData = await fetchWithRetry(
+            `${process.env.OLD_BACKEND_URL}/api/combination-pages?page=${page}`
+          );
+
+          for (const model of pageData.data?.data) {
+            try {
+              let slug = model.slug;
+              const slugError = verifySlug(slug);
+              if (slugError) {
+                slug = slugError;
+                nonDetailSlugs.push({
+                  slug: model.slug,
+                  problem: "Invalid slug, generated new one",
+                });
+              }
+
+              const modelData = await fetchWithRetry(
+                `${process.env.OLD_BACKEND_URL}/api/combination-pages/${model.slug}`
+              );
+
+              if (![200, 201].includes(modelData.status)) continue;
+
+              let uploadedImage = null;
+              if (modelData?.data?.og_image?.file_path) {
+                const imageResponse = await axios.get(
+                  `${process.env.OLD_BACKEND_URL}/${modelData.data.og_image.file_path}`,
+                  { responseType: "arraybuffer" }
+                );
+
+                const formData = new FormData();
+                const imageBlob = new Blob(
+                  [Buffer.from(imageResponse.data)],
+                  { type: imageResponse.headers["content-type"] }
+                );
+                formData.append(
+                  "files",
+                  imageBlob,
+                  modelData.data.og_image.file_path.split("/").pop()
+                );
+
+                const uploadResponse =
+                  await strapi.plugins.upload.services.upload.upload({
+                    data: {},
+                    files: formData,
+                  });
+
+                if (uploadResponse?.length > 0) {
+                  uploadedImage = uploadResponse[0].id;
+                }
+              }
+
+              const commonData = {
+                Slug: slug,
+                Page_Heading: modelData?.data?.page_heading,
+                Top_Description: null,
+                Bottom_Description: null,
+                Extra_JS: modelData?.data?.extra_js,
+                Related_Type: modelData?.data?.related_type,
+                FAQ: {
+                  Title: modelData?.data?.faq?.name,
+                },
+                SEO: {
+                  Meta_Title: modelData?.data?.browser_title,
+                  Meta_Description: modelData?.data?.meta_description,
+                  Meta_Keywords: modelData?.data?.meta_keywords,
+                  Meta_Image: uploadedImage || modelData?.data?.og_image_id,
+                  OG_Title: modelData?.data?.og_title,
+                  OG_Description: modelData?.data?.og_description,
+                  Bottom_Description:modelData?.data?.top_description,
+                  Top_Description: null,
+                },
+              };
+
+              const relatedType = modelData?.data?.related_type;
+              let targetCollection = 'api::combination-page.combination-page';
+
+              switch (relatedType) {
+                case 'App\\Models\\Indus\\Brand': {
+                console.log('Brand');
+                
+                  break;
+                }
+
+                case 'App\\Models\\Indus\\Location': {
+                 console.log('Location');
+                 
+                  break;
+                }
+
+                case 'App\\Models\\Indus\\Model': {
+                console.log('Model');
+                
+                  break;
+                }
+
+                case 'App\\Models\\Indus\\Dealership': {
+               console.log('Dealership');
+               
+                  break;
+                }
+
+                case 'App\\Models\\Indus\\Outlet': {
+              console.log('Outlet');
+              
+                  break;
+                }
+
+                default: {
+                  // Default: Combination Page
+                  const existingDoc = await strapi.documents('api::combination-page.combination-page').findFirst({ filters: { Slug: slug } });
+                  if (existingDoc) {
+                    await strapi.documents('api::combination-page.combination-page').update({
+                      documentId: existingDoc.documentId,
+                      data: commonData,
+                      status: "published",
+                      populate: ["SEO", "FAQ"],
+                    });
+                    console.log(`Updated Combination Page: ${slug}`);
+                  } else {
+                    await strapi.documents('api::combination-page.combination-page').create({
+                      data: commonData,
+                      status: "published",
+                      populate: ["SEO", "FAQ"],
+                    });
+                    console.log(`Created Combination Page: ${slug}`);
+                  }
+                  break;
+                }
+              }
+
+            } catch (error) {
+              if (error.response?.status === 404) {
+                console.log(`No detail page found for slug: ${model.slug}`);
+                nonDetailSlugs.push({
+                  slug: model.slug,
+                  problem: "No detail page found",
+                });
+              } else {
+                console.log(`Error processing item with slug ${model.slug}:`, error.message);
+                nonDetailSlugs.push({ slug: model.slug, problem: error.message });
+                continue;
+              }
+            }
+          }
+        } catch (error) {
+          console.log(`Error fetching page ${page}:`, error.message);
+          nonDetailSlugs.push({ slug: `Page ${page}`, problem: error.message });
+          continue;
+        }
+      }
+
+      console.log("Non-detail pages:", nonDetailSlugs);
+      ctx.body = { success: true, msg: "Process completed", nonDetailSlugs };
+    } catch (err) {
+      ctx.body = err;
+    }
+  },
+  
+
+  
 };
