@@ -2447,8 +2447,8 @@ module.exports = {
           if (error.response && error.response.status === 429) {
             attempt++;
             if (attempt < retries) {
-              console.log(`429 Too Many Requests for ${url}. Waiting 20 seconds before retrying (attempt ${attempt + 1}/${retries})...`);
-              await sleep(20000); // 20 seconds
+              console.log(`429 Too Many Requests for ${url}. Waiting 40 seconds before retrying (attempt ${attempt + 1}/${retries})...`);
+              await sleep(40000); // 40 seconds
               continue;
             }
           }
@@ -2493,7 +2493,7 @@ module.exports = {
 
         try {
           const pageData = await fetchWithRetry(
-            `${process.env.OLD_BACKEND_URL}/api/combination-pages?page=${page}`
+            `${process.env.OLD_BACKEND_URL}/api/combination-pages?page=${page}&limit=1000`
           );
 
           for (const model of pageData.data?.data) {
