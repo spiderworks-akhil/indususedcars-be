@@ -305,7 +305,7 @@ module.exports = {
                         OG_Title: fetchData?.data?.browser_title,
                         OG_Description: fetchData?.data?.meta_description,
                         Bottom_Description: fetchData?.data?.bottom_description == null ? fetchData?.data?.top_description : fetchData?.data?.bottom_description,
-                        Top_Description: fetchData?.data?.top_description == null ? null : fetchData?.data?.bottom_description,
+                        Top_Description: null,
                         Extra_JS: fetchData?.data?.extra_js
                       }
                     },
@@ -325,7 +325,7 @@ module.exports = {
                         OG_Title: fetchData?.data?.browser_title,
                         OG_Description: fetchData?.data?.meta_description,
                         Bottom_Description: fetchData?.data?.bottom_description == null ? fetchData?.data?.top_description : fetchData?.data?.bottom_description,
-                        Top_Description: fetchData?.data?.top_description == null ? null : fetchData?.data?.bottom_description,
+                        Top_Description: null,
                         Extra_JS: fetchData?.data?.extra_js
                       }
                     },
