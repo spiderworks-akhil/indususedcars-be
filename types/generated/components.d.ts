@@ -637,7 +637,7 @@ export interface SettingsContact extends Struct.ComponentSchema {
     displayName: 'Contact';
   };
   attributes: {
-    Address1: Schema.Attribute.Text & Schema.Attribute.Required;
+    Address1: Schema.Attribute.Text;
     Address2: Schema.Attribute.Text;
     Email: Schema.Attribute.Email & Schema.Attribute.Required;
     Google_Map_Embed_Code: Schema.Attribute.String;
