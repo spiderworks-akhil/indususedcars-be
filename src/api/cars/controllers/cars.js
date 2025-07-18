@@ -78,6 +78,13 @@ module.exports = {
             },
           });
 
+        let imageUrls = {
+          LeftSide_Image: carData?.LeftSide_Img,
+          RightSide_Image: carData?.Rightside_Img,
+          Front_Image: carData?.Front_Img,
+          Back_Image: carData?.Back_Img,
+        };
+
         if (!checkVehicleRegistration?.documentId) {
           console.log("inside vehicle");
 
@@ -86,7 +93,7 @@ module.exports = {
             filters: {
               $or: [
                 { Name: carData?.Make },
-                { 
+                {
                   Slug: carData?.Make?.toLowerCase()
                     ?.trim()
                     ?.replace(/\s+/g, "-")
@@ -117,7 +124,7 @@ module.exports = {
             filters: {
               $or: [
                 { Name: carData?.Model },
-                { 
+                {
                   Slug: carData?.Model?.toLowerCase()
                     ?.trim()
                     ?.replace(/\s+/g, "-")
@@ -135,7 +142,8 @@ module.exports = {
                 ?.trim()
                 ?.replace(/\s+/g, "-") // Replace spaces with hyphens
                 ?.replace(/[^a-z0-9-]/g, "")
-            ,name:carData?.Model});
+              , name: carData?.Model
+            });
 
             model = await strapi.documents("api::model.model").create({
               data: {
@@ -163,7 +171,7 @@ module.exports = {
               filters: {
                 $or: [
                   { Name: carData?.Fuel_Type },
-                  { 
+                  {
                     Slug: carData?.Fuel_Type?.toLowerCase()
                       ?.trim()
                       ?.replace(/\s+/g, "-")
@@ -193,7 +201,7 @@ module.exports = {
             filters: {
               $or: [
                 { Name: carData?.Outlet },
-                { 
+                {
                   Slug: carData?.Outlet?.toLowerCase()
                     ?.trim()
                     ?.replace(/\s+/g, "-")
@@ -225,7 +233,7 @@ module.exports = {
               filters: {
                 $or: [
                   { Name: carData?.Vehicle_Category },
-                  { 
+                  {
                     Slug: carData?.Vehicle_Category?.toLowerCase()
                       ?.trim()
                       ?.replace(/\s+/g, "-")
@@ -266,12 +274,7 @@ module.exports = {
           //     await downloadImage(carData.Back_Img, `${carData.veh_Reg_no}-back.jpg`) : null
           // };
 
-          const imageUrls = {
-            LeftSide_Image: carData?.LeftSide_Img,
-            RightSide_Image: carData?.Rightside_Img,
-            Front_Image: carData?.Front_Img,
-            Back_Image: carData?.Back_Img,
-          };
+
 
           const car = await strapi.documents("api::car.car").create({
             data: {
@@ -326,7 +329,8 @@ module.exports = {
           const existingCar = await strapi.documents("api::car.car").update({
             documentId: checkVehicleRegistration.documentId,
             data: {
-              Vehicle_Status: 'STOCK'
+              Vehicle_Status: 'STOCK',
+              Image_URL: JSON.stringify(imageUrls),
             },
             status: "published",
           });
