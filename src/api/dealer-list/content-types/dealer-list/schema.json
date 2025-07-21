@@ -64,7 +64,8 @@
       "type": "string"
     },
     "Slug": {
-      "type": "uid"
+      "type": "uid",
+      "targetField": "Title"
     },
     "Related_Type": {
       "type": "string"

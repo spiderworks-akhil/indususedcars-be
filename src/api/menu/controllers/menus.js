@@ -83,7 +83,8 @@ module.exports = {
               populate: "*",
             },
           },
-          limit:6 
+          limit:6,
+          status:'published'   
         });
       }
       console.log('finish');

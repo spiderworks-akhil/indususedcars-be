@@ -54,8 +54,8 @@ module.exports = {
                 SEO: {
                   populate: "*",
                 },
-                FAQ:{
-                  populate:'*'
+                FAQ: {
+                  populate: '*'
                 }
               },
             });
@@ -211,6 +211,7 @@ module.exports = {
             },
             start: (page - 1) * limit,
             limit: limit,
+            status: 'published'
           }),
           strapi.documents("api::dealer-list.dealer-list").count({
             filters: {
@@ -220,6 +221,7 @@ module.exports = {
                 },
               },
             },
+            status: 'published'
           }),
         ]);
 
@@ -265,8 +267,12 @@ module.exports = {
           },
           start: (page - 1) * limit,
           limit: limit,
+          status: 'published'
         }),
-        strapi.documents("api::dealer-list.dealer-list").count({}),
+        strapi.documents("api::dealer-list.dealer-list").count({
+          filters: {},
+          status: 'published'
+        }),
       ]);
 
       ctx.status = 200;
@@ -318,6 +324,7 @@ module.exports = {
               },
             },
           },
+          status: 'published'
         });
 
 
@@ -335,8 +342,8 @@ module.exports = {
       };
     } catch (err) {
       ctx.status = 500;
-      ctx.body={
-        err:err
+      ctx.body = {
+        err: err
       }
     }
   },

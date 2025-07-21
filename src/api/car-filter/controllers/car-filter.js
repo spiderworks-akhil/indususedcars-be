@@ -121,6 +121,7 @@ module.exports = {
           },
           sort: "PSP:asc",
           limit: 1,
+          status:'published'  
         });
         minimumPrice = manimum_price[0]?.PSP;
 
@@ -130,6 +131,7 @@ module.exports = {
           },
           sort: "PSP:desc",
           limit: 1,
+          status:'published'  
         });
         maximumPrice = maximum_price[0]?.PSP;
 
@@ -139,6 +141,7 @@ module.exports = {
           },
           sort: "Year_Of_Month:desc",
           limit: 1,
+          status:'published'  
         });
         maxYear = max_year[0]?.Year_Of_Month;
 
@@ -148,6 +151,7 @@ module.exports = {
           },
           sort: "Year_Of_Month:asc",
           limit: 1,
+          status:'published'  
         });
         minYear = min_year[0]?.Year_Of_Month;
 
@@ -157,6 +161,7 @@ module.exports = {
           },
           sort: "Kilometers:asc",
           limit: 1,
+          status:'published'  
         });
         minKilometers = min_kilometers[0]?.Kilometers;
 
@@ -166,6 +171,7 @@ module.exports = {
           },
           sort: "Kilometers:desc",
           limit: 1,
+          status:'published'  
         });
         maxKilometers = max_kilometers[0]?.Kilometers;
 

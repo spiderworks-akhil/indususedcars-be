@@ -840,7 +840,7 @@ export interface ApiDealerListDealerList extends Struct.CollectionTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     Related_Type: Schema.Attribute.String;
     SEO: Schema.Attribute.Component<'shared.seo', false>;
-    Slug: Schema.Attribute.UID;
+    Slug: Schema.Attribute.UID<'Title'>;
     Title: Schema.Attribute.String;
     Top_Description: Schema.Attribute.RichText &
       Schema.Attribute.CustomField<

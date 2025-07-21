@@ -9,7 +9,8 @@ module.exports = {
     try {
       const blogPage = await strapi.documents('api::blog-page.blog-page').findFirst({
         filters:{},
-        populate:['SEO','SEO.Meta_Image','Brand','Brand.Brands','Brand.Brands.Image','FAQ','FAQ.Questions','FAQ.Button']  
+        populate:['SEO','SEO.Meta_Image','Brand','Brand.Brands','Brand.Brands.Image','FAQ','FAQ.Questions','FAQ.Button'],
+        status:'published'  
       })  
 
 

@@ -13,7 +13,8 @@ module.exports = {
           Vehicle_Status: "STOCK",
         },
         sort: "PSP:asc",
-        limit:1
+        limit:1,
+        status:'published'  
       })
       const minimun_price=price[0]?.PSP;
 
@@ -22,7 +23,8 @@ module.exports = {
           Vehicle_Status: "STOCK",
         },
         sort: "PSP:desc",
-        limit:1
+        limit:1,
+        status:'published'  
       })
       const maximum_price=maximumPrice[0]?.PSP;
 
@@ -115,6 +117,7 @@ module.exports = {
         },
         sort: { createdAt: 'desc' },
         populate:['Brand','Model','Outlet','Fuel_Type','Image'],
+        status:'published'  
       })
 
       const chooseNextCars=await strapi.documents("api::car.car").findMany({

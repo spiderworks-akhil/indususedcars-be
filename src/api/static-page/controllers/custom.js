@@ -73,6 +73,7 @@ module.exports = {
           },
           start: (page - 1) * limit,
           limit: limit,
+          status:'published'  
         }),
         strapi.documents('api::static-page.static-page').count()
       ]);
@@ -104,7 +105,8 @@ module.exports = {
           SEO:{
               populate:'*'
           }
-        }
+        },
+        status:'published'  
       })
 
       if(!find_static_page){
