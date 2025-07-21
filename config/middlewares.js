@@ -10,6 +10,10 @@ module.exports = [
       origin: '*'
     }
   },
+  {
+    name: 'global::sanitize-filters',
+    config: {},
+  },
   'strapi::poweredBy',
   'strapi::query',
   'strapi::body',
