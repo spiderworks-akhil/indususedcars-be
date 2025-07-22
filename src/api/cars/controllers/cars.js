@@ -338,6 +338,28 @@ module.exports = {
         }
       }
 
+      // Set Newly_Added to true only for cars created within last month, others to false
+      try {
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+        // Then update only recent cars to true
+        await strapi.db.query('api::car.car').updateMany({
+          where: {
+            createdAt: { $lt: oneMonthAgo.toISOString() }
+          },
+          data: {
+            Newly_Added: true
+          }
+        });
+        console.log('updated');
+        
+      } catch (error) {
+        console.error('Error updating Newly_Added status:', error);
+      }
+
+
+
       const cars = await strapi.documents("api::car.car").findMany({});
       for (let car of cars) {
         console.log(car);
