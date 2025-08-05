@@ -88,6 +88,9 @@
       "type": "component",
       "repeatable": false,
       "component": "common.faq"
+    },
+    "Published_Date": {
+      "type": "date"
     }
   }
 }
