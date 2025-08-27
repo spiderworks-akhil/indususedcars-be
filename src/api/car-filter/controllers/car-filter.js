@@ -503,7 +503,6 @@ module.exports = {
   },
   filterCars: async (ctx, next) => {
     try {
-      // const { location } = ctx.params;
       const {
         model,
         location,
@@ -518,8 +517,6 @@ module.exports = {
         high,
       } = ctx.query;
       console.log({ brand, model });
-      // console.log(ctx.query);
-      // console.log({fuel:fuel?.length,brand:brand?.length,transmission:transmission?.length,year:year?.length,kilometers:kilometers?.length,price:price?.length});
 
       // Calculate pagination values
       const limit = parseInt(pageSize);
@@ -528,9 +525,9 @@ module.exports = {
       // Build filters dynamically based on provided query parameters
       const filters = {};
 
-      filters.Vehicle_Status={
-        $eq:"STOCK"
-      }
+      filters.Vehicle_Status = {
+        $eq: "STOCK"
+      };
 
       // Add location filter based on slug
       if (location) {
@@ -541,16 +538,45 @@ module.exports = {
         };
       }
 
-      if (model && model !== "[]") {
+      // --- Begin: Only model selected logic append ---
+      let onlyModelSelected = false;
+      let modelArray = [];
+      if (
+        model && model !== "[]" &&
+        (!fuel || fuel === "[]") &&
+        (!brand || brand === "[]") &&
+        (!transmission || transmission === "[]") &&
+        (!year || year === "[]") &&
+        (!kilometers || kilometers === "[]") &&
+        (!price || price === "[]")
+      ) {
+        onlyModelSelected = true;
         try {
-          // Remove brackets and split by comma
           const cleanedModel = model.replace(/[\[\]{}]/g, "");
-          const modelArray = cleanedModel.split(",").map((m) => m.trim());
-
-          if (modelArray.length > 0 && modelArray[0] !== "") {
+          modelArray = cleanedModel.split(",").map((m) => m.trim()).filter(Boolean);
+          if (modelArray.length > 0) {
             filters.Model = {
               Slug: {
                 $in: modelArray,
+              },
+            };
+          }
+        } catch (error) {
+          console.error("Error parsing model filter:", error);
+        }
+      }
+      // --- End: Only model selected logic append ---
+
+      // Normal filter logic for model
+      if (!onlyModelSelected && model && model !== "[]") {
+        try {
+          // Remove brackets and split by comma
+          const cleanedModel = model.replace(/[\[\]{}]/g, "");
+          const modelArrayNormal = cleanedModel.split(",").map((m) => m.trim());
+          if (modelArrayNormal.length > 0 && modelArrayNormal[0] !== "") {
+            filters.Model = {
+              Slug: {
+                $in: modelArrayNormal,
               },
             };
           }
@@ -564,8 +590,6 @@ module.exports = {
           // Remove brackets and split by comma
           const cleanedFuel = fuel.replace(/[\[\]{}]/g, "");
           const fuelArray = cleanedFuel.split(",").map((f) => f.trim());
-          // console.log(fuelArray);
-
           if (fuelArray.length > 0 && fuelArray[0] !== "") {
             filters.Fuel_Type = {
               Name: {
@@ -583,7 +607,6 @@ module.exports = {
           // Remove brackets and split by comma
           const cleanedBrand = brand.replace(/[\[\]{}]/g, "");
           const brandArray = cleanedBrand.split(",").map((b) => b.trim());
-
           if (brandArray.length > 0 && brandArray[0] !== "") {
             filters.Brand = {
               Slug: {
@@ -603,8 +626,6 @@ module.exports = {
           const transmissionArray = cleanedTransmission
             .split(",")
             .map((t) => t.trim());
-          // console.log(transmissionArray);
-
           if (transmissionArray.length > 0 && transmissionArray[0] !== "") {
             filters.Transmission_Type = {
               $in: transmissionArray,
@@ -616,7 +637,6 @@ module.exports = {
       }
 
       if (year && year !== "[]") {
-        // console.log(year);
         const years = JSON.parse(year);
         if (years.length > 0) {
           filters.Year_Of_Month = {
@@ -635,11 +655,6 @@ module.exports = {
       if (price && price !== "[]") {
         const prices = JSON.parse(price);
         if (prices.length > 0) {
-          // console.log(
-          //   typeof prices[0].toString(),
-          //   prices[1].toFixed(2).toString()
-          // );
-
           filters.PSP = {
             $between: [prices[0], prices[1]],
           };
@@ -665,19 +680,38 @@ module.exports = {
         ctx.body = { error: "Location not found" };
         return;
       }
-      // Fetch cars with dynamic filters and pagination
-      const [cars, count] = await Promise.all([
-        strapi.documents("api::car.car").findMany({
-          filters: Object.keys(filters).length > 0 ? filters : undefined,
-          populate: ["Brand", "Model", "Outlet", "Fuel_Type", "Image"],
-          sort: `PSP:${high ? "desc" : "asc"}`,
-          limit,
-          start,
-        }),
-        strapi.documents("api::car.car").count({
-          filters: Object.keys(filters).length > 0 ? filters : undefined,
-        }),
-      ]);
+
+      // If only model is selected, fetch cars for those models
+      let cars = [];
+      let count = 0;
+      if (onlyModelSelected && modelArray.length > 0) {
+        [cars, count] = await Promise.all([
+          strapi.documents("api::car.car").findMany({
+            filters: filters,
+            populate: ["Brand", "Model", "Outlet", "Fuel_Type", "Image"],
+            sort: `PSP:${high ? "desc" : "asc"}`,
+            limit,
+            start,
+          }),
+          strapi.documents("api::car.car").count({
+            filters: filters,
+          }),
+        ]);
+      } else {
+        // Fetch cars with dynamic filters and pagination
+        [cars, count] = await Promise.all([
+          strapi.documents("api::car.car").findMany({
+            filters: Object.keys(filters).length > 0 ? filters : undefined,
+            populate: ["Brand", "Model", "Outlet", "Fuel_Type", "Image"],
+            sort: `PSP:${high ? "desc" : "asc"}`,
+            limit,
+            start,
+          }),
+          strapi.documents("api::car.car").count({
+            filters: Object.keys(filters).length > 0 ? filters : undefined,
+          }),
+        ]);
+      }
 
       console.log({ filter: cars });
 
