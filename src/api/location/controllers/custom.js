@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 const axios = require("axios");
 
@@ -7,6 +7,51 @@ const axios = require("axios");
  */
 
 module.exports = {
+  findAll: async (ctx, next) => {
+    try {
+      const { keyword = "", page = 1, limit = 10 } = ctx.query;
+
+      // Calculate pagination values
+      const start = (parseInt(page) - 1) * parseInt(limit);
+      const end = start + parseInt(limit);
+
+      // Find all locations with case-insensitive search in ascending order
+      const locations = await strapi
+        .documents("api::location.location")
+        .findMany({
+          filters: {
+            $or: [{ Place: { $containsi: keyword } }],
+          },
+          limit: parseInt(limit),
+          start: start,
+          orderBy: { Place: "asc" }, // Added ascending order by Place
+        });
+
+      // Get total count for pagination
+      const total = await strapi.documents("api::location.location").count({
+        filters: {
+          $or: [{ Place: { $containsi: keyword } }],
+        },
+      });
+
+      ctx.status = 200;
+      ctx.body = {
+        data: locations,
+        meta: {
+          pagination: {
+            page: parseInt(page),
+            pageSize: parseInt(limit),
+            total: total,
+            pageCount: Math.ceil(total / limit),
+          },
+        },
+      };
+    } catch (error) {
+      ctx.status = 500;
+      ctx.body = error;
+    }
+  },
+
   extractDetails: async (ctx, next) => {
     // Helper to sleep for ms milliseconds
     const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -21,7 +66,9 @@ module.exports = {
           if (error.response && error.response.status === 429) {
             attempt++;
             if (attempt < retries) {
-              console.log(`429 Too Many Requests for ${url}. Waiting 20 seconds before retrying (attempt ${attempt + 1}/${retries})...`);
+              console.log(
+                `429 Too Many Requests for ${url}. Waiting 20 seconds before retrying (attempt ${attempt + 1}/${retries})...`
+              );
               await sleep(20000); // 20 seconds
               continue;
             }
@@ -51,19 +98,21 @@ module.exports = {
 
           for (const location of pageData.data?.data) {
             try {
-              if (location.related_type === 'App\\Models\\Indus\\Location') {
+              if (location.related_type === "App\\Models\\Indus\\Location") {
                 const fetchData = await fetchWithRetry(
                   `${process.env.OLD_BACKEND_URL}/api/combination-pages/${location?.slug}`
                 );
 
-                const exist = await strapi.documents('api::location.location').findFirst({
-                  filters: {
-                    Slug: location.slug
-                  }
-                })
+                const exist = await strapi
+                  .documents("api::location.location")
+                  .findFirst({
+                    filters: {
+                      Slug: location.slug,
+                    },
+                  });
 
                 if (exist) {
-                  await strapi.documents('api::location.location').update({
+                  await strapi.documents("api::location.location").update({
                     documentId: exist.documentId,
                     data: {
                       Title: fetchData?.data?.page_heading,
@@ -75,14 +124,14 @@ module.exports = {
                         OG_Description: fetchData?.data?.meta_description,
                         Bottom_Description: fetchData?.data?.top_description,
                         Top_Description: exist?.Description,
-                        Extra_JS: fetchData?.data?.extra_js
-                      }
+                        Extra_JS: fetchData?.data?.extra_js,
+                      },
                     },
-                    populate: ['SEO', 'SEO.Meta_Image'],
-                    status: 'published',
-                  })
+                    populate: ["SEO", "SEO.Meta_Image"],
+                    status: "published",
+                  });
                 } else {
-                  await strapi.documents('api::location.location').create({
+                  await strapi.documents("api::location.location").create({
                     data: {
                       Slug: location.slug,
                       Title: fetchData?.data?.page_heading,
@@ -93,28 +142,34 @@ module.exports = {
                         OG_Title: fetchData?.data?.browser_title,
                         OG_Description: fetchData?.data?.meta_description,
                         Bottom_Description: fetchData?.data?.top_description,
-                        Top_Description: fetchData?.data?.top_description == null ? null : fetchData?.data?.top_description,
-                        Extra_JS: fetchData?.data?.extra_js
-                      }
+                        Top_Description:
+                          fetchData?.data?.top_description == null
+                            ? null
+                            : fetchData?.data?.top_description,
+                        Extra_JS: fetchData?.data?.extra_js,
+                      },
                     },
-                    populate: ['SEO', 'SEO.Meta_Image'],
-                    status: 'published'
-                  })
+                    populate: ["SEO", "SEO.Meta_Image"],
+                    status: "published",
+                  });
                 }
 
-                console.log('SUCCESS');
+                console.log("SUCCESS");
               }
             } catch (error) {
-              console.log('FAILED');
+              console.log("FAILED");
               console.log(
                 `Error processing item with slug ${location.slug}:`,
                 error.message
               );
-              nonDetailSlugs.push({ slug: location.slug, problem: error.message });
+              nonDetailSlugs.push({
+                slug: location.slug,
+                problem: error.message,
+              });
               continue;
             }
           }
-          console.log('COMPLETED');
+          console.log("COMPLETED");
         } catch (error) {
           console.log(`Error fetching page ${page}:`, error.message);
           nonDetailSlugs.push({ slug: `Page ${page}`, problem: error.message });
@@ -131,32 +186,42 @@ module.exports = {
   getBySlug: async (ctx, next) => {
     try {
       const { slug } = ctx.params;
-      const findLocation = await strapi.documents('api::location.location').findFirst({
-        filters: {
-          Slug: slug
-        },
-        populate: ['SEO', 'SEO.Meta_Image', 'Outlets', 'Benefit_Section', 'FAQ', 'Assurance_Section', 'Exclusive_Section', 'Offer_Section']
-      })
+      const findLocation = await strapi
+        .documents("api::location.location")
+        .findFirst({
+          filters: {
+            Slug: slug,
+          },
+          populate: [
+            "SEO",
+            "SEO.Meta_Image",
+            "Outlets",
+            "Benefit_Section",
+            "FAQ",
+            "Assurance_Section",
+            "Exclusive_Section",
+            "Offer_Section",
+          ],
+        });
 
       if (!findLocation) {
         ctx.status = 404;
         ctx.body = {
-          err: 'Not Found'
-        }
+          err: "Not Found",
+        };
 
         return;
       }
 
       ctx.status = 200;
       ctx.body = {
-        data: findLocation
-      }
-
+        data: findLocation,
+      };
     } catch (error) {
       ctx.status = 404;
       ctx.body = {
-        err: error?.message
-      }
+        err: error?.message,
+      };
     }
-  }
+  },
 };

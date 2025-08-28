@@ -116,62 +116,62 @@ module.exports = {
         });
       } else {
         const manimum_price = await strapi.documents("api::car.car").findMany({
-          filters:{
+          filters: {
             Vehicle_Status: "STOCK",
           },
           sort: "PSP:asc",
           limit: 1,
-          status:'published'  
+          status: "published",
         });
         minimumPrice = manimum_price[0]?.PSP;
 
         const maximum_price = await strapi.documents("api::car.car").findMany({
-          filters:{
+          filters: {
             Vehicle_Status: "STOCK",
           },
           sort: "PSP:desc",
           limit: 1,
-          status:'published'  
+          status: "published",
         });
         maximumPrice = maximum_price[0]?.PSP;
 
         const max_year = await strapi.documents("api::car.car").findMany({
-          filters:{
+          filters: {
             Vehicle_Status: "STOCK",
           },
           sort: "Year_Of_Month:desc",
           limit: 1,
-          status:'published'  
+          status: "published",
         });
         maxYear = max_year[0]?.Year_Of_Month;
 
         const min_year = await strapi.documents("api::car.car").findMany({
-          filters:{
+          filters: {
             Vehicle_Status: "STOCK",
           },
           sort: "Year_Of_Month:asc",
           limit: 1,
-          status:'published'  
+          status: "published",
         });
         minYear = min_year[0]?.Year_Of_Month;
 
         const min_kilometers = await strapi.documents("api::car.car").findMany({
-          filters:{
+          filters: {
             Vehicle_Status: "STOCK",
           },
           sort: "Kilometers:asc",
           limit: 1,
-          status:'published'  
+          status: "published",
         });
         minKilometers = min_kilometers[0]?.Kilometers;
 
         const max_kilometers = await strapi.documents("api::car.car").findMany({
-          filters:{
+          filters: {
             Vehicle_Status: "STOCK",
           },
           sort: "Kilometers:desc",
           limit: 1,
-          status:'published'  
+          status: "published",
         });
         maxKilometers = max_kilometers[0]?.Kilometers;
 
@@ -516,7 +516,7 @@ module.exports = {
         pageSize = 10,
         high,
       } = ctx.query;
-      console.log({ brand, model });
+      console.log({ brand, model, location });
 
       // Calculate pagination values
       const limit = parseInt(pageSize);
@@ -526,23 +526,35 @@ module.exports = {
       const filters = {};
 
       filters.Vehicle_Status = {
-        $eq: "STOCK"
+        $eq: "STOCK",
       };
 
       // Add location filter based on slug
-      if (location) {
-        filters.Outlet = {
-          Location: {
-            Slug: location,
-          },
-        };
+      if (location && location !== "[]") {
+        try {
+          // Remove brackets and split by comma
+          const cleanedLocation = location.replace(/[\[\]{}]/g, "");
+          const locationArray = cleanedLocation.split(",").map((l) => l.trim());
+          if (locationArray.length > 0 && locationArray[0] !== "") {
+            filters.Outlet = {
+              Location: {
+                Slug: {
+                  $in: locationArray,
+                },
+              },
+            };
+          }
+        } catch (error) {
+          console.error("Error parsing location filter:", error);
+        }
       }
 
       // --- Begin: Only model selected logic append ---
       let onlyModelSelected = false;
       let modelArray = [];
       if (
-        model && model !== "[]" &&
+        model &&
+        model !== "[]" &&
         (!fuel || fuel === "[]") &&
         (!brand || brand === "[]") &&
         (!transmission || transmission === "[]") &&
@@ -553,7 +565,10 @@ module.exports = {
         onlyModelSelected = true;
         try {
           const cleanedModel = model.replace(/[\[\]{}]/g, "");
-          modelArray = cleanedModel.split(",").map((m) => m.trim()).filter(Boolean);
+          modelArray = cleanedModel
+            .split(",")
+            .map((m) => m.trim())
+            .filter(Boolean);
           if (modelArray.length > 0) {
             filters.Model = {
               Slug: {
@@ -659,26 +674,6 @@ module.exports = {
             $between: [prices[0], prices[1]],
           };
         }
-      }
-      let locationPage;
-      if (locationPage) {
-        locationPage = await strapi
-          .documents("api::location.location")
-          .findFirst({
-            filters: {
-              Slug: location,
-            },
-          });
-      } else {
-        locationPage = await strapi
-          .documents("api::location.location")
-          .findFirst({});
-      }
-
-      if (!locationPage) {
-        ctx.status = 404;
-        ctx.body = { error: "Location not found" };
-        return;
       }
 
       // If only model is selected, fetch cars for those models
