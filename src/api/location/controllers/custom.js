@@ -198,6 +198,7 @@ module.exports = {
             "Outlets",
             "Benefit_Section",
             "FAQ",
+            "FAQ.Questions",
             "Assurance_Section",
             "Exclusive_Section",
             "Offer_Section",
