@@ -29,6 +29,16 @@ module.exports = {
         policies: [],
         middlewares: [],
       },
+    },
+    {
+      method:'GET',
+      path:'/getcars/updatebrand',
+      handler:'cars.updateBrand',
+      config:{
+        auth:false,
+        policies:[],
+        middleware:[]
+      }
     }
   ],
 };

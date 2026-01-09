@@ -53,10 +53,10 @@ module.exports = {
       if (!fetchCars?.data?.getUsedCarDetailsResult) {
         throw new Error("Invalid response from cars API");
       }
+
       let i = 0;
 
-      //Intially set car vehicle status to SOLD 
-
+      // Initially, set all cars' Vehicle_Status to 'SOLD' and Newly_Added to false
       await strapi.db.query('api::car.car').updateMany({
         data: {
           Vehicle_Status: 'SOLD',
@@ -64,12 +64,11 @@ module.exports = {
         }
       });
 
-      // Process each car in the response
       for (const carData of fetchCars.data.getUsedCarDetailsResult) {
         console.log({ car: carData });
-
         console.log({ Running: (i += 1) });
 
+        // Try to find an existing car by Vehicle_Reg_No
         const checkVehicleRegistration = await strapi
           .documents("api::car.car")
           .findFirst({
@@ -85,11 +84,33 @@ module.exports = {
           Back_Image: carData?.Back_Img,
         };
 
-        if (!checkVehicleRegistration?.documentId) {
-          console.log("inside vehicle");
+        // ---------- BRAND LOGIC REWRITE START ----------
+        // If the car's brand is 'MARUTI' (case-insensitive), assign or create 'Maruti Suzuki'
+        let carMakeNormalized = carData?.Make?.trim()?.toLowerCase();
+        let isMaruti = carMakeNormalized === "maruti";
 
-          // Check if brand exists
-          let brand = await strapi.documents("api::brand.brand").findFirst({
+        let brand;
+        if (isMaruti) {
+          // Try to get 'Maruti Suzuki' by its slug ('maruti-suzuki')
+          brand = await strapi.documents("api::brand.brand").findFirst({
+            filters: {
+              Slug: "maruti-suzuki",
+            }
+          });
+
+          if (!brand) {
+            // If 'Maruti Suzuki' does not exist, create it.
+            brand = await strapi.documents("api::brand.brand").create({
+              data: {
+                Name: "Maruti Suzuki",
+                Slug: "maruti-suzuki"
+              },
+              status: "published"
+            });
+          }
+        } else {
+          // Not MARUTI - normal logic
+          brand = await strapi.documents("api::brand.brand").findFirst({
             filters: {
               $or: [
                 { Name: carData?.Make },
@@ -103,106 +124,113 @@ module.exports = {
             },
           });
 
-          console.log({ brand });
-
-          // If brand doesn't exist, create it
-          if (!brand) {
+          // If brand doesn't exist, create it using provided name
+          if (!brand && carData?.Make) {
             brand = await strapi.documents("api::brand.brand").create({
               data: {
                 Name: carData.Make,
                 Slug: carData?.Make?.toLowerCase()
                   ?.trim()
-                  ?.replace(/\s+/g, "-") // Replace spaces with hyphens
-                  ?.replace(/[^a-z0-9-]/g, ""), // Remove all non-alphanumeric characters except hyphens
+                  ?.replace(/\s+/g, "-")
+                  ?.replace(/[^a-z0-9-]/g, ""),
               },
               status: "published",
             });
-            // await strapi.documents('api::brand.brand').publish({ documentId: brand.documentId });
           }
-          //check model exist
-          let model = await strapi.documents("api::model.model").findFirst({
-            filters: {
-              $or: [
-                { Name: carData?.Model },
-                {
-                  Slug: carData?.Model?.toLowerCase()
-                    ?.trim()
-                    ?.replace(/\s+/g, "-")
-                    ?.replace(/[^a-z0-9-]/g, "")
-                }
-              ]
-            },
-          });
-          console.log({ model });
+        }
+        // ---------- BRAND LOGIC REWRITE END ----------
 
-          //if not create new model
-          if (!model) {
-            console.log({
-              model_slug: carData?.Model?.toLowerCase()
-                ?.trim()
-                ?.replace(/\s+/g, "-") // Replace spaces with hyphens
-                ?.replace(/[^a-z0-9-]/g, "")
-              , name: carData?.Model
-            });
-
-            model = await strapi.documents("api::model.model").create({
-              data: {
-                Name:
-                  carData?.Model ||
-                  String.fromCharCode(
-                    ...Array.from(
-                      { length: 10 },
-                      () => Math.floor(Math.random() * 26) + 97
-                    )
-                  ),
+        // Find or create the model linked to the car
+        let model = await strapi.documents("api::model.model").findFirst({
+          filters: {
+            $or: [
+              { Name: carData?.Model },
+              {
                 Slug: carData?.Model?.toLowerCase()
                   ?.trim()
-                  ?.replace(/\s+/g, "-") // Replace spaces with hyphens
-                  ?.replace(/[^a-z0-9-]/g, ""), // Remove all non-alphanumeric characters except hyphens
-              },
-              status: "published",
-            });
-            // await strapi.documents('api::model.model').publish({ documentId: model.documentId });
-          }
+                  ?.replace(/\s+/g, "-")
+                  ?.replace(/[^a-z0-9-]/g, "")
+              }
+            ]
+          },
+        });
 
-          let fuel = await strapi
-            .documents("api::fuel-type.fuel-type")
-            .findFirst({
-              filters: {
-                $or: [
-                  { Name: carData?.Fuel_Type },
-                  {
-                    Slug: carData?.Fuel_Type?.toLowerCase()
-                      ?.trim()
-                      ?.replace(/\s+/g, "-")
-                      ?.replace(/[^a-z0-9-]/g, "")
-                  }
-                ]
-              },
-            });
+        if (!model && carData?.Model) {
+          model = await strapi.documents("api::model.model").create({
+            data: {
+              Name: carData.Model,
+              Slug: carData.Model?.toLowerCase()
+                ?.trim()
+                ?.replace(/\s+/g, "-")
+                ?.replace(/[^a-z0-9-]/g, ""),
+            },
+            status: "published",
+          });
+        }
 
-          console.log({ fuel });
-
-          if (!fuel) {
-            fuel = await strapi.documents("api::fuel-type.fuel-type").create({
-              data: {
-                Name: carData?.Fuel_Type,
+        // Find or create Fuel Type
+        let fuel = await strapi.documents("api::fuel-type.fuel-type").findFirst({
+          filters: {
+            $or: [
+              { Name: carData?.Fuel_Type },
+              {
                 Slug: carData?.Fuel_Type?.toLowerCase()
                   ?.trim()
-                  ?.replace(/\s+/g, "-") // Replace spaces with hyphens
-                  ?.replace(/[^a-z0-9-]/g, ""), // Remove all non-alphanumeric characters except hyphens
-              },
-              status: "published",
-            });
-            // await strapi.documents('api::fuel-type.fuel-type').publish({ documentId: fuel.documentId });
-          }
+                  ?.replace(/\s+/g, "-")
+                  ?.replace(/[^a-z0-9-]/g, "")
+              }
+            ]
+          },
+        });
+        if (!fuel && carData?.Fuel_Type) {
+          fuel = await strapi.documents("api::fuel-type.fuel-type").create({
+            data: {
+              Name: carData.Fuel_Type,
+              Slug: carData.Fuel_Type?.toLowerCase()
+                ?.trim()
+                ?.replace(/\s+/g, "-")
+                ?.replace(/[^a-z0-9-]/g, ""),
+            },
+            status: "published",
+          });
+        }
 
-          let outlet = await strapi.documents("api::outlet.outlet").findFirst({
+        // Find or create Outlet
+        let outlet = await strapi.documents("api::outlet.outlet").findFirst({
+          filters: {
+            $or: [
+              { Name: carData?.Outlet },
+              {
+                Slug: carData?.Outlet?.toLowerCase()
+                  ?.trim()
+                  ?.replace(/\s+/g, "-")
+                  ?.replace(/[^a-z0-9-]/g, "")
+              }
+            ]
+          },
+        });
+        if (!outlet && carData?.Outlet) {
+          outlet = await strapi.documents("api::outlet.outlet").create({
+            data: {
+              Name: carData.Outlet,
+              Slug: carData.Outlet?.toLowerCase()
+                ?.trim()
+                ?.replace(/\s+/g, "-")
+                ?.replace(/[^a-z0-9-]/g, ""),
+            },
+            status: "published",
+          });
+        }
+
+        // Find or create Vehicle Category
+        let vehicle_category = await strapi
+          .documents("api::vehicle-category.vehicle-category")
+          .findFirst({
             filters: {
               $or: [
-                { Name: carData?.Outlet },
+                { Name: carData?.Vehicle_Category },
                 {
-                  Slug: carData?.Outlet?.toLowerCase()
+                  Slug: carData?.Vehicle_Category?.toLowerCase()
                     ?.trim()
                     ?.replace(/\s+/g, "-")
                     ?.replace(/[^a-z0-9-]/g, "")
@@ -210,75 +238,25 @@ module.exports = {
               ]
             },
           });
-
-          console.log({ outlet });
-
-          if (!outlet) {
-            outlet = await strapi.documents("api::outlet.outlet").create({
+        if (!vehicle_category && carData?.Vehicle_Category) {
+          vehicle_category = await strapi
+            .documents("api::vehicle-category.vehicle-category")
+            .create({
               data: {
-                Name: carData?.Outlet,
-                Slug: carData?.Outlet?.toLowerCase()
+                Name: carData.Vehicle_Category,
+                Slug: carData.Vehicle_Category?.toLowerCase()
                   ?.trim()
-                  ?.replace(/\s+/g, "-") // Replace spaces with hyphens
-                  ?.replace(/[^a-z0-9-]/g, ""), // Remove all non-alphanumeric characters except hyphens
+                  ?.replace(/\s+/g, "-")
+                  ?.replace(/[^a-z0-9-]/g, ""),
               },
               status: "published",
             });
-            // await strapi.documents('api::outlet.outlet').publish({ documentId: outlet.documentId });
-          }
+        }
 
-          let vehicle_category = await strapi
-            .documents("api::vehicle-category.vehicle-category")
-            .findFirst({
-              filters: {
-                $or: [
-                  { Name: carData?.Vehicle_Category },
-                  {
-                    Slug: carData?.Vehicle_Category?.toLowerCase()
-                      ?.trim()
-                      ?.replace(/\s+/g, "-")
-                      ?.replace(/[^a-z0-9-]/g, "")
-                  }
-                ]
-              },
-            });
-
-          console.log({ vehicle_category });
-
-          // Add missing vehicle category creation
-          if (!vehicle_category && carData?.Vehicle_Category) {
-            vehicle_category = await strapi
-              .documents("api::vehicle-category.vehicle-category")
-              .create({
-                data: {
-                  Name: carData.Vehicle_Category,
-                  Slug: carData.Vehicle_Category?.toLowerCase()
-                    ?.trim()
-                    ?.replace(/\s+/g, "-") // Replace spaces with hyphens
-                    ?.replace(/[^a-z0-9-]/g, ""), // Remove all non-alphanumeric characters except hyphens
-                },
-                status: "published",
-              });
-            // await strapi.documents('api::vehicle-category.vehicle-category').publish({ documentId: vehicle_category.documentId });
-          }
-
-          // Download and store images
-          // const imageUrls = {
-          //   LeftSide_Image: carData?.LeftSide_Img ?
-          //     await downloadImage(carData.LeftSide_Img, `${carData.veh_Reg_no}-left.jpg`) : null,
-          //   RightSide_Image: carData?.Rightside_Img ?
-          //     await downloadImage(carData.Rightside_Img, `${carData.veh_Reg_no}-right.jpg`) : null,
-          //   Front_Image: carData?.Front_Img ?
-          //     await downloadImage(carData.Front_Img, `${carData.veh_Reg_no}-front.jpg`) : null,
-          //   Back_Image: carData?.Back_Img ?
-          //     await downloadImage(carData.Back_Img, `${carData.veh_Reg_no}-back.jpg`) : null
-          // };
-
-
-
+        if (!checkVehicleRegistration?.documentId) {
+          // CREATE NEW CAR
           const car = await strapi.documents("api::car.car").create({
             data: {
-
               Brand: brand,
               Model: model,
               Outlet: outlet,
@@ -294,13 +272,6 @@ module.exports = {
               Image_URL: JSON.stringify(imageUrls),
               Name: `${brand?.Name} ${model?.Name} ${carData?.YOM}`,
               Newly_Added: true,
-              // Slug: `${brand?.Name?.toLowerCase()
-              //   ?.trim()
-              //   ?.replace(/\s+/g, "-") // Replace spaces with hyphens
-              //   ?.replace(/[^a-z0-9-]/g, "")}-${model?.Name?.toLowerCase()
-              //   ?.trim()
-              //   ?.replace(/\s+/g, "-") // Replace spaces with hyphens
-              //   ?.replace(/[^a-z0-9-]/g, "")}`,
             },
             status: "published",
             populate: [
@@ -311,59 +282,59 @@ module.exports = {
               "Outlet",
             ],
           });
-          // await strapi.documents('api::car.car').publish({
-          //   documentId: car.documentId
-          // });
-          // const updatedCars = [...(outlet.Cars || []), car];
-          // await strapi.documents("api::outlet.outlet").update({
-          //   documentId: outlet.documentId,
-          //   data: {
-          //     Cars: updatedCars,
-          //   },
-          //   status: "published",
-          //   populate: ["Cars"],
-          // });
-
           console.log({ car });
         } else {
+          // UPDATE EXISTING CAR
+          // Extra logic: If MARUTI, also update Brand to 'Maruti Suzuki'
+          let updatedData = {
+            Vehicle_Status: 'STOCK',
+            Image_URL: JSON.stringify(imageUrls),
+          };
+
+          if (isMaruti) {
+            updatedData.Brand = brand;
+          }
+
           const existingCar = await strapi.documents("api::car.car").update({
             documentId: checkVehicleRegistration.documentId,
-            data: {
-              Vehicle_Status: 'STOCK',
-              Image_URL: JSON.stringify(imageUrls),
-            },
+            data: updatedData,
             status: "published",
           });
           console.log({ updatedCar: existingCar });
         }
       }
 
-      // Set Newly_Added to true only for cars created within last month, others to false
+      // Fix newly_added flag: set true ONLY for cars created within the last month, others to false
       try {
         const oneMonthAgo = new Date();
         oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
-        // Then update only recent cars to true
+        // Set false for older cars, true for recent
         await strapi.db.query('api::car.car').updateMany({
           where: {
             createdAt: { $lt: oneMonthAgo.toISOString() }
           },
           data: {
+            Newly_Added: false
+          }
+        });
+
+        await strapi.db.query('api::car.car').updateMany({
+          where: {
+            createdAt: { $gte: oneMonthAgo.toISOString() }
+          },
+          data: {
             Newly_Added: true
           }
         });
-        console.log('updated');
-        
+        console.log('Newly_Added status updated.');
       } catch (error) {
         console.error('Error updating Newly_Added status:', error);
       }
 
-
-
+      // Clean up slugs for all cars
       const cars = await strapi.documents("api::car.car").findMany({});
       for (let car of cars) {
-        console.log(car);
-
         const slug = `${car?.Name}-${car.documentId}`
           .toLowerCase()
           .replace(/\s+/g, '-')       // Replace spaces with -
@@ -372,21 +343,19 @@ module.exports = {
           .replace(/^-+/, '')          // Trim - from start of text
           .replace(/-+$/, '');         // Trim - from end of text
 
-        if (slug == car.Slug) {
-          continue;
+        if (slug !== car.Slug) {
+          await strapi.documents("api::car.car").update({
+            documentId: car.documentId,
+            data: {
+              Slug: slug,
+            },
+            status: "published",
+          });
+          console.log(`Slug updated for car ${car.documentId}: ${slug}`);
         }
-        console.log(slug);
-
-        await strapi.documents("api::car.car").update({
-          documentId: car.documentId,
-          data: {
-            Slug: slug, // Use the generated slug here
-          },
-          status: "published",
-        });
-        console.log("updated");
       }
 
+      // Optionally, run updateSlug function
       await strapi.controller('api::cars.cars').updateSlug(ctx, next);
 
       ctx.body = {
@@ -572,4 +541,67 @@ module.exports = {
       };
     }
   },
+
+
+  // update brand id from maruti to maruti suzuki
+
+  updateBrand: async (ctx, next) => {
+    console.log('yes inside');
+
+    try {
+      // Use document service to find all cars where Brand is 1
+      const carsToUpdate = await strapi.documents('api::car.car').findMany({
+        filters: {
+          Brand: {
+            id: 3
+          },
+        },
+        populate: {
+          Brand: {
+            populate: '*'
+          }
+        }
+      });
+      const cars= await strapi.documents('api::car.car').count()
+      console.log({maruti:carsToUpdate?.length,cars});
+      
+      let i=1;
+      for (const car of carsToUpdate) {
+        try {
+          
+          console.log(i);
+          
+          await strapi.documents('api::car.car').update({
+            documentId: car.documentId,
+            data: { Brand: 'r3jxevnjbfkytcxwe20pewax' }, 
+            status: "published",
+            populate:'*'
+          });
+          i++
+        } catch (error) {
+          throw new Error(error)
+        }
+        
+      }
+
+      ctx.status = 200;
+      ctx.body = {
+        success: true,
+        updated: carsToUpdate.length,
+        message: `Updated Brand from Maruti to Maruti Suzuki for ${carsToUpdate.length} cars`,
+      };
+
+      ctx.status = 200;
+      ctx.body = {
+        data: carsToUpdate
+      }
+    } catch (err) {
+      ctx.status = 500;
+      ctx.body = {
+        success: false,
+        message: "Error updating brand ids",
+        error: err.stack,
+      };
+    }
+  }
 };
