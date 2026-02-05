@@ -214,8 +214,11 @@ module.exports = {
               },
             },
           },
+         FAQ:{
+            populate:'*'
+          }
         },
-      });
+      }); 
 
       if (!findModel) {
         ctx.status = 404;
