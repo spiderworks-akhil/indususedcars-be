@@ -238,4 +238,74 @@ module.exports = {
       ctx.body = err;
     }
   },
+
+  brandSchemaList:async(ctx,next)=>{
+    try {
+      const {slug} = ctx.params;
+
+      const findBrand = await strapi.documents('api::brand.brand').findFirst({
+        filters: {
+          Slug: slug
+        }
+      })
+
+
+
+      if(!findBrand){
+        ctx.status = 404;
+        ctx.body = { error: 'Brand not found' };
+      }
+
+      // Fetch all models related to the given brand (use brand id)
+      const models = await strapi.documents('api::model.model').findMany({
+        filters: {
+          Brand: findBrand.id
+        }
+      });
+
+      // For each model, fetch its cars (filtered by brand & model) and obtain min/max price
+      const modelsData = [];
+      for (const model of models) {
+        // Fetch all cars associated with both the current brand and current model
+        const cars = await strapi.documents('api::car.car').findMany({
+          filters: {
+            Brand: findBrand.id,
+            Model: model.id
+          }
+        });
+
+        // Use the PSP field for finding min and max price
+        const validPSPs = (cars || [])
+          .map(car => car.PSP)
+          .filter(psp => typeof psp === "number" && !isNaN(psp));
+
+        let minPrice = null;
+        let maxPrice = null;
+
+        if (validPSPs.length > 0) {
+          minPrice = Math.min(...validPSPs);
+          maxPrice = Math.max(...validPSPs);
+        }
+
+        modelsData.push({
+          name: model.Name,
+          slug: model.Slug,
+          low_price: minPrice,
+          high_price: maxPrice
+        });
+      }
+
+      ctx.body = {
+        brand: {
+          name: findBrand.Name,
+          slug: findBrand.Slug,
+          ...findBrand
+        },
+        models: modelsData
+      };
+
+    } catch (error) {
+      ctx.body = error;
+    }
+  }
 };
