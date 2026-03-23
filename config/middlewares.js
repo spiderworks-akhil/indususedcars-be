@@ -14,6 +14,10 @@ module.exports = [
     name: 'global::sanitize-filters',
     config: {},
   },
+  {
+    name: 'global::sanitize-users-response',
+    config: {},
+  },
   'strapi::poweredBy',
   'strapi::query',
   'strapi::body',
