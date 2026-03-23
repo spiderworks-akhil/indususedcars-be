@@ -17,8 +17,14 @@ const SENSITIVE_USER_FIELDS = new Set([
   'confirmPassword',
 ]);
 
-const isPlainObject = (value) =>
-  Object.prototype.toString.call(value) === '[object Object]';
+const isPlainObject = (value) => {
+  if (value == null || typeof value !== 'object') {
+    return false;
+  }
+
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+};
 
 const sanitizeUserRelation = (value) => {
   if (Array.isArray(value)) {
@@ -68,7 +74,7 @@ module.exports = () => {
   return async (ctx, next) => {
     await next();
 
-    if (ctx.body == null) {
+    if (ctx.body == null || !isPlainObject(ctx.body) && !Array.isArray(ctx.body)) {
       return;
     }
 
