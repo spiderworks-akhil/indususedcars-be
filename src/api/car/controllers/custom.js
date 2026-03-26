@@ -24,7 +24,6 @@ module.exports = {
       const car = await strapi.documents("api::car.car").findFirst({
         filters: {
           Slug: slug,
-          Vehicle_Status: "STOCK",
         },
         populate: {
           Brand: {
@@ -78,10 +77,24 @@ module.exports = {
         return;
       }
 
-      // Fetch similar cars based on brand and model
+      // Redirect if the car is sold
+      if (car.Vehicle_Status === "SOLD") {
+        const brandSlug = car.Brand?.Slug;
+        const modelSlug = car.Model?.Slug;
+        
+        if (brandSlug && modelSlug) {
+          ctx.status = 301;
+          return ctx.redirect(`https://indususedcars.com/cars/${brandSlug}/${modelSlug}`);
+        } else if (brandSlug) {
+          ctx.status = 301;
+          return ctx.redirect(`https://indususedcars.com/cars/${brandSlug}`);
+        }
+      }
+
+      // Fetch similar cars based on brand and model if car is in STOCK
       const similarCars = await strapi.documents("api::car.car").findMany({
         filters: {
-          Brand: car.Brand.id,
+          Brand: car.Brand?.id,
           Slug: {
             $ne: slug // Exclude the current car
           },
