@@ -27,20 +27,18 @@ module.exports = {
         },
         populate: {
           Brand: {
-            populate: "*",
+            populate: {
+              Image: true,
+            },
           },
-          Model: {
-            populate: "*",
-          },
+          Model: true,
           Outlet: {
-            populate: "*",
+            populate: {
+              Location: true,
+            },
           },
-          Fuel_Type: {
-            populate: "*",
-          },
-          Vehicle_Category: {
-            populate: "*",
-          },
+          Fuel_Type: true,
+          Vehicle_Category: true,
           Image: {
             populate: "*",
           },
@@ -49,26 +47,24 @@ module.exports = {
           },
           Find_More: {
             populate: {
-              Icon:{
-                populate:'*'
-              },
-              Link:{
-                populate:'*'
-              }
+              Icon: true,
+              Link: true,
             },
           },
           Location: {
-            populate: "*",
+            populate: {
+              Outlets: true,
+            },
           },
           SEO: {
             populate: {
-              Meta_Image: {
-                populate: "*",
-              },
+              Meta_Image: true,
             },
           },
         },
       });
+
+      console.log({car})
 
       // Check if car data exists
       if (!car) {
@@ -101,12 +97,9 @@ module.exports = {
           Vehicle_Status: "STOCK",
         },
         populate: {
-          Brand: {
-            populate: "*",
-          },
-          Model: {
-            populate: "*",
-          },
+          Brand: true,
+          Model: true,
+          Fuel_Type: true,
           Image: {
             populate: "*",
           },
