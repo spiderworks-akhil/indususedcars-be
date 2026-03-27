@@ -80,12 +80,12 @@ module.exports = {
         strapi.documents("api::car.car").findMany({ fields: ["Vehicle_Reg_No", "Slug", "documentId"], limit: -1 })
       ]);
 
-      const brandMap = new Map(brands.map(b => [b.Name.toLowerCase().trim(), b]));
-      const modelMap = new Map(models.map(m => [m.Name.toLowerCase().trim(), m]));
-      const fuelMap = new Map(fuels.map(f => [f.Name.toLowerCase().trim(), f]));
-      const outletMap = new Map(outlets.map(o => [o.Name.toLowerCase().trim(), o]));
-      const catMap = new Map(categories.map(c => [c.Name.toLowerCase().trim(), c]));
-      const carMap = new Map(existingCars.map(c => [c.Vehicle_Reg_No, c]));
+      const brandMap = new Map(brands?.map(b => [b.Name?.toLowerCase()?.trim(), b]));
+      const modelMap = new Map(models?.map(m => [m.Name?.toLowerCase()?.trim(), m]));
+      const fuelMap = new Map(fuels?.map(f => [f.Name?.toLowerCase()?.trim(), f]));
+      const outletMap = new Map(outlets?.map(o => [o.Name?.toLowerCase()?.trim(), o]));
+      const catMap = new Map(categories?.map(c => [c.Name?.toLowerCase()?.trim(), c]));
+      const carMap = new Map(existingCars?.map(c => [c.Vehicle_Reg_No, c]));
 
       // Special case: Ensure Maruti Suzuki exists
       let marutiSuzuki = brands.find(b => b.Slug === "maruti-suzuki");
@@ -100,9 +100,15 @@ module.exports = {
         brandMap.set("maruti", marutiSuzuki);
       }
 
-      // Mark all existing cars as SOLD safely
+      // Mark all existing cars as SOLD safely and reset homepage flags
       await strapi.db.query('api::car.car').updateMany({
-        data: { Vehicle_Status: 'SOLD', Newly_Added: false }
+        data: { 
+          Vehicle_Status: 'SOLD', 
+          Newly_Added: false,
+          Featured: false,
+          Recommended: false,
+          Choose_Next: false
+        }
       });
 
       let iteration = 0;
@@ -174,10 +180,10 @@ module.exports = {
         const topContent = generateTopContent(carGenData);
         const metaDetails = generateMetaDetails(carGenData);
         const seoData = {
-          Meta_Title: metaDetails.meta_title,
-          Meta_Description: metaDetails.meta_description,
-          OG_Title: metaDetails.meta_title,
-          OG_Description: metaDetails.meta_description,
+          Meta_Title: metaDetails?.meta_title,
+          Meta_Description: metaDetails?.meta_description,
+          OG_Title: metaDetails?.meta_title,
+          OG_Description: metaDetails?.meta_description,
           Top_Description: topContent
         };
 
@@ -256,6 +262,59 @@ module.exports = {
           data: { Newly_Added: true }
         })
       ]);
+
+      // 5. ASSIGN HOME-PAGE SECTIONS (10 each, non-overlapping)
+      const stockCars = await strapi.db.query('api::car.car').findMany({
+        where: { Vehicle_Status: 'STOCK' },
+        limit: 30,
+        orderBy: { createdAt: 'desc' }
+      });
+
+      if (stockCars.length > 0) {
+        // Collect all assignment promises to execute in parallel
+        const assignmentTasks = [];
+
+        stockCars.slice(0, 10).forEach(car => {
+          if (car.documentId) {
+            assignmentTasks.push(
+              strapi.documents('api::car.car').update({
+                documentId: car.documentId,
+                data: { Featured: true },
+                status: 'published'
+              })
+            );
+          }
+        });
+
+        stockCars.slice(10, 20).forEach(car => {
+          if (car.documentId) {
+            assignmentTasks.push(
+              strapi.documents('api::car.car').update({
+                documentId: car.documentId,
+                data: { Recommended: true },
+                status: 'published'
+              })
+            );
+          }
+        });
+
+        stockCars.slice(20, 30).forEach(car => {
+          if (car.documentId) {
+            assignmentTasks.push(
+              strapi.documents('api::car.car').update({
+                documentId: car.documentId,
+                data: { Choose_Next: true },
+                status: 'published'
+              })
+            );
+          }
+        });
+
+        if (assignmentTasks.length > 0) {
+          console.log(`Assigning home sections to ${assignmentTasks.length} cars...`);
+          await Promise.all(assignmentTasks);
+        }
+      }
 
       console.timeEnd("importCars");
       ctx.body = { success: true, message: "Cars imported successfully" };
@@ -369,7 +428,7 @@ module.exports = {
                 Insurance_Type: car?.Insurance_Type,
                 Insurance_Validity: car?.Insurance_Validity,
                 Inspection_Report: car?.Inspection_Report ?
-                  (Array.isArray(car.Inspection_Report) ? car.Inspection_Report : [car.Inspection_Report]) : [],
+                  (Array.isArray(car?.Inspection_Report) ? car?.Inspection_Report : [car?.Inspection_Report]) : [],
               },
               Availability_Features: {
                 Outlet: car?.Outlet,
@@ -387,7 +446,7 @@ module.exports = {
               },
               Additional_Sections: {
                 Find_More: car?.Find_More ?
-                  (Array.isArray(car.Find_More) ? car.Find_More : [car.Find_More]) : [],
+                  (Array.isArray(car?.Find_More) ? car?.Find_More : [car?.Find_More]) : [],
               },
             })
           };
@@ -465,7 +524,7 @@ module.exports = {
           console.log(i);
           
           await strapi.documents('api::car.car').update({
-            documentId: car.documentId,
+            documentId: car?.documentId,
             data: { Brand: 'r3jxevnjbfkytcxwe20pewax' }, 
             status: "published",
             populate:'*'
