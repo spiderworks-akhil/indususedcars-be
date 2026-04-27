@@ -75,6 +75,15 @@ module.exports = {
           break;
 
         case "sitemap-dealers":
+          // Fetch dealer locations
+          const dealerLocationList = await strapi
+            .documents("api::dealer-location.dealer-location")
+            .findMany({
+              fields: ["Slug"],
+              status: "published",
+            });
+
+          // Fetch individual dealers
           const dealerList = await strapi
             .documents("api::dealer-list.dealer-list")
             .findMany({
@@ -82,13 +91,21 @@ module.exports = {
               status: "published",
             });
 
-          // Format the response to include /dealers/ before dealer slug
-          const formattedDealers = dealerList.map(dealer => ({
+          // Format locations with /dealers/ prefix
+          const dealerLocationUrls = dealerLocationList.map(location => ({
+            Slug: `dealers/${location.Slug}`
+          }));
+
+          // Format dealers with /dealers/ prefix
+          const dealerUrls = dealerList.map(dealer => ({
             Slug: `dealers/${dealer.Slug}`
           }));
 
+          // Combine both locations and dealers
+          const combinedDealers = [...dealerLocationUrls, ...dealerUrls];
+
           ctx.status = 200;
-          ctx.body = formattedDealers;
+          ctx.body = combinedDealers;
 
           break;
 
