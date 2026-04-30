@@ -326,6 +326,7 @@ module.exports = {
             Slug: slug,
           },
           populate: {
+            FAQ:true,
             SEO: {
               populate: {
                 Meta_Image: {
