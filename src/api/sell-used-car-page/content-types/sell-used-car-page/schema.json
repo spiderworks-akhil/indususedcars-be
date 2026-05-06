@@ -1,0 +1,44 @@
+{
+  "kind": "singleType",
+  "collectionName": "sell_used_car_pages",
+  "info": {
+    "singularName": "sell-used-car-page",
+    "pluralName": "sell-used-car-pages",
+    "displayName": "Sell Used Car Page",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "content": {
+      "type": "customField",
+      "options": {
+        "preset": "defaultHtml"
+      },
+      "customField": "plugin::ckeditor5.CKEditor"
+    },
+    "SEO": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "FAQ": {
+      "type": "component",
+      "repeatable": false,
+      "component": "common.faq"
+    }
+  }
+}

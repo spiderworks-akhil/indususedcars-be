@@ -1334,6 +1334,46 @@ export interface ApiResponsePageResponsePage
   };
 }
 
+export interface ApiSellUsedCarPageSellUsedCarPage
+  extends Struct.SingleTypeSchema {
+  collectionName: 'sell_used_car_pages';
+  info: {
+    description: '';
+    displayName: 'Sell Used Car Page';
+    pluralName: 'sell-used-car-pages';
+    singularName: 'sell-used-car-page';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    content: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultHtml';
+        }
+      >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    FAQ: Schema.Attribute.Component<'common.faq', false>;
+    image: Schema.Attribute.Media<'images'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::sell-used-car-page.sell-used-car-page'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    SEO: Schema.Attribute.Component<'shared.seo', false>;
+    title: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiStaticPageStaticPage extends Struct.CollectionTypeSchema {
   collectionName: 'static_pages';
   info: {
@@ -2003,6 +2043,7 @@ declare module '@strapi/strapi' {
       'api::outlet.outlet': ApiOutletOutlet;
       'api::redirection.redirection': ApiRedirectionRedirection;
       'api::response-page.response-page': ApiResponsePageResponsePage;
+      'api::sell-used-car-page.sell-used-car-page': ApiSellUsedCarPageSellUsedCarPage;
       'api::static-page.static-page': ApiStaticPageStaticPage;
       'api::testimonial.testimonial': ApiTestimonialTestimonial;
       'api::vehicle-category.vehicle-category': ApiVehicleCategoryVehicleCategory;
