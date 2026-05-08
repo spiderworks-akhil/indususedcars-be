@@ -708,8 +708,6 @@ module.exports = {
         ]);
       }
 
-      console.log({ filter: cars });
-
       ctx.status = 200;
       ctx.body = {
         data: cars,
