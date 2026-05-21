@@ -1596,27 +1596,29 @@ module.exports = {
 
         if (count3 === 0) {
           const brandName = fetchPage?.Brand?.Name;
+          const brandSlug = fetchPage?.Brand?.Slug;
           const locationPlace = fetchPage?.Location?.Place || fetchPage?.Outlet?.Location?.Place;
-          const locationSlug = fetchPage?.Location?.Slug || fetchPage?.Outlet?.Location?.Slug;
 
-          if (locationSlug) {
-            // Fallback 3: Brand not in location, check other brands in location
-            const [fallbackData3, fallbackCount3] = await Promise.all([
+          if (brandSlug) {
+            // Fallback: Brand not in location, show brand cars across Kerala
+            const [fallbackBrandData, fallbackBrandCount] = await Promise.all([
               strapi.documents("api::car.car").findMany({
-                filters: { Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" },
+                filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" },
                 start: (page - 1) * limit,
                 limit: limit,
                 populate: ["Location", "Model", "Outlet", "Outlet.Location", "Brand"],
               }),
               strapi.documents("api::car.car").count({
-                filters: { Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" },
+                filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" },
               }),
             ]);
 
-            if (fallbackCount3 > 0) {
-              finalData = fallbackData3;
-              finalCount = fallbackCount3;
-              fallbackMessage = `**0** used **${brandName} cars** are currently available in **${locationPlace}**. Explore used cars from other popular brands available in **${locationPlace}**.`;
+            if (fallbackBrandCount > 0) {
+              finalData = fallbackBrandData;
+              finalCount = fallbackBrandCount;
+              fallbackMessage = `We currently have **${fallbackBrandCount}** used **${brandName} cars** available across our Kerala showrooms. Browse below or contact our **${locationPlace}** team to check incoming stock.`;
+            } else {
+              fallbackMessage = `Browse below or contact our **${locationPlace}** team to check incoming stock.`;
             }
           }
         }
@@ -1770,29 +1772,29 @@ module.exports = {
             if (fallbackCount1 > 0) {
               finalData = fallbackData1;
               finalCount = fallbackCount1;
-              fallbackMessage = `**0** used **${brandName} ${modelName} cars** are currently available in **${locationPlace}**. Find **${brandName} ${modelName} **cars available across Kerala near you.`;
+              fallbackMessage = `We currently have **${fallbackCount1}** used **${brandName} ${modelName} cars** available across our Kerala showrooms. Browse below or contact our **${locationPlace}** team to check incoming stock.`;
               fallbackFound = true;
             }
           }
 
-          if (!fallbackFound && brandSlug && locationSlug) {
-            // Fallback 2: Brand in Location
-            const [fallbackData2, fallbackCount2] = await Promise.all([
+          if (!fallbackFound && brandSlug) {
+            // Fallback 2: Brand across Kerala
+            const [fallbackBrandData, fallbackBrandCount] = await Promise.all([
               strapi.documents("api::car.car").findMany({
-                filters: { Brand: { Slug: brandSlug }, Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" },
+                filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" },
                 start: (page - 1) * limit,
                 limit: limit,
                 populate: ["Location", "Model", "Outlet", "Outlet.Location", "Brand"],
               }),
               strapi.documents("api::car.car").count({
-                filters: { Brand: { Slug: brandSlug }, Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" },
+                filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" },
               }),
             ]);
 
-            if (fallbackCount2 > 0) {
-              finalData = fallbackData2;
-              finalCount = fallbackCount2;
-              fallbackMessage = `**0 **used **${brandName} ${modelName}** cars are currently available. Explore other used **${brandName} car **models available in **${locationPlace}**.`;
+            if (fallbackBrandCount > 0) {
+              finalData = fallbackBrandData;
+              finalCount = fallbackBrandCount;
+              fallbackMessage = `We currently have **${fallbackBrandCount}** used **${brandName} cars** available across our Kerala showrooms. Browse below or contact our **${locationPlace}** team to check incoming stock.`;
               fallbackFound = true;
             }
           }
@@ -1814,7 +1816,7 @@ module.exports = {
             if (fallbackCount3 > 0) {
               finalData = fallbackData3;
               finalCount = fallbackCount3;
-              fallbackMessage = `**0** used **${brandName} cars** are currently available in **${locationPlace}**. Explore used cars from other popular brands available in **${locationPlace}**.`;
+              fallbackMessage = `Browse below or contact our **${locationPlace}** team to check incoming stock.`;
               fallbackFound = true;
             }
           }
@@ -1918,29 +1920,29 @@ module.exports = {
             if (fallbackCount1 > 0) {
               finalData = fallbackData1;
               finalCount = fallbackCount1;
-              fallbackMessage = `**0** used **${brandName} ${modelName} cars** are currently available in **${locationPlace}**. Find **${brandName} ${modelName} **cars available across Kerala near you.`;
+              fallbackMessage = `We currently have **${fallbackCount1}** used **${brandName} ${modelName} cars** available across our Kerala showrooms. Browse below or contact our **${locationPlace}** team to check incoming stock.`;
               fallbackFound = true;
             }
           }
 
-          if (!fallbackFound && brandSlug && locationSlug) {
-            // Fallback 2: Brand in Location
-            const [fallbackData2, fallbackCount2] = await Promise.all([
+          if (!fallbackFound && brandSlug) {
+            // Fallback 2: Brand across Kerala
+            const [fallbackBrandData, fallbackBrandCount] = await Promise.all([
               strapi.documents("api::car.car").findMany({
-                filters: { Brand: { Slug: brandSlug }, Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" },
+                filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" },
                 start: (page - 1) * limit,
                 limit: limit,
                 populate: ["Location", "Model", "Outlet", "Outlet.Location", "Brand"],
               }),
               strapi.documents("api::car.car").count({
-                filters: { Brand: { Slug: brandSlug }, Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" },
+                filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" },
               }),
             ]);
 
-            if (fallbackCount2 > 0) {
-              finalData = fallbackData2;
-              finalCount = fallbackCount2;
-              fallbackMessage = `**0 **used **${brandName} ${modelName}** cars are currently available. Explore other used **${brandName} car **models available in **${locationPlace}**.`;
+            if (fallbackBrandCount > 0) {
+              finalData = fallbackBrandData;
+              finalCount = fallbackBrandCount;
+              fallbackMessage = `We currently have **${fallbackBrandCount}** used **${brandName} cars** available across our Kerala showrooms. Browse below or contact our **${locationPlace}** team to check incoming stock.`;
               fallbackFound = true;
             }
           }
@@ -1962,7 +1964,7 @@ module.exports = {
             if (fallbackCount3 > 0) {
               finalData = fallbackData3;
               finalCount = fallbackCount3;
-              fallbackMessage = `**0** used **${brandName} cars** are currently available in **${locationPlace}**. Explore used cars from other popular brands available in **${locationPlace}**.`;
+              fallbackMessage = `Browse below or contact our **${locationPlace}** team to check incoming stock.`;
               fallbackFound = true;
             }
           }
@@ -2046,27 +2048,29 @@ module.exports = {
 
       if (count === 0) {
         const brandName = fetchPage?.Brand?.Name;
+        const brandSlug = fetchPage?.Brand?.Slug;
         const locationPlace = fetchPage?.Location?.Place;
-        const locationSlug = fetchPage?.Location?.Slug;
 
-        if (locationSlug) {
-          // Fallback: check other brands in location
-          const [fallbackData, fallbackCount] = await Promise.all([
+        if (brandSlug) {
+          // Fallback: Brand cars across Kerala
+          const [fallbackBrandData, fallbackBrandCount] = await Promise.all([
             strapi.documents("api::car.car").findMany({
-              filters: { Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" },
+              filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" },
               start: (page - 1) * limit,
               limit: limit,
               populate: ["Location", "Model", "Outlet", "Outlet.Location", "Brand"],
             }),
             strapi.documents("api::car.car").count({
-              filters: { Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" },
+              filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" },
             }),
           ]);
 
-          if (fallbackCount > 0) {
-            finalData = fallbackData;
-            finalCount = fallbackCount;
-            fallbackMessage = `**0** used **${brandName} cars** are currently available in **${locationPlace}**. Explore used cars from other popular brands available in **${locationPlace}**.`;
+          if (fallbackBrandCount > 0) {
+            finalData = fallbackBrandData;
+            finalCount = fallbackBrandCount;
+            fallbackMessage = `We currently have **${fallbackBrandCount}** used **${brandName} cars** available across our Kerala showrooms. Browse below or contact our **${locationPlace}** team to check incoming stock.`;
+          } else {
+            fallbackMessage = `Browse below or contact our **${locationPlace}** team to check incoming stock.`;
           }
         }
       }
