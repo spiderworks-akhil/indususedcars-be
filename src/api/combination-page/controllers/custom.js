@@ -313,10 +313,6 @@ module.exports = {
         ctx.status = 200;
         ctx.body = data;
         return;
-      } else {
-        ctx.status = 404;
-        ctx.body = { message: "Not Found" };
-        return;
       }
 
       data = await strapi
@@ -1483,596 +1479,163 @@ module.exports = {
         }
       }
 
-      // switch (fetchPage?.Related_Type) {
+      // Extract all identifiers from the combination page detail
+      let brandSlug = fetchPage?.Brand?.Slug || fetchPage?.Model?.Brand?.Slug;
+      let modelSlug = fetchPage?.Model?.Slug;
+      let locationSlug = fetchPage?.Location?.Slug || fetchPage?.Outlet?.Location?.Slug;
+      let outletSlug = fetchPage?.Outlet?.Slug;
+      let variantName = fetchPage?.Variant?.Variant;
 
+      let brandName = fetchPage?.Brand?.Name || fetchPage?.Model?.Brand?.Name;
+      let modelName = fetchPage?.Model?.Name;
+      let locationPlace = fetchPage?.Location?.Place || fetchPage?.Outlet?.Location?.Place || fetchPage?.Outlet?.Name;
 
-      // case `App\\Models\\Indus\\Variant`:
-
-      if (fetchPage?.Variant) {
-        console.log({ slug: fetchPage });
-
-        const baseFilters2 = {
-          Variant: fetchPage?.Variant?.Variant,
-          Vehicle_Status: "STOCK",
-        };
-
-        const [data2, count2] = await Promise.all([
-          strapi.documents("api::car.car").findMany({
-            filters: baseFilters2,
-            start: (page - 1) * limit,
-            limit: limit,
-            populate: {
-              Model: {
-                populate: "*",
-              },
-              Brand: {
-                populate: "*",
-              },
-              Location: {
-                populate: "*",
-              },
-              Fuel_Type: {
-                populate: "*",
-              },
-            },
-          }),
-          strapi.documents("api::car.car").count({
-            filters: baseFilters2,
-            populate: ["Brand"],
-          }),
-        ]);
-
-        console.log({ data2, count2 });
-
-        ctx.status = 200;
-        ctx.body = {
-          data: data2,
-          meta: {
-            pagination: {
-              total: count2,
-              page: page,
-              pageSize: limit,
-              pageCount: Math.ceil(count2 / limit),
-              last_page: Math.ceil(count2 / limit),
-            },
-          },
-        };
-        return;
-      }
-
-      // case `App\\Models\\BrandDistrict`:
-
-      if (fetchPage?.Brand && (fetchPage?.Location)) {
-        console.log("yes inside brand district");
-        console.log({ fetchPageBrand: fetchPage?.Brand, fetchPageLocation: fetchPage?.Location });
-
-        const baseFilters3 = {
-          Brand: {
-            Slug: fetchPage?.Brand?.Slug || null,
-          },
-          Outlet: {
-            Location: { Slug: fetchPage.Location.Slug }
-          },
-          Vehicle_Status: "STOCK",
-
-        };
-
-        const [data3, count3] = await Promise.all([
-          strapi.documents("api::car.car").findMany({
-            filters: baseFilters3,
-            start: (page - 1) * limit,
-            limit: limit,
-            populate: {
-              Model: {
-                populate: "*",
-              },
-              Brand: {
-                populate: "*",
-              },
-              Location: {
-                populate: "*",
-              },
-              Fuel_Type: {
-                populate: "*",
-              },
-              Outlet: {
-                populate: {
-                  Location: {
-                    populate: '*'
-                  }
-                },
-              },
-            },
-          }),
-          strapi.documents("api::car.car").count({
-            filters: baseFilters3,
-            populate: ["Brand", "Outlet", 'Outlet.Location'],
-          }),
-        ]);
-
-        let finalData = data3;
-        let finalCount = count3;
-        let fallbackMessage = "";
-
-        if (count3 === 0) {
-          const brandName = fetchPage?.Brand?.Name;
-          const brandSlug = fetchPage?.Brand?.Slug;
-          const locationPlace = fetchPage?.Location?.Place || fetchPage?.Outlet?.Location?.Place;
-
-          if (brandSlug) {
-            // Fallback: Brand not in location, show brand cars across Kerala
-            const [fallbackBrandData, fallbackBrandCount] = await Promise.all([
-              strapi.documents("api::car.car").findMany({
-                filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" },
-                start: (page - 1) * limit,
-                limit: limit,
-                populate: ["Location", "Model", "Outlet", "Outlet.Location", "Brand"],
-              }),
-              strapi.documents("api::car.car").count({
-                filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" },
-              }),
-            ]);
-
-            if (fallbackBrandCount > 0) {
-              finalData = fallbackBrandData;
-              finalCount = fallbackBrandCount;
-              fallbackMessage = `We currently have **${fallbackBrandCount}** used **${brandName} cars** available across our Kerala showrooms. Browse below or contact our **${locationPlace}** team to check incoming stock.`;
-            } else {
-              fallbackMessage = `Browse below or contact our **${locationPlace}** team to check incoming stock.`;
-            }
+      // If no identifiers found from relations, derive from slug
+      if (!brandSlug && !modelSlug && !locationSlug && !outletSlug && !variantName) {
+        const slugParts = slug.replace(/^used-/, '').split('-');
+        if (slugParts.length > 1) {
+          const possibleLocation = slugParts.pop();
+          const locationLookup = await strapi.documents("api::location.location").findFirst({
+            filters: { Slug: possibleLocation },
+          });
+          if (locationLookup) {
+            locationSlug = locationLookup.Slug;
+            locationPlace = locationLookup.Place;
           }
         }
-
-        ctx.status = 200;
-        ctx.body = {
-          data: finalData,
-          message: fallbackMessage,
-          meta: {
-            pagination: {
-              total: finalCount,
-              page: page,
-              pageSize: limit,
-              pageCount: Math.ceil(finalCount / limit),
-              last_page: Math.ceil(finalCount / limit),
-            },
-          },
-        };
-
-        return;
-      }
-
-      // case "App\\Models\\BrandLocation":
-
-      if (fetchPage?.Brand && (fetchPage?.Outlet)) {
-        console.log("Inside the Brand Location", fetchPage?.Brand);
-
-        const baseFilters4 = {
-          Outlet: {
-            Slug: fetchPage?.Outlet?.Slug
-          },
-          Brand: {
-            Slug: fetchPage?.Brand?.Slug || null,
-          },
-          Vehicle_Status: "STOCK",
-        };
-
-
-        const [data4, count4] = await Promise.all([
-          strapi.documents("api::car.car").findMany({
-            filters: baseFilters4,
-            start: (page - 1) * limit,
-            limit: limit,
-            populate: {
-              Model: {
-                populate: "*",
-              },
-              Brand: {
-                populate: "*",
-              },
-              Location: {
-                populate: "*",
-              },
-              Fuel_Type: {
-                populate: "*",
-              },
-              Outlet: {
-                populate: "*",
-              },
-            },
-          }),
-          strapi.documents("api::car.car").count({
-            filters: baseFilters4,
-            populate: ["Brand", "Outlet"],
-          }),
-        ]);
-
-        console.log({ data4, count4 });
-
-        ctx.status = 200;
-        ctx.body = {
-          data: data4,
-          meta: {
-            pagination: {
-              total: count4,
-              page: page,
-              pageSize: limit,
-              pageCount: Math.ceil(count4 / limit),
-              last_page: Math.ceil(count4 / limit),
-            },
-          },
-        };
-
-        return;
-
-      }
-
-      // case `App\\Models\\ModelDistrict`:
-
-      if (fetchPage?.Model?.Slug && (fetchPage?.Location?.Slug || fetchPage?.Outlet?.Location?.Slug)) {
-        console.log(fetchPage);
-
-        const baseFilters7 = {
-          Model: fetchPage?.Model?.Slug
-            ? { Slug: fetchPage.Model.Slug }
-            : null,
-          Outlet: {
-            Location: fetchPage?.Location?.Slug
-              ? { Slug: fetchPage.Location.Slug }
-              : fetchPage?.Outlet?.Location?.Slug
-                ? { Slug: fetchPage.Outlet.Location.Slug }
-                : null
-          },
-          Vehicle_Status: "STOCK",
-
-        };
-
-        console.log({ baseFilters7 });
-
-        const [data7, count7] = await Promise.all([
-          strapi.documents("api::car.car").findMany({
-            filters: baseFilters7,
-            start: (page - 1) * limit,
-            limit: limit,
-            populate: ["Location", "Model", "Outlet", "Outlet.Location", "Brand"],
-          }),
-          strapi.documents("api::car.car").count({
-            filters: baseFilters7,
-            populate: ["Location", "Model", "Outlet", "Outlet.Location"],
-          }),
-        ]);
-
-        let finalData = data7;
-        let finalCount = count7;
-        let fallbackMessage = "";
-
-        if (count7 === 0) {
-          const brandName = fetchPage?.Brand?.Name || fetchPage?.Model?.Brand?.Name;
-          const modelName = fetchPage?.Model?.Name;
-          const locationPlace = fetchPage?.Location?.Place || fetchPage?.Outlet?.Location?.Place;
-          const brandSlug = fetchPage?.Brand?.Slug || fetchPage?.Model?.Brand?.Slug;
-          const modelSlug = fetchPage?.Model?.Slug;
-          const locationSlug = fetchPage?.Location?.Slug || fetchPage?.Outlet?.Location?.Slug;
-
-          let fallbackFound = false;
-
-          if (modelSlug) {
-            // Fallback 1: Model in Kerala
-            const [fallbackData1, fallbackCount1] = await Promise.all([
-              strapi.documents("api::car.car").findMany({
-                filters: { Model: { Slug: modelSlug }, Vehicle_Status: "STOCK" },
-                start: (page - 1) * limit,
-                limit: limit,
-                populate: ["Location", "Model", "Outlet", "Outlet.Location", "Brand"],
-              }),
-              strapi.documents("api::car.car").count({
-                filters: { Model: { Slug: modelSlug }, Vehicle_Status: "STOCK" },
-              }),
-            ]);
-
-            if (fallbackCount1 > 0) {
-              finalData = fallbackData1;
-              finalCount = fallbackCount1;
-              fallbackMessage = `We currently have **${fallbackCount1}** used **${brandName} ${modelName} cars** available across our Kerala showrooms. Browse below or contact our **${locationPlace}** team to check incoming stock.`;
-              fallbackFound = true;
-            }
-          }
-
-          if (!fallbackFound && brandSlug) {
-            // Fallback 2: Brand across Kerala
-            const [fallbackBrandData, fallbackBrandCount] = await Promise.all([
-              strapi.documents("api::car.car").findMany({
-                filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" },
-                start: (page - 1) * limit,
-                limit: limit,
-                populate: ["Location", "Model", "Outlet", "Outlet.Location", "Brand"],
-              }),
-              strapi.documents("api::car.car").count({
-                filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" },
-              }),
-            ]);
-
-            if (fallbackBrandCount > 0) {
-              finalData = fallbackBrandData;
-              finalCount = fallbackBrandCount;
-              fallbackMessage = `We currently have **${fallbackBrandCount}** used **${brandName} cars** available across our Kerala showrooms. Browse below or contact our **${locationPlace}** team to check incoming stock.`;
-              fallbackFound = true;
-            }
-          }
-
-          if (!fallbackFound && locationSlug) {
-            // Fallback 3: Other Brands in Location
-            const [fallbackData3, fallbackCount3] = await Promise.all([
-              strapi.documents("api::car.car").findMany({
-                filters: { Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" },
-                start: (page - 1) * limit,
-                limit: limit,
-                populate: ["Location", "Model", "Outlet", "Outlet.Location", "Brand"],
-              }),
-              strapi.documents("api::car.car").count({
-                filters: { Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" },
-              }),
-            ]);
-
-            if (fallbackCount3 > 0) {
-              finalData = fallbackData3;
-              finalCount = fallbackCount3;
-              fallbackMessage = `Browse below or contact our **${locationPlace}** team to check incoming stock.`;
-              fallbackFound = true;
-            }
-          }
-        }
-
-        ctx.status = 200;
-        ctx.body = {
-          data: finalData,
-          message: fallbackMessage,
-          meta: {
-            pagination: {
-              total: finalCount,
-              page: page,
-              pageSize: limit,
-              pageCount: Math.ceil(finalCount / limit),
-              last_page: Math.ceil(finalCount / limit),
-            },
-          },
-        };
-
-        return;
-      }
-
-
-
-      // case `App\\Models\\Indus\\ModelLocation`:
-      console.log({ slug: fetchPage });
-
-
-      if (fetchPage?.Model && fetchPage?.Outlet) {
-
-
-
-        const baseFilters8 = {
-          Model: {
-            Slug: fetchPage?.Model?.Slug,
-          },
-          Vehicle_Status: "STOCK",
-        };
-
-        if (fetchPage?.Outlet?.Slug) {
-          baseFilters8.Outlet = {
-            Slug: fetchPage.Outlet.Slug,
-          };
-        } else if (fetchPage?.Location?.Slug) {
-          console.log("yes inside location ");
-
-          baseFilters8.Outlet = {
-            Location: {
-              Slug: fetchPage.Location.Slug,
-            },
-          };
-        } else if (fetchPage?.Outlet?.Location?.Slug) {
-          baseFilters8.Outlet = {
-            Location: {
-              Slug: fetchPage.Outlet.Location.Slug,
-            },
-          };
-        }
-        const [data8, count8] = await Promise.all([
-          strapi.documents("api::car.car").findMany({
-            filters: baseFilters8,
-            start: (page - 1) * limit,
-            limit: limit,
-            populate: ["Model", "Outlet", "Location", "Brand"],
-          }),
-          strapi.documents("api::car.car").count({
-            filters: baseFilters8,
-            populate: ["Model", "Outlet", "Location"],
-          }),
-        ]);
-
-        let finalData = data8;
-        let finalCount = count8;
-        let fallbackMessage = "";
-
-        if (count8 === 0) {
-          const brandName = fetchPage?.Brand?.Name || fetchPage?.Model?.Brand?.Name;
-          const modelName = fetchPage?.Model?.Name;
-          const locationPlace = fetchPage?.Location?.Place || fetchPage?.Outlet?.Location?.Place || fetchPage?.Outlet?.Name;
-          const brandSlug = fetchPage?.Brand?.Slug || fetchPage?.Model?.Brand?.Slug;
-          const modelSlug = fetchPage?.Model?.Slug;
-          const locationSlug = fetchPage?.Location?.Slug || fetchPage?.Outlet?.Location?.Slug;
-
-          let fallbackFound = false;
-
-          if (modelSlug) {
-            // Fallback 1: Model in Kerala
-            const [fallbackData1, fallbackCount1] = await Promise.all([
-              strapi.documents("api::car.car").findMany({
-                filters: { Model: { Slug: modelSlug }, Vehicle_Status: "STOCK" },
-                start: (page - 1) * limit,
-                limit: limit,
-                populate: ["Location", "Model", "Outlet", "Outlet.Location", "Brand"],
-              }),
-              strapi.documents("api::car.car").count({
-                filters: { Model: { Slug: modelSlug }, Vehicle_Status: "STOCK" },
-              }),
-            ]);
-
-            if (fallbackCount1 > 0) {
-              finalData = fallbackData1;
-              finalCount = fallbackCount1;
-              fallbackMessage = `We currently have **${fallbackCount1}** used **${brandName} ${modelName} cars** available across our Kerala showrooms. Browse below or contact our **${locationPlace}** team to check incoming stock.`;
-              fallbackFound = true;
-            }
-          }
-
-          if (!fallbackFound && brandSlug) {
-            // Fallback 2: Brand across Kerala
-            const [fallbackBrandData, fallbackBrandCount] = await Promise.all([
-              strapi.documents("api::car.car").findMany({
-                filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" },
-                start: (page - 1) * limit,
-                limit: limit,
-                populate: ["Location", "Model", "Outlet", "Outlet.Location", "Brand"],
-              }),
-              strapi.documents("api::car.car").count({
-                filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" },
-              }),
-            ]);
-
-            if (fallbackBrandCount > 0) {
-              finalData = fallbackBrandData;
-              finalCount = fallbackBrandCount;
-              fallbackMessage = `We currently have **${fallbackBrandCount}** used **${brandName} cars** available across our Kerala showrooms. Browse below or contact our **${locationPlace}** team to check incoming stock.`;
-              fallbackFound = true;
-            }
-          }
-
-          if (!fallbackFound && locationSlug) {
-            // Fallback 3: Other Brands in Location
-            const [fallbackData3, fallbackCount3] = await Promise.all([
-              strapi.documents("api::car.car").findMany({
-                filters: { Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" },
-                start: (page - 1) * limit,
-                limit: limit,
-                populate: ["Location", "Model", "Outlet", "Outlet.Location", "Brand"],
-              }),
-              strapi.documents("api::car.car").count({
-                filters: { Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" },
-              }),
-            ]);
-
-            if (fallbackCount3 > 0) {
-              finalData = fallbackData3;
-              finalCount = fallbackCount3;
-              fallbackMessage = `Browse below or contact our **${locationPlace}** team to check incoming stock.`;
-              fallbackFound = true;
-            }
-          }
-        }
-
-        ctx.status = 200;
-        ctx.body = {
-          data: finalData,
-          message: fallbackMessage,
-          meta: {
-            pagination: {
-              total: finalCount,
-              page: page,
-              pageSize: limit,
-              pageCount: Math.ceil(finalCount / limit),
-              last_page: Math.ceil(finalCount / limit),
-            },
-          },
-        };
-
-        return;
-
-      }
-
-
-
-      //   default:
-      //     break;
-      // }
-      const [data, count] = await Promise.all([
-        strapi.documents("api::car.car").findMany({
-          filters: {
-            Brand: {
-              Slug: fetchPage?.Brand?.Slug || null,
-            },
-            Location: {
-              Slug: fetchPage?.Location?.Slug || null,
-            },
-            Vehicle_Status: "STOCK",
-          },
-          start: (page - 1) * limit,
-          limit: limit,
-          populate: {
-            Brand: {
-              populate: "*",
-            },
-            Location: {
-              populate: "*",
-            },
-            Image: {
-              populate: "*",
-            },
-            Model: {
-              populate: "*",
-            },
-            Outlet: {
-              populate: {
-                Location: {
-                  populate: '*'
-                }
-              }
-            }
-          },
-        }),
-        strapi.documents("api::car.car").count({
-          filters: {
-            Brand: {
-              Slug: fetchPage?.Brand?.Slug || null,
-            },
-            Location: {
-              Slug: fetchPage?.Location?.Slug || null,
-            },
-            Vehicle_Status: "STOCK",
-          },
-        }),
-      ]);
-
-      let finalData = data;
-      let finalCount = count;
-      let fallbackMessage = "";
-
-      if (count === 0) {
-        const brandName = fetchPage?.Brand?.Name;
-        const brandSlug = fetchPage?.Brand?.Slug;
-        const locationPlace = fetchPage?.Location?.Place;
-
-        if (brandSlug) {
-          // Fallback: Brand cars across Kerala
-          const [fallbackBrandData, fallbackBrandCount] = await Promise.all([
-            strapi.documents("api::car.car").findMany({
-              filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" },
-              start: (page - 1) * limit,
-              limit: limit,
-              populate: ["Location", "Model", "Outlet", "Outlet.Location", "Brand"],
-            }),
-            strapi.documents("api::car.car").count({
-              filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" },
-            }),
-          ]);
-
-          if (fallbackBrandCount > 0) {
-            finalData = fallbackBrandData;
-            finalCount = fallbackBrandCount;
-            fallbackMessage = `We currently have **${fallbackBrandCount}** used **${brandName} cars** available across our Kerala showrooms. Browse below or contact our **${locationPlace}** team to check incoming stock.`;
+        if (slugParts.length > 0) {
+          const possibleSlug = slugParts.join('-');
+          const modelLookup = await strapi.documents("api::model.model").findFirst({
+            filters: { Slug: possibleSlug },
+            populate: { Brand: { populate: "*" } },
+          });
+          if (modelLookup) {
+            modelSlug = modelLookup.Slug;
+            modelName = modelLookup.Name;
+            brandSlug = modelLookup?.Brand?.Slug;
+            brandName = modelLookup?.Brand?.Name;
           } else {
-            fallbackMessage = `Browse below or contact our **${locationPlace}** team to check incoming stock.`;
+            const brandLookup = await strapi.documents("api::brand.brand").findFirst({
+              filters: { Slug: possibleSlug },
+            });
+            if (brandLookup) {
+              brandSlug = brandLookup.Slug;
+              brandName = brandLookup.Name;
+            }
           }
         }
+      }
+
+      // Build ordered list of queries from most specific to least specific
+      const queries = [];
+
+      if (variantName) {
+        queries.push({ filters: { Variant: variantName, Vehicle_Status: "STOCK" }, key: "variant" });
+      }
+
+      if (modelSlug && locationSlug) {
+        queries.push({ filters: { Model: { Slug: modelSlug }, Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" }, key: "model_location" });
+      }
+
+      if (modelSlug && outletSlug) {
+        queries.push({ filters: { Model: { Slug: modelSlug }, Outlet: { Slug: outletSlug }, Vehicle_Status: "STOCK" }, key: "model_outlet" });
+      }
+
+      if (brandSlug && locationSlug) {
+        queries.push({ filters: { Brand: { Slug: brandSlug }, Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" }, key: "brand_location" });
+      }
+
+      if (brandSlug && outletSlug) {
+        queries.push({ filters: { Brand: { Slug: brandSlug }, Outlet: { Slug: outletSlug }, Vehicle_Status: "STOCK" }, key: "brand_outlet" });
+      }
+
+      if (modelSlug) {
+        queries.push({ filters: { Model: { Slug: modelSlug }, Vehicle_Status: "STOCK" }, key: "model" });
+      }
+
+      if (brandSlug) {
+        queries.push({ filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" }, key: "brand" });
+      }
+
+      if (locationSlug) {
+        queries.push({ filters: { Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" }, key: "location" });
+      }
+
+      const populateAll = {
+        Model: { populate: "*" },
+        Brand: { populate: "*" },
+        Location: { populate: "*" },
+        Fuel_Type: { populate: "*" },
+        Outlet: { populate: { Location: { populate: "*" } } },
+        Image: { populate: "*" },
+      };
+
+      // Try each query in order of specificity, stop at first match
+      let finalData = [];
+      let finalCount = 0;
+      let fallbackMessage = "";
+      let matchedKey = null;
+
+      for (const query of queries) {
+        const [data, count] = await Promise.all([
+          strapi.documents("api::car.car").findMany({
+            filters: query.filters,
+            start: (page - 1) * limit,
+            limit: limit,
+            populate: populateAll,
+          }),
+          strapi.documents("api::car.car").count({
+            filters: query.filters,
+            populate: ["Model", "Brand", "Outlet", "Outlet.Location", "Location"],
+          }),
+        ]);
+
+        if (count > 0) {
+          finalData = data;
+          finalCount = count;
+          matchedKey = query.key;
+
+          switch (query.key) {
+            case "variant":
+              fallbackMessage = `We have **${count}** used **${variantName}** cars available.`;
+              break;
+            case "model_location":
+            case "brand_location":
+              break;
+            case "model_outlet":
+              fallbackMessage = locationPlace
+                ? `We currently have **${count}** used **${brandName} ${modelName} cars** available at **${locationPlace}**.`
+                : `We currently have **${count}** used **${brandName} ${modelName} cars** available. Browse below or contact our team.`;
+              break;
+            case "brand_outlet":
+              fallbackMessage = locationPlace
+                ? `We currently have **${count}** used **${brandName} cars** available at **${locationPlace}**.`
+                : `We currently have **${count}** used **${brandName} cars** available. Browse below or contact our team.`;
+              break;
+            case "model":
+              fallbackMessage = `We currently have **${count}** used **${brandName} ${modelName} cars** available across our Kerala showrooms. Browse below or ${
+                locationPlace ? `contact our **${locationPlace}** team` : `contact our team`
+              } to check incoming stock.`;
+              break;
+            case "brand":
+              fallbackMessage = `We currently have **${count}** used **${brandName} cars** available across our Kerala showrooms. Browse below or ${
+                locationPlace ? `contact our **${locationPlace}** team` : `contact our team`
+              } to check incoming stock.`;
+              break;
+            case "location":
+              fallbackMessage = locationPlace
+                ? `We have **${count}** used cars in **${locationPlace}**. Browse below or contact our team for more information.`
+                : `We have **${count}** used cars available. Browse below or contact our team.`;
+              break;
+          }
+          break;
+        }
+      }
+
+      if (!matchedKey) {
+        fallbackMessage = locationPlace
+          ? `Browse below or contact our **${locationPlace}** team to check incoming stock.`
+          : `Browse below or contact our team to check incoming stock.`;
       }
 
       ctx.status = 200;
