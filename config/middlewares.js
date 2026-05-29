@@ -18,6 +18,7 @@ module.exports = [
     name: 'global::sanitize-users-response',
     config: {},
   },
+  "global::link-target",
   'strapi::poweredBy',
   'strapi::query',
   'strapi::body',
