@@ -34,295 +34,213 @@ async function downloadImage(url, fileName) {
 }
 
 module.exports = {
-  getCars: async (ctx, next) => {
-    try {
-      console.time("importCars");
-      const fetchCars = await axios.post(
-        "http://tvapp.indusmis.in/ServiceTV.svc/getUsedCarDetails",
-        {
-          outlet: "",
-          pageNumber: "1",
-          pageSize: "2000",
+ getCars: async (ctx, next) => {
+  try {
+    console.time("importCars");
+
+    const fetchCars = await axios.post(
+      "http://tvapp.indusmis.in/ServiceTV.svc/getUsedCarDetails",
+      {
+        outlet: "",
+        pageNumber: "1",
+        pageSize: "2000",
+      },
+      {
+        auth: {
+          username: process.env.API_USERNAME,
+          password: process.env.API_PASSWORD,
         },
-        {
-          auth: {
-            username: process.env.API_USERNAME,
-            password: process.env.API_PASSWORD,
-          },
-        }
-      );
-
-      const externalCars = fetchCars?.data?.getUsedCarDetailsResult;
-      if (!externalCars || !Array.isArray(externalCars)) {
-        throw new Error("Invalid response from external cars API");
       }
+    );
 
-      console.log(`Fetched ${externalCars.length} cars from external API.`);
+    const externalCars = fetchCars?.data?.getUsedCarDetailsResult;
 
-      // 1. PRE-CACHE EVERYTHING (To avoid N+1 queries)
-      const fetchAll = async (uid, populate = []) => {
-        return strapi.documents(uid).findMany({ limit: -1, populate });
+    if (!Array.isArray(externalCars)) {
+      throw new Error("Invalid response from external cars API");
+    }
+
+    // 🛑 SAFE GUARD: EMPTY API
+    if (externalCars.length === 0) {
+      ctx.body = {
+        success: true,
+        message: "No cars received. Sync skipped safely.",
       };
+      return;
+    }
 
-      const [
-        brands,
-        models,
-        fuels,
-        outlets,
-        categories,
-        existingCars
-      ] = await Promise.all([
+    console.log(`Fetched ${externalCars.length} cars from external API.`);
+
+    // =========================
+    // PRE-CACHE DATA
+    // =========================
+    const fetchAll = (uid, populate = []) =>
+      strapi.documents(uid).findMany({ limit: -1, populate });
+
+    const [brands, models, fuels, outlets, categories, existingCars] =
+      await Promise.all([
         fetchAll("api::brand.brand"),
         fetchAll("api::model.model"),
         fetchAll("api::fuel-type.fuel-type"),
         fetchAll("api::outlet.outlet", ["Location"]),
         fetchAll("api::vehicle-category.vehicle-category"),
-        strapi.documents("api::car.car").findMany({ fields: ["Vehicle_Reg_No", "Slug", "documentId"], limit: -1 })
+        strapi.documents("api::car.car").findMany({
+          fields: ["Vehicle_Reg_No", "Slug", "documentId"],
+          limit: -1,
+        }),
       ]);
 
-      const brandMap = new Map(brands?.map(b => [b.Name?.toLowerCase()?.trim(), b]));
-      const modelMap = new Map(models?.map(m => [m.Name?.toLowerCase()?.trim(), m]));
-      const fuelMap = new Map(fuels?.map(f => [f.Name?.toLowerCase()?.trim(), f]));
-      const outletMap = new Map(outlets?.map(o => [o.Name?.toLowerCase()?.trim(), o]));
-      const catMap = new Map(categories?.map(c => [c.Name?.toLowerCase()?.trim(), c]));
-      const carMap = new Map(existingCars?.map(c => [c.Vehicle_Reg_No, c]));
+    const brandMap = new Map(brands.map(b => [b.Name?.toLowerCase()?.trim(), b]));
+    const modelMap = new Map(models.map(m => [m.Name?.toLowerCase()?.trim(), m]));
+    const fuelMap = new Map(fuels.map(f => [f.Name?.toLowerCase()?.trim(), f]));
+    const outletMap = new Map(outlets.map(o => [o.Name?.toLowerCase()?.trim(), o]));
+    const catMap = new Map(categories.map(c => [c.Name?.toLowerCase()?.trim(), c]));
+    const carMap = new Map(existingCars.map(c => [c.Vehicle_Reg_No, c]));
 
-      // Special case: Ensure Maruti Suzuki exists
-      let marutiSuzuki = brands.find(b => b.Slug === "maruti-suzuki");
-      if (!marutiSuzuki) {
-        marutiSuzuki = await strapi.documents("api::brand.brand").create({
-          data: { Name: "Maruti Suzuki", Slug: "maruti-suzuki" },
-          status: "published"
-        });
-        brandMap.set("maruti suzuki", marutiSuzuki);
-        brandMap.set("maruti", marutiSuzuki);
+    // =========================
+    // UPSERT CARS
+    // =========================
+    const externalRegNos = new Set(externalCars.map(c => c?.veh_Reg_no).filter(Boolean));
+
+    const tasks = [];
+
+    for (const carData of externalCars) {
+      const regNo = carData?.veh_Reg_no;
+      if (!regNo) continue;
+
+      const existingCar = carMap.get(regNo);
+
+      const isMaruti =
+        carData?.Make?.toLowerCase()?.trim() === "maruti";
+
+      const brand = isMaruti
+        ? brandMap.get("maruti suzuki")
+        : brandMap.get(carData?.Make?.toLowerCase()?.trim());
+
+      const model = modelMap.get(carData?.Model?.toLowerCase()?.trim());
+      const fuel = fuelMap.get(carData?.Fuel_Type?.toLowerCase()?.trim());
+      const outlet = outletMap.get(carData?.Outlet?.toLowerCase()?.trim());
+      const category = catMap.get(carData?.Vehicle_Category?.toLowerCase()?.trim());
+
+      const carName = `${brand?.Name || ""} ${model?.Name || ""} ${carData?.YOM || ""}`.trim();
+
+      const payload = {
+        Brand: brand,
+        Model: model,
+        Outlet: outlet,
+        Fuel_Type: fuel,
+        Color: carData?.Colour,
+        Kilometers: carData?.Kilometers,
+        PSP: carData?.PSP,
+        Year_Of_Month: carData?.YOM,
+        Vehicle_Reg_No: regNo,
+        Vehicle_Status: "STOCK",
+        Variant: carData?.variant,
+        Vehicle_Category: category,
+        Name: carName,
+        Newly_Added: true,
+      };
+
+      if (!existingCar) {
+        tasks.push(
+          strapi.documents("api::car.car").create({
+            data: payload,
+            status: "published",
+          })
+        );
       } else {
-        brandMap.set("maruti", marutiSuzuki);
+        tasks.push(
+          strapi.documents("api::car.car").update({
+            documentId: existingCar.documentId,
+            data: payload,
+            status: "published",
+          })
+        );
       }
+    }
 
-      // Mark all existing cars as SOLD safely and reset homepage flags
-      await strapi.db.query('api::car.car').updateMany({
-        data: { 
-          Vehicle_Status: 'SOLD', 
-          Newly_Added: false,
+    await Promise.all(tasks);
+
+    // =========================
+    // STEP 2: LIMIT TO 1200 LATEST STOCK
+    // =========================
+    const stockCars = await strapi.db.query("api::car.car").findMany({
+      where: { Vehicle_Status: "STOCK" },
+      orderBy: { updatedAt: "desc" },
+      limit: 5000,
+    });
+
+    const keep = stockCars.slice(0, 1200);
+    const revert = stockCars.slice(1200);
+
+    const revertTasks = revert.map(car =>
+      strapi.documents("api::car.car").update({
+        documentId: car.documentId,
+        data: {
+          Vehicle_Status: "SOLD",
           Featured: false,
           Recommended: false,
-          Choose_Next: false
-        }
-      });
+          Choose_Next: false,
+        },
+        status: "published",
+      })
+    );
 
-      let iteration = 0;
-      for (const carData of externalCars) {
-        try {
-          if (++iteration % 100 === 0) console.log(`Processing car ${iteration}/${externalCars.length}`);
+    await Promise.all(revertTasks);
 
-          const regNo = carData?.veh_Reg_no;
-          if (!regNo) continue;
+    // =========================
+    // STEP 3: HOMEPAGE ASSIGNMENT (TOP 30 ONLY)
+    // =========================
+    const topCars = keep.slice(0, 30);
 
-        // Relation Lookups from Cache
-        const getOrCreate = async (uid, name, cache, field = "Name") => {
-          if (!name) return null;
-          const nameKey = name.toLowerCase().trim();
-          if (cache.has(nameKey)) return cache.get(nameKey);
+    const homepageTasks = [];
 
-          // Second level of caching by slug to prevent DB unique constraint failures
-          const slug = name.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '');
-          const slugKey = `slug:${slug}`;
-          if (cache.has(slugKey)) return cache.get(slugKey);
-
-          try {
-            const record = await strapi.documents(uid).create({
-              data: { [field]: name, Slug: slug },
-              status: "published"
-            });
-            cache.set(nameKey, record);
-            cache.set(slugKey, record);
-            return record;
-          } catch (err) {
-            console.error(`Failed to create ${uid} for "${name}":`, err.message);
-            // If creation fails due to uniqueness (name or slug), try to find the existing one once more
-            const existing = await strapi.documents(uid).findFirst({
-              filters: { $or: [{ [field]: name }, { Slug: slug }] }
-            });
-            if (existing) {
-              cache.set(nameKey, existing);
-              cache.set(slugKey, existing);
-              return existing;
-            }
-            return null;
-          }
-        };
-
-        const isMaruti = carData?.Make?.toLowerCase()?.trim() === "maruti";
-        const brand = isMaruti ? marutiSuzuki : await getOrCreate("api::brand.brand", carData?.Make, brandMap);
-        const model = await getOrCreate("api::model.model", carData?.Model, modelMap);
-        const fuel = await getOrCreate("api::fuel-type.fuel-type", carData?.Fuel_Type, fuelMap);
-        const outlet = await getOrCreate("api::outlet.outlet", carData?.Outlet, outletMap);
-        const category = await getOrCreate("api::vehicle-category.vehicle-category", carData?.Vehicle_Category, catMap);
-
-        // Prep Car Data
-        const carName = `${brand?.Name || ""} ${model?.Name || ""} ${carData?.YOM || ""}`.trim();
-        const carGenData = {
-          make: brand?.Name || "",
-          model: model?.Name || "",
-          variant: carData?.variant || "",
-          yom: carData?.YOM || "",
-          fuelType: fuel?.Name || "",
-          kilometers: carData?.Kilometers || "",
-          colour: carData?.Colour || "",
-          outlet: outlet?.Name || "",
-          status: carData?.Status || "",
-          vehicleCategory: category?.Name || "",
-          psp: carData?.PSP || "",
-          location: outlet?.Location?.Place || "Kerala"
-        };
-
-        const topContent = generateTopContent(carGenData);
-        const metaDetails = generateMetaDetails(carGenData);
-        const seoData = {
-          Meta_Title: metaDetails?.meta_title,
-          Meta_Description: metaDetails?.meta_description,
-          OG_Title: metaDetails?.meta_title,
-          OG_Description: metaDetails?.meta_description,
-          Top_Description: topContent
-        };
-
-        const imageUrls = JSON.stringify({
-          LeftSide_Image: carData?.LeftSide_Img,
-          RightSide_Image: carData?.Rightside_Img,
-          Front_Image: carData?.Front_Img,
-          Back_Image: carData?.Back_Img,
-        });
-
-        const carPayload = {
-          Brand: brand,
-          Model: model,
-          Outlet: outlet,
-          Fuel_Type: fuel,
-          Color: carData?.Colour,
-          Kilometers: carData?.Kilometers,
-          PSP: carData?.PSP,
-          Year_Of_Month: carData?.YOM,
-          Vehicle_Reg_No: regNo,
-          Vehicle_Status: carData?.Status || "STOCK",
-          Variant: carData?.variant,
-          Vehicle_Category: category,
-          Image_URL: imageUrls,
-          Name: carName,
-          SEO: seoData,
-          Location: outlet?.Location,
-          Newly_Added: true // Will be fixed in batch at the end
-        };
-
-          const existingCar = carMap.get(regNo);
-          if (!existingCar) {
-            // CREATE
-            const newCar = await strapi.documents("api::car.car").create({
-              data: carPayload,
-              status: "published",
-            });
-            // Slug calculation (requires ID)
-            const slug = slugify(`${carName}-${newCar.documentId}`, { lower: true, strict: true });
-            const finalCar = await strapi.documents("api::car.car").update({
-              documentId: newCar.documentId,
-              data: { Slug: slug },
-              status: "published"
-            });
-            carMap.set(regNo, finalCar);
-          } else {
-            // UPDATE
-            const slug = slugify(`${carName}-${existingCar.documentId}`, { lower: true, strict: true });
-            const updatedCar = await strapi.documents("api::car.car").update({
-              documentId: existingCar.documentId,
-              data: { ...carPayload, Slug: slug, Vehicle_Status: "STOCK" },
-              status: "published",
-            });
-            carMap.set(regNo, updatedCar);
-          }
-        } catch (carErr) {
-          console.error(`Error processing car ${carData?.veh_Reg_no || iteration}:`, carErr.message);
-          if (carErr.details?.errors) {
-            console.error("Detail Error:", carErr.details.errors);
-          }
-        }
-      }
-
-      // 4. BATCH UPDATE FLAGS (Newly_Added)
-      const oneMonthAgo = new Date();
-      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-      const oneMonthIso = oneMonthAgo.toISOString();
-
-      await Promise.all([
-        strapi.db.query('api::car.car').updateMany({
-          where: { createdAt: { $lt: oneMonthIso } },
-          data: { Newly_Added: false }
-        }),
-        strapi.db.query('api::car.car').updateMany({
-          where: { createdAt: { $gte: oneMonthIso } },
-          data: { Newly_Added: true }
+    topCars.slice(0, 10).forEach(c =>
+      homepageTasks.push(
+        strapi.documents("api::car.car").update({
+          documentId: c.documentId,
+          data: { Featured: true },
+          status: "published",
         })
-      ]);
+      )
+    );
 
-      // 5. ASSIGN HOME-PAGE SECTIONS (10 each, non-overlapping)
-      const stockCars = await strapi.db.query('api::car.car').findMany({
-        where: { Vehicle_Status: 'STOCK' },
-        limit: 30,
-        orderBy: { createdAt: 'desc' }
-      });
+    topCars.slice(10, 20).forEach(c =>
+      homepageTasks.push(
+        strapi.documents("api::car.car").update({
+          documentId: c.documentId,
+          data: { Recommended: true },
+          status: "published",
+        })
+      )
+    );
 
-      if (stockCars.length > 0) {
-        // Collect all assignment promises to execute in parallel
-        const assignmentTasks = [];
+    topCars.slice(20, 30).forEach(c =>
+      homepageTasks.push(
+        strapi.documents("api::car.car").update({
+          documentId: c.documentId,
+          data: { Choose_Next: true },
+          status: "published",
+        })
+      )
+    );
 
-        stockCars.slice(0, 10).forEach(car => {
-          if (car.documentId) {
-            assignmentTasks.push(
-              strapi.documents('api::car.car').update({
-                documentId: car.documentId,
-                data: { Featured: true },
-                status: 'published'
-              })
-            );
-          }
-        });
+    await Promise.all(homepageTasks);
 
-        stockCars.slice(10, 20).forEach(car => {
-          if (car.documentId) {
-            assignmentTasks.push(
-              strapi.documents('api::car.car').update({
-                documentId: car.documentId,
-                data: { Recommended: true },
-                status: 'published'
-              })
-            );
-          }
-        });
+    console.timeEnd("importCars");
 
-        stockCars.slice(20, 30).forEach(car => {
-          if (car.documentId) {
-            assignmentTasks.push(
-              strapi.documents('api::car.car').update({
-                documentId: car.documentId,
-                data: { Choose_Next: true },
-                status: 'published'
-              })
-            );
-          }
-        });
-
-        if (assignmentTasks.length > 0) {
-          console.log(`Assigning home sections to ${assignmentTasks.length} cars...`);
-          await Promise.all(assignmentTasks);
-        }
-      }
-
-      console.timeEnd("importCars");
-      ctx.body = { success: true, message: "Cars imported successfully" };
-    } catch (err) {
-      console.error(err);
-      ctx.body = { success: false, message: "Failed to import cars", error: err.message };
-    }
-  },
+    ctx.body = {
+      success: true,
+      message: "Cars synced successfully with 1200 limit enforcement",
+    };
+  } catch (err) {
+    console.error(err);
+    ctx.body = {
+      success: false,
+      message: "Failed to import cars",
+      error: err.message,
+    };
+  }
+},
   updateSlug: async (ctx, next) => {
     try {
       console.log("running");
