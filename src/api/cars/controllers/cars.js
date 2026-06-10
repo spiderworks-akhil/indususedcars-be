@@ -34,7 +34,7 @@ async function downloadImage(url, fileName) {
 }
 
 module.exports = {
- getCars: async (ctx, next) => {
+getCars: async (ctx, next) => {
   try {
     console.time("importCars");
 
@@ -59,20 +59,61 @@ module.exports = {
       throw new Error("Invalid response from external cars API");
     }
 
-    // 🛑 SAFE GUARD: EMPTY API
+    // =====================================================
+    // 🛑 CASE 1: API RETURNS EMPTY → RECOVERY MODE
+    // =====================================================
     if (externalCars.length === 0) {
+      console.warn("API returned 0 cars → entering recovery mode");
+
+      const stockCars = await strapi.db.query("api::car.car").findMany({
+        where: { Vehicle_Status: "STOCK" },
+        orderBy: { updatedAt: "desc" },
+        limit: 1200,
+      });
+
+      // CASE 1A: STOCK already healthy → do nothing
+      if (stockCars.length > 0) {
+        ctx.body = {
+          success: true,
+          message: "API empty, but STOCK already healthy. No changes made.",
+          stockCount: stockCars.length,
+        };
+        return;
+      }
+
+      // CASE 1B: STOCK EMPTY → recover from DB history
+      const fallbackCars = await strapi.db.query("api::car.car").findMany({
+        orderBy: { updatedAt: "desc" },
+        limit: 1200,
+      });
+
+      const restoreTasks = fallbackCars.map(car =>
+        strapi.documents("api::car.car").update({
+          documentId: car.documentId,
+          data: {
+            Vehicle_Status: "STOCK",
+            Newly_Added: false,
+          },
+          status: "published",
+        })
+      );
+
+      await Promise.all(restoreTasks);
+
       ctx.body = {
         success: true,
-        message: "No cars received. Sync skipped safely.",
+        message: "Recovered STOCK from latest DB entries (fallback mode)",
+        restored: fallbackCars.length,
       };
+
       return;
     }
 
+    // =====================================================
+    // CASE 2: NORMAL SYNC FLOW
+    // =====================================================
     console.log(`Fetched ${externalCars.length} cars from external API.`);
 
-    // =========================
-    // PRE-CACHE DATA
-    // =========================
     const fetchAll = (uid, populate = []) =>
       strapi.documents(uid).findMany({ limit: -1, populate });
 
@@ -95,11 +136,6 @@ module.exports = {
     const outletMap = new Map(outlets.map(o => [o.Name?.toLowerCase()?.trim(), o]));
     const catMap = new Map(categories.map(c => [c.Name?.toLowerCase()?.trim(), c]));
     const carMap = new Map(existingCars.map(c => [c.Vehicle_Reg_No, c]));
-
-    // =========================
-    // UPSERT CARS
-    // =========================
-    const externalRegNos = new Set(externalCars.map(c => c?.veh_Reg_no).filter(Boolean));
 
     const tasks = [];
 
@@ -160,9 +196,9 @@ module.exports = {
 
     await Promise.all(tasks);
 
-    // =========================
-    // STEP 2: LIMIT TO 1200 LATEST STOCK
-    // =========================
+    // =====================================================
+    // LIMIT STOCK TO 1200 LATEST
+    // =====================================================
     const stockCars = await strapi.db.query("api::car.car").findMany({
       where: { Vehicle_Status: "STOCK" },
       orderBy: { updatedAt: "desc" },
@@ -187,9 +223,9 @@ module.exports = {
 
     await Promise.all(revertTasks);
 
-    // =========================
-    // STEP 3: HOMEPAGE ASSIGNMENT (TOP 30 ONLY)
-    // =========================
+    // =====================================================
+    // HOME PAGE ASSIGNMENT
+    // =====================================================
     const topCars = keep.slice(0, 30);
 
     const homepageTasks = [];
@@ -230,7 +266,7 @@ module.exports = {
 
     ctx.body = {
       success: true,
-      message: "Cars synced successfully with 1200 limit enforcement",
+      message: "Cars synced successfully with recovery-safe mode enabled",
     };
   } catch (err) {
     console.error(err);
