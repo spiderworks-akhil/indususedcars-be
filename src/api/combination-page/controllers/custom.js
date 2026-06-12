@@ -1183,8 +1183,9 @@ module.exports = {
               Brand: {
                 Slug: slug,
               },
-              Vehicle_Status: "STOCK",
+
             },
+            sort: "Vehicle_Status:desc",
             start: (page - 1) * limit,
             limit: limit,
             populate: {
@@ -1204,7 +1205,7 @@ module.exports = {
               Brand: {
                 Slug: slug,
               },
-              Vehicle_Status: "STOCK",
+
             },
           }),
         ]);
@@ -1241,8 +1242,9 @@ module.exports = {
               Model: {
                 Slug: slug,
               },
-              Vehicle_Status: "STOCK",
+
             },
+            sort: "Vehicle_Status:desc",
             start: (page - 1) * limit,
             limit: limit,
             populate: {
@@ -1262,7 +1264,7 @@ module.exports = {
               Model: {
                 Slug: slug,
               },
-              Vehicle_Status: "STOCK",
+
             },
           }),
         ]);
@@ -1300,8 +1302,9 @@ module.exports = {
               Outlet: {
                 Slug: slug,
               },
-              Vehicle_Status: "STOCK",
+
             },
+            sort: "Vehicle_Status:desc",
             start: (page - 1) * limit,
             limit: limit,
             populate: {
@@ -1321,7 +1324,7 @@ module.exports = {
               Outlet: {
                 Slug: slug,
               },
-              Vehicle_Status: "STOCK",
+
             },
           }),
         ]);
@@ -1364,8 +1367,9 @@ module.exports = {
                 }
 
               },
-              Vehicle_Status: "STOCK",
+
             },
+            sort: "Vehicle_Status:desc",
             start: (page - 1) * limit,
             limit: limit,
             populate: {
@@ -1394,7 +1398,7 @@ module.exports = {
                   Slug: slug,
                 },
               },
-              Vehicle_Status: "STOCK",
+
 
             },
             populate: ['Outlet', 'Outlet.Location']
@@ -1530,35 +1534,35 @@ module.exports = {
       const queries = [];
 
       if (variantName) {
-        queries.push({ filters: { Variant: variantName, Vehicle_Status: "STOCK" }, key: "variant" });
+        queries.push({ filters: { Variant: variantName }, key: "variant" });
       }
 
       if (modelSlug && locationSlug) {
-        queries.push({ filters: { Model: { Slug: modelSlug }, Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" }, key: "model_location" });
+        queries.push({ filters: { Model: { Slug: modelSlug }, Outlet: { Location: { Slug: locationSlug } } }, key: "model_location" });
       }
 
       if (modelSlug && outletSlug) {
-        queries.push({ filters: { Model: { Slug: modelSlug }, Outlet: { Slug: outletSlug }, Vehicle_Status: "STOCK" }, key: "model_outlet" });
+        queries.push({ filters: { Model: { Slug: modelSlug }, Outlet: { Slug: outletSlug } }, key: "model_outlet" });
       }
 
       if (brandSlug && locationSlug) {
-        queries.push({ filters: { Brand: { Slug: brandSlug }, Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" }, key: "brand_location" });
+        queries.push({ filters: { Brand: { Slug: brandSlug }, Outlet: { Location: { Slug: locationSlug } } }, key: "brand_location" });
       }
 
       if (brandSlug && outletSlug) {
-        queries.push({ filters: { Brand: { Slug: brandSlug }, Outlet: { Slug: outletSlug }, Vehicle_Status: "STOCK" }, key: "brand_outlet" });
+        queries.push({ filters: { Brand: { Slug: brandSlug }, Outlet: { Slug: outletSlug } }, key: "brand_outlet" });
       }
 
       if (modelSlug) {
-        queries.push({ filters: { Model: { Slug: modelSlug }, Vehicle_Status: "STOCK" }, key: "model" });
+        queries.push({ filters: { Model: { Slug: modelSlug } }, key: "model" });
       }
 
       if (brandSlug) {
-        queries.push({ filters: { Brand: { Slug: brandSlug }, Vehicle_Status: "STOCK" }, key: "brand" });
+        queries.push({ filters: { Brand: { Slug: brandSlug } }, key: "brand" });
       }
 
       if (locationSlug) {
-        queries.push({ filters: { Outlet: { Location: { Slug: locationSlug } }, Vehicle_Status: "STOCK" }, key: "location" });
+        queries.push({ filters: { Outlet: { Location: { Slug: locationSlug } } }, key: "location" });
       }
 
       const populateAll = {
@@ -1580,6 +1584,7 @@ module.exports = {
         const [data, count] = await Promise.all([
           strapi.documents("api::car.car").findMany({
             filters: query.filters,
+            sort: "Vehicle_Status:desc",
             start: (page - 1) * limit,
             limit: limit,
             populate: populateAll,

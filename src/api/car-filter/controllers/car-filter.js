@@ -24,7 +24,7 @@ module.exports = {
                 $eq: ctx?.query?.location,
               },
             },
-            Vehicle_Status: "STOCK",
+
           },
           sort: "PSP:asc",
           limit: 1,
@@ -38,7 +38,7 @@ module.exports = {
                 $eq: ctx?.query?.location,
               },
             },
-            Vehicle_Status: "STOCK",
+
           },
 
           sort: "PSP:desc",
@@ -53,7 +53,7 @@ module.exports = {
                 $eq: ctx?.query?.location,
               },
             },
-            Vehicle_Status: "STOCK",
+
           },
 
           sort: "Year_Of_Month:desc",
@@ -68,7 +68,7 @@ module.exports = {
                 $eq: ctx?.query?.location,
               },
             },
-            Vehicle_Status: "STOCK",
+
           },
 
           sort: "Year_Of_Month:asc",
@@ -83,7 +83,7 @@ module.exports = {
                 $eq: ctx?.query?.location,
               },
             },
-            Vehicle_Status: "STOCK",
+
           },
 
           sort: "Kilometers:asc",
@@ -98,7 +98,7 @@ module.exports = {
                 $eq: ctx?.query?.location,
               },
             },
-            Vehicle_Status: "STOCK",
+
           },
 
           sort: "Kilometers:desc",
@@ -117,7 +117,7 @@ module.exports = {
       } else {
         const manimum_price = await strapi.documents("api::car.car").findMany({
           filters: {
-            Vehicle_Status: "STOCK",
+
           },
           sort: "PSP:asc",
           limit: 1,
@@ -127,7 +127,7 @@ module.exports = {
 
         const maximum_price = await strapi.documents("api::car.car").findMany({
           filters: {
-            Vehicle_Status: "STOCK",
+
           },
           sort: "PSP:desc",
           limit: 1,
@@ -137,7 +137,7 @@ module.exports = {
 
         const max_year = await strapi.documents("api::car.car").findMany({
           filters: {
-            Vehicle_Status: "STOCK",
+
           },
           sort: "Year_Of_Month:desc",
           limit: 1,
@@ -147,7 +147,7 @@ module.exports = {
 
         const min_year = await strapi.documents("api::car.car").findMany({
           filters: {
-            Vehicle_Status: "STOCK",
+
           },
           sort: "Year_Of_Month:asc",
           limit: 1,
@@ -157,7 +157,7 @@ module.exports = {
 
         const min_kilometers = await strapi.documents("api::car.car").findMany({
           filters: {
-            Vehicle_Status: "STOCK",
+
           },
           sort: "Kilometers:asc",
           limit: 1,
@@ -167,7 +167,7 @@ module.exports = {
 
         const max_kilometers = await strapi.documents("api::car.car").findMany({
           filters: {
-            Vehicle_Status: "STOCK",
+
           },
           sort: "Kilometers:desc",
           limit: 1,
@@ -525,10 +525,6 @@ module.exports = {
       // Build filters dynamically based on provided query parameters
       const filters = {};
 
-      filters.Vehicle_Status = {
-        $eq: "STOCK",
-      };
-
       // Add location filter based on slug
       if (location && location !== "[]") {
         try {
@@ -684,7 +680,7 @@ module.exports = {
           strapi.documents("api::car.car").findMany({
             filters: filters,
             populate: ["Brand", "Model", "Outlet", "Fuel_Type", "Image"],
-            sort: `PSP:${high ? "desc" : "asc"}`,
+            sort: [`Vehicle_Status:desc`, `PSP:${high ? "desc" : "asc"}`],
             limit,
             start,
           }),
@@ -698,7 +694,7 @@ module.exports = {
           strapi.documents("api::car.car").findMany({
             filters: Object.keys(filters).length > 0 ? filters : undefined,
             populate: ["Brand", "Model", "Outlet", "Fuel_Type", "Image"],
-            sort: `PSP:${high ? "desc" : "asc"}`,
+            sort: [`Vehicle_Status:desc`, `PSP:${high ? "desc" : "asc"}`],
             limit,
             start,
           }),

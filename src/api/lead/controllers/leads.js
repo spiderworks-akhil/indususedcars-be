@@ -47,8 +47,17 @@ module.exports = {
       const recaptchaSecret = process.env.RECAPTCHA_SECRECT_KEY;
       const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaSecret}&response=${recaptcha_token}`;
 
-      const recaptchaResponse = await axios.post(verificationUrl);
-      if (!recaptchaResponse.data.success) {
+      let recaptchaResponse;
+      try {
+        recaptchaResponse = await axios.post(verificationUrl);
+      } catch (error) {
+        ctx.status = 400;
+        ctx.body = {
+          message: "reCAPTCHA verification failed",
+        };
+        return;
+      }
+      if (!recaptchaResponse.data.success || recaptchaResponse.data.score < 0.5) {
         ctx.status = 400;
         ctx.body = {
           message: "reCAPTCHA verification failed",

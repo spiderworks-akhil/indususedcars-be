@@ -73,21 +73,7 @@ module.exports = {
         return;
       }
 
-      // Redirect if the car is sold
-      if (car.Vehicle_Status === "SOLD") {
-        const brandSlug = car.Brand?.Slug;
-        const modelSlug = car.Model?.Slug;
-        
-        if (brandSlug && modelSlug) {
-          ctx.status = 301;
-          return ctx.redirect(`https://indususedcars.com/cars/${brandSlug}/${modelSlug}`);
-        } else if (brandSlug) {
-          ctx.status = 301;
-          return ctx.redirect(`https://indususedcars.com/cars/${brandSlug}`);
-        }
-      }
-
-      // Fetch similar cars based on brand and model if car is in STOCK
+      // Fetch similar cars based on brand and model
       const similarCars = await strapi.documents("api::car.car").findMany({
         filters: {
           Brand: car.Brand?.id,

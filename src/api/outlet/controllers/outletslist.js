@@ -40,7 +40,7 @@ module.exports = {
               Outlet: {
                 Name: outlet?.Name,
               },
-              Vehicle_Status: "STOCK",
+
             },
             pagination: {
               start: page,
@@ -108,7 +108,7 @@ module.exports = {
               Outlet: {
                 Name: outlet?.Name,
               },
-              Vehicle_Status: "STOCK",
+
             },
             pagination: {
               start: page,
