@@ -26,7 +26,7 @@ const isInternalUrl = (url) => {
 };
 
 const processHtml = (html) => {
-  return html.replace(
+  let result = html.replace(
     /<a\b([^>]*)href=["']([^"']+)["']([^>]*)>/gi,
     (fullMatch, before, href, after) => {
       // Ignore special links
@@ -71,6 +71,13 @@ const processHtml = (html) => {
       return `<a ${attributes} href="${href}" target="_blank" rel="noopener noreferrer external nofollow">`;
     }
   );
+
+  // Strip <a> tags without href (orphaned wrappers), keep inner content
+  while (/<a\b(?![^>]*href=)[^>]*>/i.test(result)) {
+    result = result.replace(/<a\b(?![^>]*href=)[^>]*>(.*?)<\/a>/gi, '$1');
+  }
+
+  return result;
 };
 
 const traverse = (data) => {
@@ -118,7 +125,7 @@ module.exports = () => {
   return async (ctx, next) => {
     await next();
 
-    if (ctx.response?.body) {
+    if (ctx.response?.body && !ctx.path.startsWith("/admin")) {
       traverse(ctx.response.body);
     }
   };
