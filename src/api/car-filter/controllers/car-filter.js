@@ -680,7 +680,7 @@ module.exports = {
           strapi.documents("api::car.car").findMany({
             filters: filters,
             populate: ["Brand", "Model", "Outlet", "Fuel_Type", "Image"],
-            sort: [`Vehicle_Status:desc`, `PSP:${high ? "desc" : "asc"}`],
+            sort: [`Vehicle_Status:desc`, `PSP:${high ? "desc" : "asc"}`, `createdAt:desc`],
             limit,
             start,
           }),
@@ -694,7 +694,7 @@ module.exports = {
           strapi.documents("api::car.car").findMany({
             filters: Object.keys(filters).length > 0 ? filters : undefined,
             populate: ["Brand", "Model", "Outlet", "Fuel_Type", "Image"],
-            sort: [`Vehicle_Status:desc`, `PSP:${high ? "desc" : "asc"}`],
+            sort: [`Vehicle_Status:desc`, `PSP:${high ? "desc" : "asc"}`, `createdAt:desc`],
             limit,
             start,
           }),
