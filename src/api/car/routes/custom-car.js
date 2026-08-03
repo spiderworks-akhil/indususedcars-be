@@ -1,7 +1,18 @@
 'use strict'
 
 module.exports={
-    routes:[{
+    routes:[
+    {
+        method:'GET',
+        path:'/cars/updatename',
+        handler:'custom.updateName',
+        config:{
+            auth:false,
+            policies:[],
+            middleware:[]
+        }
+    },
+    {
         method:'GET',
         path:'/cars/:slug',
         handler:'custom.getBySlug',

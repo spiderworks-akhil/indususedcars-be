@@ -106,4 +106,43 @@ module.exports = {
       ctx.body = err;
     }
   },
+  updateName: async (ctx, next) => {
+    try {
+      const cars = await strapi.documents("api::car.car").findMany({
+        populate: {
+          Brand: true,
+          Model: true,
+        },
+      });
+
+      let updated = 0;
+
+      for (const car of cars) {
+        const brandName = car.Brand?.Name;
+        const modelName = car.Model?.Name;
+        const yom = car.Year_Of_Month;
+
+        const newName = [brandName, modelName, yom]
+          .filter((part) => part !== null && part !== undefined && part !== "")
+          .join(" ");
+
+        if (!car.Name || car.Name !== newName) {
+          await strapi.documents("api::car.car").update({
+            documentId: car.documentId,
+            status: "published",
+            data: {
+              Name: newName,
+            },
+          });
+          updated++;
+        }
+      }
+
+      ctx.status = 200;
+      ctx.body = { data: { message: `updateName completed`, updated } };
+    } catch (err) {
+      ctx.status = 500;
+      ctx.body = err;
+    }
+  },
 };
