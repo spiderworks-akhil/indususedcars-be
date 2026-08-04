@@ -14,6 +14,16 @@ module.exports={
     },
     {
         method:'GET',
+        path:'/cars/seo',
+        handler:'custom.updateSEO',
+        config:{
+            auth:false,
+            policies:[],
+            middleware:[]
+        }
+    },
+    {
+        method:'GET',
         path:'/cars/:slug',
         handler:'custom.getBySlug',
         config:{

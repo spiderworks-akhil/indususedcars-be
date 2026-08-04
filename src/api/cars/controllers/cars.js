@@ -60,52 +60,18 @@ getCars: async (ctx, next) => {
     }
 
     // =====================================================
-    // 🛑 CASE 1: API RETURNS EMPTY → RECOVERY MODE
+    // 🛑 CHECK: API RETURNED EMPTY → NO UPDATES AT ALL
     // =====================================================
     if (externalCars.length === 0) {
-      console.warn("API returned 0 cars → entering recovery mode");
-
-      const stockCars = await strapi.db.query("api::car.car").findMany({
-        where: { Vehicle_Status: "STOCK" },
-        orderBy: { updatedAt: "desc" },
-        limit: 1200,
-      });
-
-      // CASE 1A: STOCK already healthy → do nothing
-      if (stockCars.length > 0) {
-        ctx.body = {
-          success: true,
-          message: "API empty, but STOCK already healthy. No changes made.",
-          stockCount: stockCars.length,
-        };
-        return;
-      }
-
-      // CASE 1B: STOCK EMPTY → recover from DB history
-      const fallbackCars = await strapi.db.query("api::car.car").findMany({
-        orderBy: { updatedAt: "desc" },
-        limit: 1200,
-      });
-
-      const restoreTasks = fallbackCars.map(car =>
-        strapi.documents("api::car.car").update({
-          documentId: car.documentId,
-          data: {
-            Vehicle_Status: "STOCK",
-            Newly_Added: false,
-          },
-          status: "published",
-        })
+      console.warn(
+        "API returned 0 cars → skipping all updates (no SOLD / featured / recently-added changes)"
       );
-
-      await Promise.all(restoreTasks);
+      console.timeEnd("importCars");
 
       ctx.body = {
         success: true,
-        message: "Recovered STOCK from latest DB entries (fallback mode)",
-        restored: fallbackCars.length,
+        message: "API returned 0 cars. No updates performed.",
       };
-
       return;
     }
 
@@ -137,12 +103,33 @@ getCars: async (ctx, next) => {
     const catMap = new Map(categories.map(c => [c.Name?.toLowerCase()?.trim(), c]));
     const carMap = new Map(existingCars.map(c => [c.Vehicle_Reg_No, c]));
 
-    const tasks = [];
+    // =====================================================
+    // STEP 1: SET ALL CURRENT STOCK CARS TO SOLD (BULK UPDATE)
+    // (API list is the source of truth — cars not in it must be SOLD)
+    // =====================================================
+    const soldResult = await strapi.db.query("api::car.car").updateMany({
+      where: { Vehicle_Status: "STOCK" },
+      data: {
+        Vehicle_Status: "SOLD",
+        Featured: false,
+        Recommended: false,
+        Choose_Next: false,
+        updatedAt: new Date(),
+      },
+    });
+    console.log(
+      `Bulk SOLD update done → ${soldResult.count} rows updated (STOCK → SOLD, includes draft copies)`
+    );
 
+    // =====================================================
+    // STEP 2: LOOP API CARS → STOCK (update existing / create new)
+    // =====================================================
+    let processed = 0;
     for (const carData of externalCars) {
       const regNo = carData?.veh_Reg_no;
       if (!regNo) continue;
 
+      processed++;
       const existingCar = carMap.get(regNo);
 
       const isMaruti =
@@ -177,102 +164,70 @@ getCars: async (ctx, next) => {
       };
 
       if (!existingCar) {
-        tasks.push(
-          strapi.documents("api::car.car").create({
-            data: payload,
-            status: "published",
-          })
-        );
+        await strapi.documents("api::car.car").create({
+          data: payload,
+          status: "published",
+        });
+        console.log(`[${processed}/${externalCars.length}] ${carName || regNo} (${regNo}) -> New`);
       } else {
-        tasks.push(
-          strapi.documents("api::car.car").update({
-            documentId: existingCar.documentId,
-            data: payload,
-            status: "published",
-          })
-        );
+        await strapi.documents("api::car.car").update({
+          documentId: existingCar.documentId,
+          data: payload,
+          status: "published",
+        });
+        console.log(`[${processed}/${externalCars.length}] ${carName || regNo} (${regNo}) -> Old (SOLD → STOCK)`);
       }
     }
 
-    await Promise.all(tasks);
-
     // =====================================================
-    // LIMIT STOCK TO 1200 LATEST
+    // STEP 3: HOME PAGE ASSIGNMENT (top 30 of current stock)
     // =====================================================
-    const stockCars = await strapi.db.query("api::car.car").findMany({
-      where: { Vehicle_Status: "STOCK" },
-      orderBy: { updatedAt: "desc" },
+    const stockCars = await strapi.documents("api::car.car").findMany({
+      filters: { Vehicle_Status: "STOCK" },
+      sort: { updatedAt: "desc" },
       limit: 5000,
     });
 
-    const keep = stockCars.slice(0, 1200);
-    const revert = stockCars.slice(1200);
+    const topCars = stockCars.slice(0, 30);
 
-    const revertTasks = revert.map(car =>
-      strapi.documents("api::car.car").update({
-        documentId: car.documentId,
-        data: {
-          Vehicle_Status: "SOLD",
-          Featured: false,
-          Recommended: false,
-          Choose_Next: false,
-        },
+    for (const c of topCars.slice(0, 10)) {
+      await strapi.documents("api::car.car").update({
+        documentId: c.documentId,
+        data: { Featured: true },
         status: "published",
-      })
-    );
+      });
+    }
 
-    await Promise.all(revertTasks);
+    for (const c of topCars.slice(10, 20)) {
+      await strapi.documents("api::car.car").update({
+        documentId: c.documentId,
+        data: { Recommended: true },
+        status: "published",
+      });
+    }
 
-    // =====================================================
-    // HOME PAGE ASSIGNMENT
-    // =====================================================
-    const topCars = keep.slice(0, 30);
-
-    const homepageTasks = [];
-
-    topCars.slice(0, 10).forEach(c =>
-      homepageTasks.push(
-        strapi.documents("api::car.car").update({
-          documentId: c.documentId,
-          data: { Featured: true },
-          status: "published",
-        })
-      )
-    );
-
-    topCars.slice(10, 20).forEach(c =>
-      homepageTasks.push(
-        strapi.documents("api::car.car").update({
-          documentId: c.documentId,
-          data: { Recommended: true },
-          status: "published",
-        })
-      )
-    );
-
-    topCars.slice(20, 30).forEach(c =>
-      homepageTasks.push(
-        strapi.documents("api::car.car").update({
-          documentId: c.documentId,
-          data: { Choose_Next: true },
-          status: "published",
-        })
-      )
-    );
-
-    await Promise.all(homepageTasks);
+    for (const c of topCars.slice(20, 30)) {
+      await strapi.documents("api::car.car").update({
+        documentId: c.documentId,
+        data: { Choose_Next: true },
+        status: "published",
+      });
+    }
 
     console.timeEnd("importCars");
 
     ctx.body = {
       success: true,
-      message: "Cars synced successfully with recovery-safe mode enabled",
+      message: "Cars synced successfully",
     };
   } catch (err) {
-    console.error(err);
+    console.error(
+      "Sync failed. NOTE: if this happened after the SOLD pass, some cars may have been marked SOLD already:",
+      err.message
+    );
     ctx.body = {
       success: false,
-      message: "Failed to import cars",
+      message: "Sync failed. If the SOLD pass already ran, stock status may be partially updated.",
       error: err.message,
     };
   }
