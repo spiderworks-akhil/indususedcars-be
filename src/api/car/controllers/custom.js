@@ -64,7 +64,6 @@ module.exports = {
         },
       });
 
-      console.log({car})
 
       // Check if car data exists
       if (!car) {

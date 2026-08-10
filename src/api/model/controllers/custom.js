@@ -10,7 +10,6 @@ const ExcelJS = require("exceljs");
 module.exports = {
   fetchModels: async (ctx, next) => {
     try {
-      console.log("models");
       const nonDetailSlugs = [];
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet("Issues");
@@ -35,7 +34,6 @@ module.exports = {
 
       // Process pages from 1 to 40
       for (let page = 1; page <= data?.data?.meta?.last_page; page++) {
-        console.log(`processing page ${page}`);
 
         try {
           const pageData = await axios.get(
@@ -119,11 +117,9 @@ module.exports = {
                       populate: ["SEO", "FAQ"],
                     });
 
-                  console.log(createdModel);
                 }
               } catch (error) {
                 if (error.response?.status === 404) {
-                  console.log(`No detail page found for slug: ${model.slug}`);
                   worksheet.addRow({
                     slug: model.slug,
                     problem: "No detail page found",
@@ -151,14 +147,12 @@ module.exports = {
     }
   },
   addBrand: async (ctx, next) => {
-    console.log("brand");
 
     try {
       const models = await strapi.documents("api::model.model").findMany({
         filters: {},
         populate: "*",
       });
-      console.log(models);
 
       for (const model of models) {
         const findModel = await strapi.documents("api::car.car").findFirst({
@@ -172,11 +166,8 @@ module.exports = {
           },
           populate: "*",
         });
-        console.log({ model: findModel });
 
         if (findModel?.Brand) {
-          console.log("yes");
-          console.log({ Brand_Detail: findModel?.Brand });
 
           await strapi.documents("api::model.model").update({
             documentId: model.documentId,
@@ -187,7 +178,6 @@ module.exports = {
           });
         }
       }
-      console.log("completed");
 
       ctx.status = 200;
       ctx.body = {
@@ -262,7 +252,6 @@ module.exports = {
     };
 
     try {
-      console.log("models");
       const nonDetailSlugs = [];
 
 
@@ -270,11 +259,9 @@ module.exports = {
       const data = await fetchWithRetry(
         `${process.env.OLD_BACKEND_URL}/api/combination-pages?page=1&limit=1000`
       );
-      console.log(data);
 
       // Process pages from 1 to 40
       for (let page = 1; page <= data?.data?.last_page; page++) {
-        console.log(`processing page ${page}`);
 
         try {
           const pageData = await fetchWithRetry(
@@ -337,34 +324,25 @@ module.exports = {
                   })
                 }
 
-                console.log('SUCCESS');
 
               }
 
 
             } catch (error) {
-              console.log('FAILED');
 
               // Log error for this specific item and continue with next
-              console.log(
-                `Error processing item with slug ${model.slug}:`,
-                error.message
-              );
               nonDetailSlugs.push({ slug: model.slug, problem: error.message });
               continue; // Skip to next item instead of breaking the entire page
             }
           }
-          console.log('COMPLETED');
 
         } catch (error) {
           // Only log page-level errors (like network issues) but continue processing
-          console.log(`Error fetching page ${page}:`, error.message);
           nonDetailSlugs.push({ slug: `Page ${page}`, problem: error.message });
           continue; // Continue to next page
         }
       }
 
-      console.log("Non-detail pages:", nonDetailSlugs);
       ctx.body = { success: true, msg: "Process completed", nonDetailSlugs };
     } catch (err) {
       ctx.body = err;

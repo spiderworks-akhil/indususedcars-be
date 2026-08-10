@@ -94,9 +94,6 @@ module.exports = {
               populate: ["Outlet","Outlet.Location"]
             });
 
-            console.log(`Location: ${location.Name}`);
-            console.log(`Car Count: ${carCount}`);
-            console.log('----------------------');
 
             return {
               ...location,

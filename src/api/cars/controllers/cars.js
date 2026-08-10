@@ -78,7 +78,6 @@ getCars: async (ctx, next) => {
     // =====================================================
     // CASE 2: NORMAL SYNC FLOW
     // =====================================================
-    console.log(`Fetched ${externalCars.length} cars from external API.`);
 
     const fetchAll = (uid, populate = []) =>
       strapi.documents(uid).findMany({ limit: -1, populate });
@@ -117,9 +116,6 @@ getCars: async (ctx, next) => {
         updatedAt: new Date(),
       },
     });
-    console.log(
-      `Bulk SOLD update done → ${soldResult.count} rows updated (STOCK → SOLD, includes draft copies)`
-    );
 
     // =====================================================
     // STEP 2: LOOP API CARS → STOCK (update existing / create new)
@@ -168,14 +164,12 @@ getCars: async (ctx, next) => {
           data: payload,
           status: "published",
         });
-        console.log(`[${processed}/${externalCars.length}] ${carName || regNo} (${regNo}) -> New`);
       } else {
         await strapi.documents("api::car.car").update({
           documentId: existingCar.documentId,
           data: payload,
           status: "published",
         });
-        console.log(`[${processed}/${externalCars.length}] ${carName || regNo} (${regNo}) -> Old (SOLD → STOCK)`);
       }
     }
 
@@ -234,11 +228,9 @@ getCars: async (ctx, next) => {
 },
   updateSlug: async (ctx, next) => {
     try {
-      console.log("running");
 
       const cars = await strapi.documents("api::car.car").findMany({});
       for (let car of cars) {
-        console.log(car);
 
         const slug = `${car?.Name}-${car.documentId}`
           .toLowerCase()
@@ -251,7 +243,6 @@ getCars: async (ctx, next) => {
         if (slug == car.Slug) {
           continue;
         }
-        console.log(slug);
 
         await strapi.documents("api::car.car").update({
           documentId: car.documentId,
@@ -260,7 +251,6 @@ getCars: async (ctx, next) => {
           },
           status: "published",
         });
-        console.log("updated");
       }
       ctx.body = {
         data: {
@@ -296,7 +286,6 @@ getCars: async (ctx, next) => {
       let i = 1;
 
       for (let car of cars) {
-        console.log(`Processing Cars: ${count - i++} left`);
         if (!car?.Basic_Information) {
 
 
@@ -407,7 +396,6 @@ getCars: async (ctx, next) => {
   // update brand id from maruti to maruti suzuki
 
   updateBrand: async (ctx, next) => {
-    console.log('yes inside');
 
     try {
       // Use document service to find all cars where Brand is 1
@@ -424,13 +412,11 @@ getCars: async (ctx, next) => {
         }
       });
       const cars= await strapi.documents('api::car.car').count()
-      console.log({maruti:carsToUpdate?.length,cars});
       
       let i=1;
       for (const car of carsToUpdate) {
         try {
           
-          console.log(i);
           
           await strapi.documents('api::car.car').update({
             documentId: car?.documentId,

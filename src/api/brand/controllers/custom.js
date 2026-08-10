@@ -29,7 +29,6 @@ module.exports = {
         },
       });
 
-      console.log({ findBrand });
 
       if (!findBrand) {
         ctx.status = 404;
@@ -142,17 +141,14 @@ module.exports = {
     };
 
     try {
-      console.log("brands");
       const nonDetailSlugs = [];
 
       const data = await fetchWithRetry(
         `${process.env.OLD_BACKEND_URL}/api/combination-pages?page=1&limit=1000`
       );
-      console.log(data);
 
       // Process pages from 1 to 40
       for (let page = 1; page <= data?.data?.last_page; page++) {
-        console.log(`processing page ${page}`);
 
         try {
           const pageData = await fetchWithRetry(
@@ -212,27 +208,18 @@ module.exports = {
                   })
                 }
 
-                console.log('SUCCESS');
               }
             } catch (error) {
-              console.log('FAILED');
-              console.log(
-                `Error processing item with slug ${brand.slug}:`,
-                error.message
-              );
               nonDetailSlugs.push({ slug: brand.slug, problem: error.message });
               continue;
             }
           }
-          console.log('COMPLETED');
         } catch (error) {
-          console.log(`Error fetching page ${page}:`, error.message);
           nonDetailSlugs.push({ slug: `Page ${page}`, problem: error.message });
           continue;
         }
       }
 
-      console.log("Non-detail pages:", nonDetailSlugs);
       ctx.body = { success: true, msg: "Process completed", nonDetailSlugs };
     } catch (err) {
       ctx.body = err;

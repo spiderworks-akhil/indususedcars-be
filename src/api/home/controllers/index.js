@@ -110,7 +110,6 @@ module.exports = {
       const minimun_price = minPriceRes[0]?.PSP;
       const maximum_price = maxPriceRes[0]?.PSP;
 
-      console.log(`Counts - Featured: ${featuredCars?.length}, Recommended: ${recommendedCars?.length}, ChooseNext: ${chooseNextCars?.length}, NewlyAdded: ${newlyAdded?.length}`);
 
       // 3. Calculate car counts for outlets in parallel (after we have the featuredOutlets)
       const outletCarCounts = await Promise.all(

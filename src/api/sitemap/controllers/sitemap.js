@@ -8,7 +8,6 @@ module.exports = {
   siteMap: async (ctx, next) => {
     try {
       const currentDate = new Date().toISOString();
-      console.log('yes');
       
       ctx.body = [
         { Slug: "/static_pages", Lastmod: currentDate },

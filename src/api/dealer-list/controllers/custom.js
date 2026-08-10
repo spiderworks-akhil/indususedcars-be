@@ -24,11 +24,9 @@ module.exports = {
       );
       const dealerList = fetchDealerAPI.data;
 
-      console.log("Total dealers to process:", dealerList.length);
 
       for (const dealer of dealerList) {
         try {
-          console.log("Processing dealer:", dealer?.location?.slug);
           const findDealer = await strapi
             .documents("api::dealer-list.dealer-list")
             .findFirst({
@@ -62,7 +60,6 @@ module.exports = {
 
           if (!findDealer) {
             let outletData = null;
-            console.log({ slug: dealer?.location?.slug });
 
             if (dealer?.location?.slug) {
               const findOutlet = await strapi
@@ -80,7 +77,6 @@ module.exports = {
                   },
                 });
 
-              console.log({ findOutlet, slug: dealer });
 
               if (findOutlet) {
                 outletData = findOutlet;
@@ -139,7 +135,6 @@ module.exports = {
                 ],
                 status: "published",
               });
-            console.log("Created dealer:", transformedSlug);
           }
         } catch (dealerError) {
           console.error(
@@ -293,7 +288,6 @@ module.exports = {
   detail: async (ctx, next) => {
     try {
       const { slug } = ctx.params;
-      console.log(slug);
       const dealer = await strapi
         .documents("api::dealer-list.dealer-list")
         .findFirst({

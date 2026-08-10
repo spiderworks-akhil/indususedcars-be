@@ -14,7 +14,6 @@ module.exports = {
     let maxKilometers;
     let Fuels;
     try {
-      console.log(ctx.query);
 
       if (ctx?.query?.location) {
         const manimum_price = await strapi.documents("api::car.car").findMany({
@@ -241,7 +240,6 @@ module.exports = {
           limit: pagination.limit,
           start: pagination.start,
         });
-        // console.log(brand);
 
         ctx.status = 200;
         ctx.body = {
@@ -299,16 +297,13 @@ module.exports = {
 
       if (brand && brand !== "[]") {
         try {
-          console.log("yes inside brand model");
 
           // Remove brackets and split by comma
           const cleanedBrand = brand.replace(/[\[\]{}]/g, "");
           const brandArray = cleanedBrand.split(",").map((b) => b.trim());
 
           if (brandArray.length > 0 && brandArray[0] !== "") {
-            // console.log(
-            //   'yes'
-            // );
+           
 
             const [models, count] = await Promise.all([
               strapi.documents("api::model.model").findMany({
@@ -370,7 +365,6 @@ module.exports = {
           limit: pagination.limit,
           start: pagination.start,
         });
-        // console.log(model);
 
         ctx.status = 200;
         ctx.body = {
@@ -516,7 +510,6 @@ module.exports = {
         pageSize = 10,
         high,
       } = ctx.query;
-      console.log({ brand, model, location });
 
       // Calculate pagination values
       const limit = parseInt(pageSize);
@@ -732,7 +725,6 @@ module.exports = {
           data: { Amount: car.PSP },
           status: "published",
         });
-        // console.log(carUpdate);
       }
 
       ctx.status = 200;

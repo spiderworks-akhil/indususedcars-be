@@ -43,17 +43,14 @@ const HomePage = () => {
   useEffect(() => {
     const fetchLeads = async () => {
       setLeadLoading(true);
-      console.log({url:window.location.href});
       
       try {
         
         const response = await axios.get(`http://localhost:1337/api/leads?pagination[page]=${page}&pagination[pageSize]=${pageSize}`);
-        console.log(response.data,BACKEND_URL);
         
         setLeads(response.data?.data);
         setPageCount(response.data?.meta?.pagination?.pageCount || 1);
       } catch (error) {
-        console.log(error);
       } finally {
         setLeadLoading(false);
       }
@@ -62,7 +59,6 @@ const HomePage = () => {
   }, [page]);
 
   const handleExport = async () => {
-    console.log('Exporting from:', fromDate, 'to:', toDate);
     setExportLoading(true);
     try {
       // Convert dates to ISO format
@@ -79,7 +75,6 @@ const HomePage = () => {
       const response = await axios.get(url);
       const filteredLeads = response.data?.data || [];
   
-      console.log(filteredLeads);
       
 
       // Check if there are any leads to export
@@ -144,7 +139,6 @@ const HomePage = () => {
       });
 
     } catch (error) {
-      console.log(error);
       // Show error toast
       setToast({
         type: 'error',

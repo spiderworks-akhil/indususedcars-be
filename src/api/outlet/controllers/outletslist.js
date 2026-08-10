@@ -142,10 +142,8 @@ module.exports = {
   },
   outletDetail: async (ctx, next) => {
     try {
-      console.log('inside outlet detail');
 
       const { slug } = ctx.params;
-      console.log({ slug });
       const findOutlet = await strapi
         .documents("api::outlet.outlet")
         .findFirst({
@@ -159,7 +157,6 @@ module.exports = {
           }
         });
 
-      console.log({ findOutlet });
 
 
       if (!findOutlet) {
@@ -330,7 +327,6 @@ module.exports = {
 
     // Helper function to upload image to Strapi
     const uploadImage = async (imageUrl) => {
-      console.log({ imageUrl });
 
       if (!imageUrl) return null;
 
@@ -367,13 +363,11 @@ module.exports = {
     };
 
     try {
-      console.log("models");
       const nonDetailSlugs = [];
 
       const data = await fetchWithRetry(
         `${process.env.OLD_BACKEND_URL}/api/combination-pages?page=1&limit=1000`
       );
-      console.log(data);
 
       try {
         const pageData = await fetchWithRetry(
@@ -382,7 +376,6 @@ module.exports = {
 
         for (const outlet of pageData.data) {
           try {
-            console.log({ outlet });
 
             const exist = await strapi.documents('api::outlet.outlet').findFirst({
               filters: {
@@ -442,21 +435,15 @@ module.exports = {
               });
             }
 
-            console.log('SUCCESS');
           } catch (error) {
-            console.log('FAILED');
-            console.log(`Error processing item with slug ${outlet.slug}:`, error.message);
             nonDetailSlugs.push({ slug: outlet.slug, problem: error.message });
             continue;
           }
         }
-        console.log('COMPLETED');
       } catch (error) {
-        console.log(`Error fetching page :`, error.message);
         nonDetailSlugs.push({ slug: `Page `, problem: error.message });
       }
 
-      console.log("Non-detail pages:", nonDetailSlugs);
       ctx.body = { success: true, msg: "Process completed", nonDetailSlugs };
     } catch (err) {
       ctx.body = err;

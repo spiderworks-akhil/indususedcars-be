@@ -78,10 +78,10 @@ module.exports = {
   },
   fetchBlog: async (ctx, next) => {
     try {
-      console.log("blog running");
+     
       // Helper function to upload image using Strapi's upload API
       const uploadImage = async (filePath, isContent) => {
-        console.log({ imagePath: filePath });
+       
 
         try {
           // Trim and encode file path
@@ -103,8 +103,8 @@ module.exports = {
 
           // Fetch image with retry mechanism
           const fetchWithRetry = async (retries = 1) => {
-            console.log("yes inside");
-            console.log({ cleanedPath });
+            
+           
 
             try {
               return await axios.get(
@@ -188,7 +188,7 @@ module.exports = {
           const uploadedImage = await uploadImage(originalUrl, true);
 
           if (uploadedImage) {
-            console.log({ uploadedImage });
+            
 
             const newUrl = uploadedImage?.url.startsWith("https")
               ? uploadedImage.url
@@ -206,7 +206,7 @@ module.exports = {
       // Upload images with retry logic
       const uploadWithRetry = async (filePath, blog, retries = 3) => {
         for (let i = 0; i < retries; i++) {
-          console.log({ filePath });
+         
 
           const result = await uploadImage(filePath);
           if (result && !result.error) return result;
@@ -282,7 +282,6 @@ module.exports = {
                         updateData.Featured_Image = { id: featuredImageId };
                       }
                     } catch (error) {
-                      console.log(error?.message);
                     }
                   }
 
@@ -297,7 +296,6 @@ module.exports = {
                         updateData.Banner_Image = { id: bannerImageId };
                       }
                     } catch (error) {
-                      console.log(error?.message);
                     }
                   }
 
@@ -307,7 +305,7 @@ module.exports = {
                       data: updateData,
                       status: "published",
                     });
-                    console.log(`Updated images for blog: ${blog?.slug}`);
+                   
                   }
                 } catch (error) {
                   console.error(
@@ -332,7 +330,7 @@ module.exports = {
                 populate: ["Featured_Image", "Banner_Image", "SEO.Meta_Image"],
               });
             if (!findBlog) {
-              console.log("yes");
+            
 
               const blogDetail = (
                 await axios.get(
@@ -421,7 +419,7 @@ module.exports = {
                     ],
                   });
 
-                console.log({ createdBlog });
+              
 
                 await strapi.documents("api::blog.blog").update({
                   where: { id: createdBlog.id },
@@ -437,15 +435,13 @@ module.exports = {
                 continue; // Skip to next blog on any error
               }
             } else {
-              console.log(findBlog);
+             
 
               // Check and update images if needed
               const updateData = {};
 
               // Check and handle Featured_Image
               if (!findBlog.Featured_Image) {
-                console.log("yes");
-                console.log(blog?.featured_image?.file_path);
 
                 const blogDetail = (
                   await axios.get(
@@ -459,20 +455,15 @@ module.exports = {
                   blogDetail?.featured_image?.file_path,
                   blog
                 );
-                console.log({ featuredImageId, id: blogDetail?.id });
 
                 if (featuredImageId) {
-                  console.log("yes insider");
 
                   updateData.Featured_Image = { id: featuredImageId };
                 }
-                console.log("end");
               }
 
               // Check and handle Banner_Image
               if (!findBlog.Banner_Image) {
-                console.log("yes");
-                console.log(blog?.banner_image?.file_path);
 
                 const blogDetail = (
                   await axios.get(
@@ -486,18 +477,14 @@ module.exports = {
                   blogDetail?.banner_image?.file_path,
                   blog
                 );
-                console.log(bannerImageId);
 
                 if (bannerImageId) {
-                  console.log("yes insider");
                   updateData.Banner_Image = { id: bannerImageId };
                 }
-                console.log("end");
               }
 
               // Check and handle SEO.Meta_Image
               if (!findBlog.SEO?.Meta_Image) {
-                console.log(blog?.og_image?.file_path);
                 const blogDetail = (
                   await axios.get(
                     `${process.env.OLD_BACKEND_URL}/api/pages/${blog?.slug}`
@@ -508,7 +495,6 @@ module.exports = {
                   blogDetail?.og_image?.file_path,
                   blog
                 );
-                console.log(metaImageId);
 
                 if (metaImageId) {
                   updateData.SEO = {
@@ -518,11 +504,7 @@ module.exports = {
                 }
               }
 
-              // Update blog if any images were missing
-              console.log(
-                Object.keys(updateData).length > 0,
-                Object.keys(updateData)
-              );
+              
 
               if (Object.keys(updateData).length > 0) {
                 try {
@@ -536,7 +518,6 @@ module.exports = {
                       },
                       status: "published",
                     });
-                  console.log({ updatedBlog });
                 } catch (error) {
                   console.error("Error updating blog:", error);
                   failedBlogs.push({
@@ -564,7 +545,6 @@ module.exports = {
                 status: "published",
               });
 
-              console.log("done");
             }
           }
         }
@@ -572,12 +552,10 @@ module.exports = {
 
       // After all processing, log failed uploads and blogs
       if (failedUploads.length > 0) {
-        console.log("Failed to upload these images:");
         console.table(failedUploads);
       }
 
       if (failedBlogs.length > 0) {
-        console.log("Failed to process these blogs:");
         console.table(failedBlogs);
       }
 
@@ -600,7 +578,6 @@ module.exports = {
 
   blogsList: async (ctx, next) => {
     try {
-      console.log("working");
 
       const { start = 1, limit = 10 } = ctx.query;
 
@@ -790,7 +767,6 @@ module.exports = {
       };
 
       for (const blog of blogs) {
-        console.log("Processing blog:", blog.Title);
 
         const updateData = {};
 
@@ -904,7 +880,6 @@ module.exports = {
 
         while ((match = imgRegex.exec(content)) !== null) {
           const originalUrl = match[1];
-          console.log({ originalUrl });
 
           // Skip if URL is already from our Strapi instance
           if (

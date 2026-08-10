@@ -24,7 +24,6 @@ module.exports = {
       } = ctx.request.body;
       const nodemailer = require("nodemailer");
 
-      console.log(ctx.request.body);
 
       // Validate required fields
       if (!name || !lead_type || !phone_number) {
@@ -68,7 +67,6 @@ module.exports = {
       let car;
 
       if (car_id) {
-        console.log("yes");
 
         car = await strapi.documents("api::car.car").findOne({
           documentId: car_id,
@@ -92,7 +90,6 @@ module.exports = {
           },
         });
 
-        console.log({ car });
       }
 
       // Create lead based on type
@@ -113,8 +110,6 @@ module.exports = {
       }
 
       if (lead_type == "Test Drive") {
-        console.log("yes");
-        console.log({ car });
 
         leadData.Car = {
           Name: car?.Name,
@@ -126,12 +121,10 @@ module.exports = {
           Color: car?.Color,
           Location: car?.Outlet?.Location?.Name,
         };
-        console.log(leadData);
         const data = await strapi.documents("api::lead.lead").create({
           data: leadData,
           status: "published",
         });
-        console.log({ data });
 
         ctx.status = 200;
         ctx.body = {
@@ -162,7 +155,6 @@ module.exports = {
           select: ["email"],
         });
 
-        console.log({ admin });
 
         // Define email templates based on lead type
         const emailTemplates = {
@@ -681,9 +673,6 @@ module.exports = {
                     data: templateData,
                   }
                 );
-                console.log(
-                  `Admin emails sent successfully to ${adminEmails.length} recipients`
-                );
               } catch (error) {
                 console.error("Failed to send admin emails:", error);
                 throw error;
@@ -742,8 +731,6 @@ module.exports = {
 
                 await transporter.sendMail(mailOptions);
               }
-              console.log("Email Sent Successfully");
-              console.log({ smtp });
               ctx.status = 200;
               ctx.body = {
                 message: "Form Submitted Successfully",
@@ -765,7 +752,6 @@ module.exports = {
                 data: templateData,
               }
             );
-            console.log("User email sent successfully");
           }
         } catch (sendError) {
           console.error(
@@ -785,8 +771,6 @@ module.exports = {
         success: true,
       };
     } catch (err) {
-      console.log(err);
-      console.log(err?.message);
       ctx.status = 500;
       ctx.body = {
         success: false,
@@ -802,7 +786,6 @@ module.exports = {
           API_Status: false,
         },
       });
-      console.log(leads);
       for (let lead of leads) {
         const curlCommand = `curl -X POST http://vt_web.indusmis.in/Api/SaveWebsiteEnquiryDetails \
         -H "Content-Type: application/x-www-form-urlencoded" \
@@ -857,7 +840,6 @@ module.exports = {
         };
       }
     } catch (error) {
-      console.log(error?.message);
     }
   },
   exportLeads: async (ctx) => {
@@ -893,7 +875,6 @@ module.exports = {
     try {
       const { startDate, endDate } = ctx.request.body;
 
-      console.log({startDate,endDate});
       
 
       if (!startDate || !endDate) {

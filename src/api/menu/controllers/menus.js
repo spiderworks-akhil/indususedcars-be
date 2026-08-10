@@ -13,7 +13,6 @@ module.exports = {
       const location = await strapi
         .documents("api::location.location")
         .findMany({});
-      console.log(location);
 
       const menu = await strapi.documents("api::menu.menu").findFirst({
         populate: {
@@ -52,7 +51,6 @@ module.exports = {
   },
   searchCar: async (ctx, next) => {
     try {
-      console.log('inside',ctx.query);
       
       const { query } = ctx.query;
       let carsList;
@@ -72,7 +70,6 @@ module.exports = {
           limit: 6,
         });
       } else {
-        console.log('yes');
         
         carsList = await strapi.documents("api::car.car").findMany({
           filters:{
@@ -87,14 +84,12 @@ module.exports = {
           status:'published'   
         });
       }
-      console.log('finish');
       
       ctx.status = 200;
       ctx.body = {
         data: carsList,
       };
     } catch (error) { 
-      console.log(error);
       
       ctx.status = 500;
       ctx.body = {

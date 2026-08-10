@@ -12,7 +12,7 @@ import axios from "axios";
 
 const DownloadExcel = () => {
   const { model } = useContentManagerContext();
-  console.log({ model });
+  
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -41,7 +41,7 @@ const DownloadExcel = () => {
         responseType: "blob", // <-- important to treat as binary
       });
 
-      console.log({ response: response?.data });
+    
 
 
       if (response.data) {
@@ -64,7 +64,7 @@ const DownloadExcel = () => {
         setError("Failed to export leads");
       }
     } catch (error) {
-      console.log({ error });
+     
 
       setError(error?.response?.data?.message || error?.message || "An error occurred");
       setTimeout(() => setError(""), 5000);

@@ -32,7 +32,7 @@ const config = {
 
 const bootstrap = (app) => {
   const cm = app.getPlugin("content-manager");
-  console.log({cm});
+ 
   
   if (cm && cm.injectComponent) {
     const DownloadExcel = lazy(() => import("./components/DowloadExcel.jsx"));
