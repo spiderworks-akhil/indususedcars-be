@@ -19,6 +19,7 @@ module.exports = {
         { Slug: "/sitemap-blogs", Lastmod: currentDate },
         { Slug: "/sitemap-brand-districts", Lastmod: currentDate },
         { Slug: "/sitemap-model-districts", Lastmod: currentDate },
+        { Slug: "/sitemap-districts", Lastmod: currentDate },
       ];
     } catch (err) {
       ctx.body = err;
@@ -242,6 +243,19 @@ module.exports = {
 
           ctx.status = 200;
           ctx.body = formattedModelDistricts;
+
+          break;
+
+        case "sitemap-districts":
+          const districtList = await strapi
+            .documents("api::location.location")
+            .findMany({
+              fields: ["Slug"],
+              status: "published",
+            });
+
+          ctx.status = 200;
+          ctx.body = districtList;
 
           break;
 
